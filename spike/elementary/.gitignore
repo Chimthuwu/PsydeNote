@@ -1,0 +1,19 @@
+.engine.mjs
+
+# installer: built outputs + the downloaded Microsoft VC++ runtime
+installer/dist/
+installer/deps/
+
+# Throwaway probe/profiling scripts (dot-prefixed, never shipped)
+.probe-*.mjs
+.audit-*.mjs
+.cdp.mjs
+.count*.mjs
+.expr*.js
+.prof*.mjs
+.shot.mjs
+.viewcmp.mjs
+# Stale build transcripts
+plugin/build-v*.txt
+plugin/build-log*.txt
+plugin/build-final.txt

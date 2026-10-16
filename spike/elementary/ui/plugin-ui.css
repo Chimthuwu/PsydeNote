@@ -1,0 +1,2216 @@
+/* P7a plugin-UI overrides (todo.md §73). Just the bespoke header — every
+   other surface reuses src/renderer/styles.css verbatim. Token-driven so all
+   six themes still apply. */
+
+/* This is an instrument control surface, not a document — text should never
+   be selectable (todo.md §96, user: dragging a knob can accidentally
+   highlight a label instead of moving the parameter). Exception carved back
+   in for the knob's own direct-entry field (`.knob-input`) and any other
+   real text input, which still needs normal selection/editing behavior. */
+/* Root of the whole page, not just `.app`: several controls render through
+   portals (ModPopover, EnvelopePanel, the scope menu, the EQ popout) straight
+   into <body>, outside `.app`, and their knobs were highlighting their value
+   text on drag. Selection inherits, so body-level `none` covers them all.
+   POLICY: do not add a `user-select: text` on a container. Text entry belongs
+   on the input itself, listed below. */
+html,
+body,
+#root {
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+.app {
+  user-select: none;
+  -webkit-user-select: none;
+}
+.app input,
+.app textarea,
+.app .knob-input,
+input,
+textarea,
+[contenteditable="true"] {
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+.plugin-header {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3, 16px);
+  padding: 5px 10px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-surface-elevated);
+  flex: none;
+}
+
+/* `.synth-controls` (styles.css) caps at `max-width: 1100px` — an
+   Electron-era rule from when this was a resizable window (comment at the
+   `.op-grid` width-budget block below has the history). The plugin window
+   is frozen at 1272px (`PluginProcessor.cpp:138`) but never actually used
+   that extra ~170px; it just sat as unclaimed side margin outside
+   `.synth-controls`, on top of `.op-grid`'s own smaller centering margin
+   inside it. Todo.md §146 follow-up (user: "stretch the 4 OSCs so they
+   cover the remaining [space]") — raised so `--op-card-w` (below) has
+   real room to grow into instead of the grid just re-centering in the
+   same 1100px box. 1252, not the full 1272, to leave a small safety
+   margin against the window's own border/frame. */
+.synth-controls { max-width: none; }
+
+.plugin-brand {
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  font-size: 12px;
+  color: var(--accent);
+}
+
+.plugin-globals {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.plugin-voices {
+  font-variant-numeric: tabular-nums;
+  font-size: 11px;
+  color: var(--fg-muted, var(--muted));
+}
+/* 8 Macro knobs (todo.md §111, user mockup) — pushed to the far right of the
+   header with the zoom/voices/panic cluster that follows them; the dot-row
+   overview stays packed next to the global knobs on the left. */
+.fx-macro-column {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  flex: 1;
+}
+
+.plugin-macros {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: space-around;
+  gap: 4px;
+  padding: 3px 6px;
+  background: var(--bg-surface-elevated, #0c1133);
+  border: 1px solid var(--border, rgba(120, 150, 255, 0.2));
+  border-radius: 6px;
+}
+.plugin-macro {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+/* Preset Selector Bar in Header */
+.preset-bar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin: 0 auto;
+}
+
+.preset-nav-arrow,
+.preset-save-icon {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--text-muted, #8e9cc8);
+  height: 26px;
+  min-width: 22px;
+  padding: 0 3px;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.preset-nav-arrow:hover:not(:disabled),
+.preset-save-icon:hover {
+  color: var(--accent, #37e0d8);
+}
+
+.preset-nav-arrow:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.preset-selector {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: min(260px, 25vw);
+  min-width: 140px;
+  height: 26px;
+  padding: 0 10px;
+  border: 1px solid var(--border, rgba(120, 150, 255, 0.25));
+  border-radius: 6px;
+  background: linear-gradient(180deg, var(--bg-surface-elevated, #101642), var(--bg-surface, #080c26));
+  color: var(--accent-bright, #ffffff);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.preset-selector:hover,
+.preset-selector.is-on {
+  border-color: var(--accent, #37e0d8);
+  box-shadow: 0 0 8px rgba(55, 224, 216, 0.35);
+}
+
+.preset-selector-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.preset-selector-chevron {
+  color: var(--text-muted, #8e9cc8);
+  font-size: 12px;
+}
+
+.preset-pop {
+  position: fixed;
+  z-index: 9999;
+  background: var(--bg-surface-elevated, #0c1133);
+  border: 1px solid var(--border-active, rgba(55, 224, 216, 0.5));
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.75);
+  display: flex;
+  flex-direction: column;
+}
+
+.preset-browser {
+  overflow-y: auto;
+  padding: 8px;
+}
+
+.preset-browser-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 6px 8px;
+  border-bottom: 1px solid var(--border, rgba(120, 150, 255, 0.2));
+  color: var(--accent, #37e0d8);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.preset-browser-head button {
+  border: 1px solid var(--border, rgba(120, 150, 255, 0.3));
+  background: var(--bg-surface, #080c26);
+  color: #ffffff;
+  border-radius: 4px;
+  padding: 2px 8px;
+  cursor: pointer;
+}
+
+.preset-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 6px;
+  border-radius: 4px;
+}
+
+.preset-item:hover,
+.preset-item.is-selected {
+  background: rgba(55, 224, 216, 0.15);
+}
+
+.preset-item-load {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  border: 0;
+  background: transparent;
+  color: #ffffff;
+  text-align: left;
+  cursor: pointer;
+}
+
+.preset-item-name {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.preset-item-summary {
+  font-size: 10px;
+  color: var(--text-muted, #8e9cc8);
+}
+
+.preset-item-del {
+  border: 0;
+  background: transparent;
+  color: #ff5d6c;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 0 4px;
+}
+
+.preset-browser-foot {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid var(--border, rgba(120, 150, 255, 0.15));
+  color: var(--text-muted, #8e9cc8);
+  font-size: 10px;
+  text-align: center;
+}
+
+.preset-save-pop {
+  padding: 10px;
+  gap: 8px;
+}
+
+.preset-name-input {
+  background: var(--bg-surface, #080c26);
+  border: 1px solid var(--border, rgba(120, 150, 255, 0.3));
+  border-radius: 4px;
+  color: #ffffff;
+  padding: 6px 8px;
+  font-size: 12px;
+}
+
+.preset-pop-actions {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.preset-pop-btn {
+  border: 1px solid var(--border, rgba(120, 150, 255, 0.3));
+  background: var(--bg-surface, #080c26);
+  color: #ffffff;
+  border-radius: 4px;
+  padding: 4px 10px;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.preset-pop-btn.primary {
+  background: var(--accent, #37e0d8);
+  color: #080c26;
+  font-weight: 700;
+  border: 0;
+}
+/* Zoom readout (todo.md §100) — renders right before `.plugin-voices` in
+   the header, now right after the macro strip (which carries the
+   margin-left:auto instead). */
+.plugin-zoom {
+  font-variant-numeric: tabular-nums;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* Main visualizer, relocated out of the header's 170x36 sliver into its own
+   full-width section above the oscillator engine (todo.md §94/§95, user's
+   own mockup — "make space to put the main visualizer in the top above the
+   oscs"). Budget for this height came out of `.op-viz-row` below (56 -> 30),
+   NOT a taller window — the window is frozen at a fixed size on purpose
+   (user: "same size, just the panels were rearranged").
+   Shrunk 108 -> 72 (user: "make the main top visualizer slightly shorter"
+   to fund room elsewhere) — this box shows almost nothing but a flat idle
+   line most of the time, so it was the least valuable vertical space on the
+   whole surface; the ~40px this frees is what fixed the piano keys clipping
+   the bottom modulator row's Velo/Filter controls (see `.synth-keys` and
+   `.op-row-status` margins below). */
+.main-viz {
+  height: 90px; /* 72 -> 90: takes the ~18px of op-card slack freed by the gap trim */
+  margin: 3px 0 4px;
+  flex: none;
+}
+
+/* ---------------------------------------------------------------------------
+   Operator cards (todo.md §82/§83). Knobs stay their normal size (§83 — the
+   §82 shrink was wrong). Instead: kill the dead vertical space (the card
+   height is set by the tall middle column — PHASE MOD + FREQ MOD — so the
+   left/right columns fill that height evenly, no gap under Filter A/B or
+   Pan), trim padding/gaps, and give the per-op scope a bit more height.
+   Plugin-only (Electron is retired).
+   --------------------------------------------------------------------------- */
+/* Shrunk 56 -> 30 (todo.md §94/§95) to help fund the new shared `.main-viz`
+   above without growing the (intentionally frozen-size) window — the big
+   shared scope now covers what §88.D wanted "more space for the
+   visualizers" for; these stay as a compact per-operator reference. */
+.op-viz-row {
+  flex: none;
+  /* SS154: 44px -> 69px, funded entirely by the compaction in this section.
+         Measured savings per card were 33px (two cluster captions 90->77 each,
+         the redundant PM/FM divider 14->6), and the first attempt at 92px
+         over-shot by 15px and GREW the card to 507 — so the number here is
+         derived from the measurement, not picked. Card height is unchanged at
+         492px and `deadBelow` measures 0: the height went to the scope instead
+         of to slack. `.op-viz-row` is the only row in the card with
+         `flex: none` and a hard px height, so it absorbs reclaimed space
+         directly rather than fighting the body's space-between for it.
+         SS155 then took 77 -> 69 to pay for the PM/FM knobs going 48 -> 52px
+         (+8px across the two clusters), holding the card at 492px again.
+         Re-derive this if any row height above changes. */
+      height: 69px;
+  margin-bottom: 2px;
+}
+.op-viz-row .faze-scope { height: 100%; border-radius: 4px; }
+
+/* Fixed card footprint (todo.md §91/§92/§93 — "cards stretch/reflow with
+   window size; wants them pinned"). A fixed `minmax(w, w)` track pins each
+   card to exactly `--op-card-w`. `justify-content: center` keeps leftover
+   width as side margin instead of stretching a row's cards.
+
+   `--op-card-w` MUST be >= the card's own CONTENT-driven minimum, or the
+   knob rows overflow the card and visibly bleed into the next one — this
+   broke on the first attempt (176px against content that actually needs
+   ~240px) and is the thing to re-verify every time a knob size, gap, or
+   padding in this file changes. The binding constraint is `.op-col-mid`'s
+   PM/FM row: 4 operators × one knob each, side by side, can't be narrower
+   than 4 knob widths + 3 gaps regardless of card width — the knob size (set
+   in OscillatorPanel.tsx, currently "sm" = 28px, see styles.css
+   `.knob-sm`) is what actually has to shrink to fit a narrower card, NOT
+   just the container. Current arithmetic (recompute this whenever any of
+   the referenced numbers change):
+     left col   = max(pitch-dial 44, wave-compact 28+3+24=55, filter-knob 28) = 55
+     mid col    = 4 * knob-sm(28) + 3 * cluster-gap(2, ".op-mod-cluster-knobs")  = 118
+     right col  = level/pan knob-md(40)                                          = 40
+     card       = left + mid + right + 2 * op-body-gap(6) + 2 * card-padding(5) = 235
+   -> 235px needed; 246px below leaves 11px slack for glow/rounding bleed.
+
+   TRIED TWICE, CONFIRMED DOES NOT FIT: bumping PM/FM knobs to 30px + card
+   to 250px (todo.md §99, "made FM PM buttons bigger"). First attempt
+   appeared to clip OSC 1/4 — turned out confounded by a STALE WebView2
+   zoom level left over from testing (a Ctrl+0 reset made the REVERTED
+   246/28px build render clean, proving the zoom, not the width, caused
+   that specific clip). So it was retried properly the second time
+   (zoom reset to 100% BEFORE screenshotting) — and it clipped anyway, the
+   same way, with zoom confirmed clean. That makes this a real, confirmed
+   overflow, not a test artifact. The true available width sits somewhere
+   between 993px (246px cards, proven fitting many times over) and 1009px
+   (250px cards, proven NOT fitting, zoom-controlled). Reverted to
+   246/28px for good. Growing the PM/FM knobs at all needs either
+   shrinking something else in the card by an equal amount first, or a
+   wider window — a bare "small bump" does not fit, confirmed twice.
+
+   COLUMN COUNT: HARDCODED to 4, always — not responsive (the window is
+   frozen/non-resizable, §94, so there's no width left to respond to; see
+   todo.md §96/§99 for why a container-query version was tried and
+   removed). 4 columns need 4*246+3*3=993px, proven to fit repeatedly. If
+   the window is EVER made resizable again, this needs to go back to being
+   responsive — do not just widen the frozen size and forget this is now
+   hardcoded.
+
+   246 -> 256 (todo.md — user: "theres still a tiny bit of a space on the
+   left of osc 1 and the right of osc 4... give our osc panels a TINY lil
+   bit more space inside em"). Root cause of that dead margin: `.op-grid`
+   only ever needed 993px, but its ancestor `.synth-controls` (styles.css,
+   an Electron-era rule from when this was a resizable window) caps out at
+   `max-width: 1100px` with 12px side padding, leaving side margin via
+   `.op-grid`'s own `justify-content: center`. First try was 266px (maxing
+   the estimated 1076px ceiling out almost exactly) — confirmed via
+   screenshot that it overflows in practice (OSC 4's glow ring clipped
+   clean off the window edge, OSC 1's touching the left edge with zero
+   margin), so the real usable width sits somewhat under that estimate.
+   256px (4*256+3*3=1033px) uses about half the old dead margin, confirmed
+   clean via screenshot — leaves a small, real margin instead of maxing out
+   to the exact pixel and clipping decorative glow. */
+/* "OSCILLATOR ENGINE" / "MODULATORS" section titles — pure vertical dead
+   space in the plugin (todo.md — user: "we don't need this space… just
+   takes up more room that could be used by the OSC panels"). Hidden, not
+   removed from the shared component, so this only affects the plugin (the
+   Electron path keeps its titles); the parent `<section aria-label>` on
+   both `.op-panel`/`.env-panel` already covers screen-reader labeling. */
+.op-panel > .op-section-title,
+.env-panel > .op-section-title { display: none; }
+/* The modulator strip must NEVER be the thing that silently loses the fight
+   for space to a sibling's flex-grow (`.op-panel` above, `.fx-panel` below)
+   — it's core UI (ENV/LFO/Velocity/Filter cards), not decorative filler.
+   `flex-shrink: 0` pins it at its natural content height regardless of how
+   much room `.op-panel`/`.fx-panel` claim; todo.md — user: FX view with 3+
+   active effects was squeezing this strip out of the (never-scrolling)
+   window entirely. */
+/* The OSC panel GROWS to claim the space that freed up (todo.md — user,
+   follow-up: "we have this empty space underneath the oscillators... we
+   can actually stretch the oscillator cards down more so they have more
+   room for the knobs because they are kind of cramped"). This also closes
+   the gap above the modulator strip as a side effect — no separate push
+   needed there (a `margin-top: auto` on `.env-panel` was tried first, but
+   auto-margins claim free space BEFORE flex-grow gets a look at it, so it
+   would starve this rule of any space to grow into).
+   min-height:0 at every level is required for a flex/grid item to actually
+   accept stretched height instead of staying content-sized regardless of
+   what its container offers (the same gotcha the Pan/Filter-A/B alignment
+   fix above already ran into) — `.op-grid`'s own `flex: none` (styles.css)
+   is the biggest offender, overridden here. The extra height lands in
+   `.op-body` specifically, which is what makes the Pitch/Phase-Mod/Level
+   and Freq-Mod/Pan knob ROWS spread further apart (space-between, set
+   above) instead of just padding the bottom of the card. */
+.op-panel { gap: 1px; --op-card-w: 310px; flex: 1 1 auto; min-height: 0; }
+.op-grid {
+  flex: 1 1 auto;
+  min-height: 0;
+  /* §146 follow-up (user, again, in caps): the OSC cards should GROW to
+     cover freed space, never leave it as dead background — that's the
+     whole reason this was `stretch` in the first place (see the big
+     comment block above). A brief detour to `start` (to kill a single
+     lump gap inside each card, below) accidentally undid this too and
+     reintroduced dead space UNDER the grid instead of inside the card —
+     wrong fix for that complaint. Restored to `stretch`; the actual fix
+     for the lump-gap problem is `.op-body-new`'s `justify-content` below
+     (space-between spreads the reclaimed height across several gaps
+     instead of dumping it all in one place) plus `--op-card-w` above
+     (256 -> 296, so the reclaimed WIDTH also goes into bigger cards, not
+     just a wider side margin — `.synth-controls`'s max-width is raised
+     to match further down this file so there's actually room for it). */
+  align-content: stretch;
+  gap: 3px;
+  grid-template-columns: repeat(4, minmax(var(--op-card-w), 1fr));
+  justify-content: stretch;
+}
+.op-card { width: auto; min-width: var(--op-card-w); padding: 1px 5px 2px; gap: 0; min-height: 0; }
+.op-body { flex: 1 1 auto; min-height: 0; }
+.op-card-head { line-height: 1; }
+
+/* Level/Pan were labelled twice — the ALL-CAPS `.op-knob-label` header
+   (also carries the mod badge) AND the `<Knob label="...">`'s own built-in
+   label underneath, same text, different case (todo.md §94, user). Keep
+   the caps header, hide the Knob's own duplicate — scoped to `.op-panel`
+   only (Filter A/B and the header knobs weren't reported as duplicated
+   and are left alone). */
+.op-panel .knob-field:has(.op-knob-label) .knob-label { display: none; }
+.op-panel .knob-lg,
+.op-panel .pitch-dial { --knob-size: 44px; }
+
+/* Stretch the columns to the card's full height and distribute their items —
+   removes the empty band that used to sit under the shorter columns.
+   `space-between` (not `space-evenly`) so the LAST item in each column pins
+   to the true bottom edge — Pan (last in the right column) then lands
+   directly opposite Filter A/B (last in the left column), todo.md — user:
+   "the pan knob should be in the bottom right corner... directly opposite
+   to where filter a/b is." */
+/* PM/FM mid column vs. Pitch/Level/Pan — round 3 (todo.md — user, still not
+   happy after the 6->9px gap bump: "move the PM knobs out of the way of
+   Level and Pitch"). That bump only spent a few leftover px evenly as a
+   fixed `gap`, which stays fixed even as the card itself grows — any WIDER
+   card (see `--op-card-w: 266px` above) just left the extra width sitting
+   as dead space after the last column, since a plain flex row with no
+   `justify-content` piles slack onto the end, not between items.
+   `justify-content: space-between` fixes that structurally: with 3 columns
+   it turns ALL of a card's genuinely free width (266px card minus the 3
+   columns' own fixed content width minus padding) into the two gaps
+   AROUND the mid column, which is exactly "move the PM/FM cluster away
+   from Pitch and Level" — at the 256px card width this lands around
+   ~16px of real breathing room per side, not the ~4-11px of previous
+   passes. `gap` stays as a hard floor in case a future width tweak leaves
+   less free space than expected.
+
+   Still not enough on its own (todo.md — user, after this AND the two
+   previous rounds: "still... asked for this so many times") — the actual
+   remaining culprit isn't this gap, it's each knob's own "+" mod-assign
+   button (`.knob-mod-plus`, styles.css), which sits at the knob's TOP-RIGHT
+   corner and physically bleeds ~7-10px past that knob's own edge. Pitch's
+   "+" bleeds rightward straight into this Pitch->PM gap, and the PM/FM
+   cluster's last knob's "+" does the same into the PM->Level gap, eating
+   most of the gap back up regardless of how wide `justify-content` makes
+   it. See the `.knob-mod-plus` override below the mid-column rules. */
+.op-body { gap: 6px; justify-content: space-between; align-items: stretch; }
+/* min-height:0 is required for `align-items:stretch` above to actually hand
+   the shorter columns extra height THEY can then redistribute via
+   `justify-content` below — without it a flex column's height stays
+   content-sized regardless of what stretch offers, which was silently
+   defeating the Pan/Filter-A/B bottom alignment two rules down. */
+.op-col { gap: 1px; min-height: 0; align-self: stretch; }
+.op-col-left { justify-content: space-between; align-items: flex-start; }
+.op-col-right { justify-content: space-between; align-items: flex-end; }
+/* The ACTUAL reason Pan wasn't reaching bottom despite everything above:
+   `.knob-field` (styles.css) is `flex: 1 1 0` — meant for knob ROWS
+   elsewhere (e.g. the FX rack), where several knob-fields share a row's
+   width evenly. Inside `.op-col-right`'s COLUMN, that same rule makes
+   Level and Pan each grow to fill exactly half the column's height
+   THEMSELVES, leaving `justify-content: space-between` above nothing left
+   to distribute — op-col-left never hit this because its items (PitchDial,
+   the toggle buttons, the bare Filter A/B knob) aren't `.knob-field`s.
+   Pin them back to their natural size so space-between can do its job. */
+.op-col > .knob-field { flex: 0 0 auto; }
+/* Was `justify-content: center` — that centers the mid column's WHOLE
+   stacked content (PM group + gap + FM group) within the card's full
+   height, while `.op-col-left`/`.op-col-right` (above) pin their FIRST
+   item (Pitch / Wave) to the column's TOP via `space-between`. Since
+   Pitch/Level are top-pinned but the PM group was center-of-everything,
+   PHASE MOD sat measurably lower than Pitch/Level's centerline instead of
+   level with them (todo.md — user, repeatedly: "get the PM knobs out of
+   the way of PITCH, LEVEL" — confirmed via a 5x zoomed screenshot the
+   knobs weren't overlapping OR too close by then, they were just visibly
+   mis-aligned vertically, which reads the same as "in the way"). Matching
+   `space-between` here pins the PM group to the mid column's top too, so
+   its centerline lines up with Pitch/Level's for the same reason Pan
+   lines up with Filter A/B at the bottom (space-between's last-item rule,
+   two rules up). */
+.op-col-mid { gap: 6px; justify-content: flex-start; padding-top: 8px; }
+/* Self-mod knob (an operator modulating itself) — active and interactive */
+.op-mod-cluster-knob.is-self { opacity: 1; }
+.op-mod-cluster-heads {
+  display: flex;
+  gap: 2px;
+  justify-content: center;
+  padding: 0 2px 1px;
+}
+/* SS154: the "Phase mod" / "Freq mod" caption above each cluster was an
+   unstyled inline <span> in block flow, so it took a full ~14px line at the
+   inherited font size — twice per card, ~28px of height spent restating which
+   of the two clusters you were looking at. Tightened to a 9px single line.
+   SS155 moved it BELOW the knobs (see OscillatorPanel.tsx) for both clusters,
+   which is what pulls the FM row up towards PM and frees the height the
+   bigger knobs need. Still legible as a caption, and the 52px knobs keep the
+   row readable without it. */
+.op-mod-cluster-lbl {
+  font-size: 9px;
+  line-height: 1.1;
+  letter-spacing: 0.04em;
+  display: block;
+  text-align: center;
+  /* SS157 (user: "still empty space in OSC panels ... remove it so we can make
+     the overall size of the synth UI smaller"). Measured: the band the user
+     circled is this caption plus the gap below it -- the "FREQ MOD" line alone
+     cost 10px of flow height in every card, twice over counting the PM
+     caption, and the gap to the Filter/Pan row measured 8px. Taking the
+     captions OUT of flow means they still label their clusters and still carry
+     the ModBadge / right-click-to-modulate target, but stop reserving a row for
+     themselves. Anchored just outside the knob rows, which is where they
+     already rendered. */
+  position: absolute;
+  left: 0;
+  right: 0;
+}
+/* SS155: the caption is rendered LAST in the DOM for both clusters (so the
+   markup reads knobs-then-label), and `order` then decides which side of the
+   knobs it sits on. PM's goes back above (`order: -1`); FM's stays below,
+   which is what the user asked for and what pulls the FM row up towards PM.
+   Only works because the cluster is a flex column — it was block flow until
+   here, where `order` would have been silently inert. */
+.op-mod-cluster { display: flex; flex-direction: column; position: relative; }
+/* The captions are absolutely positioned, so they need somewhere to sit that is
+   NOT the row above/below. Both anchors are -10px, which is exactly the
+   caption's own height, so each one lands wholly inside the gap in front of it
+   — the margins below widen those gaps (measured 4px above PM, 8px below FM)
+   to the 10px a caption needs. Without this the first attempt overlapped the
+   Filter/Pan row by 4px and the wavetable row by 8px, which is exactly the
+   kind of collision that looks fine in a diff and wrong on screen. */
+.op-mod-cluster--pm .op-mod-cluster-lbl { order: -1; top: -10px; }
+.op-mod-cluster--fm .op-mod-cluster-lbl { bottom: -10px; }
+.op-mod-cluster--pm { margin-top: 6px; }
+.op-mod-cluster--fm { margin-bottom: 0; }
+.op-mod-cluster-heads > span {
+  flex: 1 1 0;
+  max-width: 14px;
+  height: 2px;
+  border-radius: 1px;
+  opacity: 0.7;
+}
+.op-knob-label { font-size: 8px; gap: 0; }
+/* SS150 (user: "the knobs are tiny, cant even see their values. Awkward to
+   adjust too"). The four PM/FM knobs per card are `.knob-sm`, which in
+   styles.css is 28px with a 7.5px value font — that is the "tiny, can't see
+   the values" complaint, and it is a different class from the Warp knobs
+   fixed above, which is why fixing only those left them still unreadable.
+   Scoped to `.op-panel` so the Electron app's own panels are untouched.
+   The font bumps are free (they cost height only, and SS149 measured ~26px
+   of dead padding per card); the 28 -> 30px knob is deliberately timid
+   because the mid column is width-constrained: its budget is
+   4 * knob + 3 * 2px gap, and the card is 296px wide, so every px here comes
+   straight out of the side columns. */
+/* SS150 (user: "the knobs are tiny, cant even see their values. Awkward to
+   adjust too"). Measured in the real built bundle, not guessed:
+     .op-warp-knobs  -> .knob-sm, 28px, value 10px
+     .op-mod-cluster-knob (PM/FM) -> .knob-md, 40px, value 9px, label 7px
+     top/bot row knobs -> .knob-lg, 44px, value 11px, label 7px
+   So the PM/FM knobs were never actually *small* (40px) -- what was broken is
+   the type sitting under them: 7px labels and 9px values, below any
+   legibility floor. That is why the report read as "can't see their values".
+   Font sizes only cost height, never width, so these are free against the
+   ~26px/card of dead padding SS149 measured. Deliberately NOT touching
+   --knob-size: the mid column is width-constrained (4 knobs x 40 + 3 x 2px
+   gap = 166px of a 296px card), so growing them squeezes Pitch/Level out.
+   Note `.op-panel .knob-sm` cannot set a size here either -- the existing
+   `.op-warp-knobs .knob` rule is more specific and wins, so only the font
+   properties below take effect on that class. */
+/* SS151 second pass (user: "yeah its still illegibile ... so far nothing has
+   changed at all"). First pass landed 11px values / 9px labels and was still
+   unreadable in the real plugin, so these go to 14px / 11px -- above the ~12px
+   legibility floor rather than below it. Paid for out of measured dead space
+   in the card body (at the plugin's real 1272x920 window): 53px below the last
+   row, a 30px ".op-mod-spacer", 20px of 4px gaps, and 16px of wavetable-row
+   padding. Every value here is a font size, which costs height only and
+   therefore consumes that slack instead of stealing width from Pitch/Level.
+   --knob-size is still left alone: the mid column is width-constrained
+   (4 x 40 + 3 x 2px = 166px of a 296px card).
+   Note `.op-panel .knob-sm` cannot set a size here either -- the existing
+   `.op-warp-knobs .knob` rule is more specific and wins. */
+/* SS155 (user: "make FM and PM knobs bigger"). 48 -> 52px.
+   The knob row is width-bound, not height-bound: measured 211px of row for
+   4 knobs, so the ceiling is (211 - 3*gap) / 4. With `.op-mod-cluster-knobs`
+   gap cut 2 -> 1px that is exactly (211 - 3) / 4 = 52px -- the row fits to
+   the pixel with no overflow. Going past 52px needs WIDTH, not height: the
+   mid column is the binding constraint in the card (SS153 raised the card to
+   310px to widen it, and the grid now sits at 1226px of a 1252px ceiling, so
+   there is ~6px/card of side margin left -- worth roughly 1px on a knob).
+   The height came from moving the caption below the knobs (SS155), which
+   freed ~10px above the FM cluster and pulled it up towards PM. */
+/* SS158 (user: "increase the size (both height and width) of the FM AND PM
+   knobs but also move the knobs horizontally slightly apart from each other so
+   they dont step on each other").
+
+   For four sizes running the cluster has been width-bound, not height-bound —
+   SS155 took the ceiling from (211-3*gap)/4 with 211px of row. The premise of
+   that note was that growing further needed CARD width, and only ~6px/card of
+   side margin was left. That turned out to be wrong in a useful way: the
+   cluster was CONTENT-SIZED at 211px inside a 298px `.op-body-new`, so 87px of
+   dead width sat to the right of every PM and FM row in all four cards and was
+   never on anyone's radar. `.op-mod-cluster` now stretches to the full body
+   width and the row spends it: 4 x 70 + 3 x 5 = 295, inside 298.
+
+   The gap also goes 1 -> 5px, which is the "stepping on each other" half of
+   the request. Worth noting WHY it looked crowded at 1px even though 1px is
+   not literally an overlap: the per-knob caption ("PM Osc 1") measured 51px
+   wide inside a 52px knob box, so adjacent labels ran within a pixel of each
+   other. Bigger knobs give the text somewhere to go.
+
+   Height is NOT free here: the knob box is ring + 3px gap + 11px label, so
+   52 -> 70 costs 18px per cluster, 36px per card. See the note appended to the
+   card-height bookkeeping for how that was funded. */
+.op-mod-cluster { align-self: stretch; }
+.op-mod-cluster-knobs { gap: 5px; }
+.op-panel .knob-md { --knob-size: 70px; }
+/* SS159 (user, with a screenshot showing the mod rows: "Some overlap happening
+   here. Remove the text that says FM OSC1 FM OSC 2 etc (and PM OSC 1,2,3,4
+   etc.) on all the OSC cards. This will give us some space back ...").
+
+   Measured first, because the report does not match the geometry: the four
+   labels in a row have **23-25px of clearance** between them (`overlapPx` is
+   negative throughout), so nothing literally overlaps. What is true is that
+   "PM Osc 1" measures **51px wide inside a 49-70px knob**, so the text nearly
+   spans the whole control and reads as collision at a glance — especially at
+   the 70px knob size from SS158, where the label is now proportionally smaller
+   but still the widest thing in its own column.
+
+   Removed as asked. Worth recording what this costs in meaning, since the user
+   may want it back: these labels are the only per-knob indication of *which
+   oscillator* is the modulation source. PM/FM are cross-oscillator routings
+   (osc 2's "FM Osc 3" knob means "how much osc 3 frequency-modulates osc 2"),
+   and once the labels are gone the four knobs differ only by position. The
+   `.op-mod-cluster-heads` colour dots above the PM row still give the ordering,
+   and the "Phase mod"/"Freq mod" captions still name the row, so the source
+   oscillator is still discoverable by position — but not by reading it. If
+   that proves too lossy, the better fix than full-height labels is a 1-digit
+   shorthand ("1".."4") or a tooltip, not the full string.
+
+   Height reclaimed: label 11px + 3px gap, per row, two rows = **28px per
+   card**, which is exactly what makes the SS158 knob growth affordable. */
+.op-mod-cluster .knob-label { display: none; }
+.op-mod-cluster .knob { row-gap: 0; }
+
+.op-panel .knob-sm .knob-value,
+.op-panel .knob-sm .knob-input { font-size: 14px; }
+.op-panel .knob-sm .knob-label { font-size: 11px; }
+.op-panel .knob-md .knob-value,
+.op-panel .knob-md .knob-input { font-size: 14px; }
+.op-panel .knob-md .knob-label { font-size: 11px; }
+.op-panel .knob-lg .knob-value,
+.op-panel .knob-lg .knob-input { font-size: 13px; }
+.op-panel .knob-lg .knob-label { font-size: 11px; }
+.op-panel .op-knob-label { font-size: 11px; }
+/* Status row (voice count + last note) — todo.md — user: "we dont need this
+   ... 0/16 and last note since its already displayed in the synths top
+   right corner." True for voices (`.plugin-voices` in the header); "Last
+   note" is dead weight specifically in the plugin regardless — PluginApp
+   always passes `lastNoteMidi={null}` (only the abandoned Electron path
+   ever populated it), so this row has shown a static "Last note: —" the
+   whole time. */
+.op-row-status { display: none; }
+
+/* Dual Warp & Oscillator Card Layout (todo.md §146 — reactivated: Pitch/
+   Warp1/Warp2/Level now share one top row instead of Warp sitting on its
+   own row below Pitch/Level, per the user's "OSC LAYOUT 3" mockup + its
+   annotated instructions image, "two warp modes placed in between the
+   PITCH and LEVEL knobs"). `space-between` pins the first row (Pitch/
+   Warp/Level) to the card's top and the last row (Filter A/B / Pan) to
+   its true bottom edge, spreading the card's stretched height (`.op-grid`
+   above) across the 5 gaps BETWEEN this row's 6 children instead of
+   dumping it all into one gap — a brief `flex-start` detour tried to fix
+   a single lump gap by not stretching the card at all, which just moved
+   the same dead space to below the whole grid instead (user, §146
+   follow-up, more emphatically: "bring OSCs down + reduce their height"
+   / "stretch the 4 OSCs so they cover the remaining [empty] space").
+   `gap` here is a floor in case content is ever taller than the row has
+   room to spread into, same pattern as `.op-card-mid-row`'s `gap: 6px`
+   above it in the file (todo.md §99). */
+.op-body-new {
+  display: flex;
+  flex-direction: column;
+  gap: 2px; /* L15: trimmed from 4px (card height) */
+  width: 100%;
+  justify-content: space-between;
+  /* SS151: `justify-content: space-between` was already here and was doing
+     nothing, because without a flex basis the body stayed content-sized
+     (~379px) inside a card that `.op-grid`'s `align-content: stretch` grows
+     to ~492px. The 50px of slack therefore never reached the distribution
+     and just pooled as a lump under the last row -- which is exactly the
+     "empty space at the bottom of each oscillator" the user reported as
+     unfixed. `flex: 1 1 auto` + `min-height: 0` lets the body actually
+     accept the stretched height (min-height:0 is required for a flex item to
+     do so, the same gotcha noted at `.op-panel` above), after which
+     space-between spreads the reclaimed height across the five gaps instead
+     of dumping it in one place. */
+  flex: 1 1 auto;
+  min-height: 0;
+}
+.op-card-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 4px;
+}
+/* Same fix as `.op-col > .knob-field` above: `.knob-field` (styles.css) is
+   `flex: 1 1 0`, meant for knob rows sharing width evenly — inside these
+   two rows that would make Level/Pan fight `.op-dual-warp-container`/
+   Filter-A-B for space instead of sitting at their natural size at the
+   row's edge. */
+.op-card-top-row > .knob-field,
+.op-card-bot-row > .knob-field { flex: 0 0 auto; }
+.op-dual-warp-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  flex: 1;
+  min-width: 0;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  padding: 2px 3px;
+  box-sizing: border-box;
+}
+.op-warp-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  flex: 1 1 0;
+  min-width: 0;
+}
+/* SS150 (user: "these are way too small -- the dropdowns are unreadable, the
+   knobs are tiny, cant even see their values. Awkward to adjust too").
+   These were 14px tall at 7px type, with 22px knobs, a 5px label and a 6px
+   value. 5-6px is below any legibility floor -- those values were not
+   actually readable, which is why this was reported as "can't see values"
+   rather than as a cosmetic nit. Sized to fill the ~26px/card of padding
+   SS149 measured as dead space, so this costs no new height budget.
+   The knob's internal gap drops 3px -> 1px to help pay for it. */
+.op-warp-select {
+  width: 100%;
+  /* Must beat src/renderer/styles.css, which styles this same class TWICE
+     (lines 3020 and 3193) with `max-width: 66px` / `96px`. That file is
+     bundled into the plugin as well as the Electron app -- the oscillator
+     panel is one component tree shared by both hosts -- so those max-widths
+     apply here too, and plugin-ui.css only wins the properties it actually
+     declares. Without this the dropdown stays capped at 66px no matter how
+     wide the card gets, which is half of what the user is complaining about. */
+  max-width: none;
+    /* SS151 follow-up (user: "yeah its still illegibile ... so far nothing has
+       changed at all"). Second pass, deliberately much larger than the first:
+       22px/10px was still unreadable. 30px at 13px mono is the smallest size
+       that comfortably fits a full option name like "Harmonic Sweep" in the
+       87px this box actually gets. */
+    height: 30px;
+    font-size: 13px;
+  font-family: var(--font-mono, monospace);
+  background: var(--bg-surface-elevated, #101638);
+  color: var(--accent, #37e0d8);
+  border: 1px solid var(--border-soft, rgba(255, 255, 255, 0.15));
+  border-radius: 3px;
+  padding: 0 4px;
+  cursor: pointer;
+}
+.op-warp-knobs {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 4px;
+  width: 100%;
+}
+.op-warp-knobs .knob {
+  --knob-size: 34px;
+  gap: 1px;
+}
+.op-warp-knobs .knob-label {
+  font-size: 8px;
+  letter-spacing: 0;
+}
+.op-warp-knobs .knob-value {
+  font-size: 9px;
+}
+.op-warp-divider {
+  width: 1px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.1);
+  flex: none;
+}
+.op-card-mid-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 4px;
+}
+.op-mod-clusters-wrap {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+}
+.op-mod-spacer {
+  /* SS154 (user: "id like the osc panels to be as compact as they can
+     possibly be ... have that space make the visualizers bigger"). This is a
+     1px-wide hairline reserving 14px of vertical space to separate the PM and
+     FM clusters -- but each cluster already carries its own label
+     ("Phase mod" / "Freq mod") directly above it, so the divider was saying
+     nothing the captions don't. Cut to 4px, which keeps a hair of separation
+          between the two clusters without spending a row on it. SS155 then cut it
+          to 2px once the PM caption moved back above its knobs: the vertical
+          budget between the two clusters is PM-knob-bottom + spacer + body gap +
+          FM colour-dots, and every px here comes straight off the PM-to-FM gap the
+          user asked to tighten. SS155 takes it to 0: with the PM caption back
+                    above its knobs, the whole vertical budget between the two knob rows
+                    is PM-knob-bottom + spacer + body gap + FM colour-dots, so the
+                    divider is the only part of it that carries no information at all
+                    now that each cluster is captioned on the side facing away from the
+                    other. */
+                 width: 1px;
+                 height: 0;
+  background: rgba(255, 255, 255, 0.08);
+  align-self: center;
+}
+.op-wave-knob-cell {
+  flex: none;
+}
+.op-card-bot-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 4px;
+}
+.op-mode-toggle-oval {
+  width: 32px;
+  height: 20px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--bg-surface-elevated);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+}
+.op-mode-toggle-oval.is-wt {
+  border-color: var(--accent);
+  box-shadow: 0 0 6px var(--accent);
+}
+
+/* ---------------------------------------------------------------------------
+   Global UI scale.
+   --------------------------------------------------------------------------- */
+html {
+  --ui-scale: 1.0;
+  height: 100%;
+  overflow: hidden;
+}
+body {
+  zoom: var(--ui-scale);
+  width: calc(100vw / var(--ui-scale));
+  height: calc(100vh / var(--ui-scale));
+  margin: 0;
+  overflow: hidden;
+}
+#root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+#root > .app {
+  flex: 1 1 auto;
+  height: auto;
+  min-height: 0;
+}
+
+/* ---------------------------------------------------------------------------
+   OSC / FX view swap (todo.md §79) — the oscillator engine and the master-FX
+   rack share one slot. Used to be a tab strip here; that's gone (todo.md —
+   user: "its a bit of a tight squeeze... remove it" — see
+   `.fx-chain-view-toggle` for its replacement, relocated into the FX chain
+   strip). Modulator strip stays put either way. `.fx-tab-dot` is the one
+   surviving piece — the "something's on" indicator, reused on the new
+   button. */
+.fx-tab-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 6px currentColor;
+}
+
+/* ---------------------------------------------------------------------------
+   FX panel — "Sonic Material" (todo.md §86). Sub-tab · big physics canvas ·
+   knob rack. Occupies the OSC-panel slot.
+   --------------------------------------------------------------------------- */
+/* Effects SIDE BY SIDE, not stacked (todo.md §92, user: "cram like 8 audio
+   fx into this space, side by side"). A 2-wide grid — Delay + Reverb fill
+   one row today; 6 more slots drop in as future rows.
+   `flex: 1 1 auto` + `align-content: stretch` (todo.md — user: "have the
+   modulators and the velocity/key/filter row at the bottom of the UI just
+   like in the synth panel section… give us more room to put audio effect
+   UI") — with only 2 units the OSC-panel-sized `.env-panel` strip below
+   used to leave a big dead gap here before the piano (Master FX's own
+   content is much shorter than the Oscillators view's, and `.synth-controls`
+   is a `flex: 1 1 auto` column, so whichever view's slot doesn't fill it
+   just shows blank space under `.env-panel`). Growing this panel to fill
+   that leftover height and stretching its single row lets `.fx-unit`
+   (a grid item, default `align-items: stretch`) grow too — see `.fx-stage`
+   below for where that height actually goes.
+
+   `max-height: 400px` added (todo.md — user, still reproducing after the
+   §130 `.fx-stage` min-height fix: enabling a 3rd effect made
+   `.env-panel` vanish completely, confirmed live via the FX-chain-strip
+   row-click fix below). Root cause this time is upstream of `.fx-stage`:
+   with only 1-2 effects (1 grid row), `.fx-panel`'s own natural/hypothetical
+   size is tiny, so the flex-grow negotiation against `.env-panel` (flex:
+   0 0 auto) hands `.fx-panel` almost ALL of `.synth-controls`'s free
+   height — fine with 1 row, since it all lands in that one row. With 2
+   rows, `align-content: stretch` divides that SAME oversized total across
+   both rows instead of shrinking the total to fit — and somewhere in that
+   renegotiation `.env-panel`'s reserved space stopped actually being
+   reserved (each row rendered ~400px tall, `.env-panel` rendered 0px,
+   confirmed via screenshot with Delay+Reverb+Compressor active). A flex
+   item's grown size is still clamped by its own `max-height` regardless of
+   how the grow negotiation went, so this puts a hard, deterministic
+   ceiling on it instead of trusting that negotiation to self-limit — 400px
+   matches what a single working row already rendered at before this bug,
+   so the 1-2 effect case is visually unchanged and the 3+ effect case
+   redistributes WITHIN that budget instead of past it.
+
+   400 -> 430px (todo.md — user: with all 8 effects on at once it's "a bit
+   of a tight squeeze"; wants "the FX panels [to] have a tiny bit more room
+   to breathe"). Room for the extra 30px came from removing the SYNTH/FX
+   tab strip that used to sit above this (`.fx-view-tabs`, now gone — see
+   `.fx-chain-view-toggle`), not from shrinking anything else.
+
+   430 -> 577px (todo.md §146 follow-up — user: "modulators + filter & FX
+   chain are still displaced on the FX side... they must be in the same
+   spot as they are on the SYNTH page but also on the FX page"). `.op-panel`
+   and `.fx-panel` occupy the SAME `flex: 1 1 auto` slot in `.synth-controls`
+   (conditionally swapped, never both mounted at once), so they always
+   receive the identical leftover-height allocation from the flex
+   negotiation — `.env-panel` below only visually moved because `.op-panel`
+   has no height cap of its own and actually renders at that full
+   allocation, while this `max-height` was quietly capping `.fx-panel`
+   below it. §146's OSC-card growth raised what that shared allocation
+   now is; 577px is screenshot-measured to match `.op-panel`'s new bottom
+   edge exactly (a first pass at 520px undershot by ~60px — verify against
+   a fresh Synth-view screenshot if `--op-card-w`/row gaps change again,
+   this number is derived, not structural). Keeping a real ceiling (not
+   removing it outright) on purpose — see the comment above for why an
+   uncapped `.fx-panel` breaks 3+ effect rows. */
+.fx-panel {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-auto-rows: 1fr;
+  gap: 8px;
+  align-content: stretch;
+  min-height: 0;
+  /* No fixed cap: .fx-panel fills the same flex slot .op-panel does, so the
+     modulator/filter row below stays pinned to the piano in BOTH views. */
+  flex: 1 1 0;
+}
+.fx-unit {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  min-height: 0;
+  border: 1px solid color-mix(in srgb, var(--fx-color, var(--border)) 35%, var(--border));
+  border-radius: 8px;
+  padding: 5px 7px 6px;
+  background:
+    linear-gradient(160deg, color-mix(in srgb, var(--fx-color, var(--accent)) 7%, transparent), transparent 55%),
+    var(--bg-surface-elevated);
+}
+.fx-unit-head {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  /* Drag-to-reorder (todo.md 2026-10-10) — grab anywhere on the header EXCEPT a
+     control, which keeps its own click. `touch-action: none` stops the
+     WebView2/OS stealing the gesture as a scroll once it becomes a drag (the
+     same reason `.fx-chain-row` has it). */
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+.fx-unit-head:active { cursor: grabbing; }
+/* The reorder arrows, enable dot, MIX slider and EQ popout are real controls —
+   they must not read as drag handles. */
+.fx-unit-head button,
+.fx-unit-head input,
+.fx-unit-head .fx-unit-reorder { cursor: default; touch-action: auto; }
+.fx-unit.is-dragging { opacity: 0.55; outline: 1px dashed var(--fx-color, var(--accent)); }
+.fx-unit.is-drop-target {
+  box-shadow: 0 0 0 2px var(--fx-color, var(--accent));
+  background:
+    linear-gradient(160deg, color-mix(in srgb, var(--fx-color, var(--accent)) 18%, transparent), transparent 55%),
+    var(--bg-surface-elevated);
+}
+.fx-unit-dot-toggle {
+  all: unset;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px;
+  margin: -3px;
+  border-radius: 50%;
+  touch-action: manipulation;
+}
+.fx-unit-dot-toggle:hover .fx-unit-dot {
+  transform: scale(1.35);
+  box-shadow: 0 0 10px var(--fx-color, var(--accent));
+  opacity: 1;
+}
+.fx-unit-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--fx-color, var(--accent));
+  box-shadow: 0 0 6px var(--fx-color, var(--accent));
+  opacity: 0.35;
+  transition: opacity 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+.fx-unit.is-on .fx-unit-dot { opacity: 1; }
+.fx-unit-dot-toggle[data-active="0"] .fx-unit-dot {
+  opacity: 0.25;
+  box-shadow: none;
+}
+.fx-unit-name { color: var(--fx-color, var(--accent)); font-weight: 600; }
+/* No per-unit "N% wet / bypassed" state text — the dot IS the on/off toggle
+   (mockup: "we dont need the WET [ON] buttons in the FX modules... just use
+   the circle that is on the left of the effect name"). The reorder cluster
+   takes over pushing the header's right side. */
+.fx-insert-prompt {
+  grid-column: 1 / -1;
+  min-width: 0;
+  min-height: 150px;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  border: 1px dashed color-mix(in srgb, var(--accent) 35%, var(--border));
+  border-radius: 8px;
+  color: color-mix(in srgb, var(--accent) 78%, var(--text-muted));
+  font-family: var(--font-mono);
+  font-size: clamp(14px, 1.8vw, 28px);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-align: center;
+  text-shadow: 0 0 10px color-mix(in srgb, var(--accent) 45%, transparent);
+  cursor: context-menu;
+  user-select: none;
+}
+.fx-insert-prompt:hover,
+.fx-insert-prompt:focus-visible {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 4%, transparent);
+  outline: none;
+}
+.fx-insert-prompt.is-half {
+  grid-column: 2 / 3;
+  min-height: 0;
+  align-self: stretch;
+}
+.fx-insert-menu {
+  position: fixed;
+  z-index: 60;
+  list-style: none;
+  width: 190px;
+  margin: 0;
+  padding: 4px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--bg-surface-elevated, #12172e);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.6);
+  font-size: 11px;
+}
+.fx-insert-menu-head {
+  padding: 5px 8px 4px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border-soft);
+}
+.fx-insert-menu button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 6px 8px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-primary, #d7dcf0);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.fx-insert-menu button:hover {
+  background: color-mix(in srgb, var(--accent) 20%, transparent);
+  color: var(--accent);
+}
+.fx-insert-menu-dot {
+  width: 8px;
+  height: 8px;
+  flex: none;
+  border-radius: 50%;
+  box-shadow: 0 0 5px currentColor;
+}
+
+.fx-unit-bypass {
+  all: unset;
+  cursor: pointer;
+  font-size: 8px;
+  line-height: 1;
+  padding: 2px 4px;
+  border-radius: 3px;
+  color: var(--fx-color, var(--accent));
+  border: 1px solid color-mix(in srgb, var(--fx-color, var(--accent)) 45%, transparent);
+  background: color-mix(in srgb, var(--fx-color, var(--accent)) 14%, transparent);
+}
+.fx-unit-bypass[data-active="0"] { opacity: 0.45; filter: grayscale(0.7); }
+.fx-unit-bypass:hover { background: color-mix(in srgb, var(--fx-color, var(--accent)) 28%, transparent); }
+/* Chain reorder controls (todo.md §113) — swap this unit with its neighbour
+   in the chain's real (non-'off') order. */
+.fx-unit-reorder { display: flex; gap: 2px; margin-left: auto; }
+.fx-header-mix-slider {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: auto;
+  font-family: var(--font-mono, monospace);
+  font-size: 8px;
+  color: var(--text-muted, #8e9cc8);
+}
+.fx-header-mix-label {
+  font-weight: bold;
+  letter-spacing: 0.08em;
+  color: var(--fx-color, var(--accent));
+}
+.fx-header-mix-slider input[type="range"] {
+  width: 55px;
+  height: 10px;
+  accent-color: var(--fx-color, var(--accent));
+  cursor: pointer;
+}
+.fx-header-mix-val {
+  min-width: 24px;
+  color: var(--text-primary, #ffffff);
+  text-align: right;
+}
+.fx-header-mix-slider ~ .fx-unit-reorder { margin-left: 0; }
+/* EQ's popout button lives at the right edge instead — when present it takes
+   over the auto-margin and the reorder cluster tucks in beside it. */
+.fx-unit-popout { margin-left: auto; }
+.fx-unit-popout ~ .fx-unit-reorder { margin-left: 0; }
+.fx-unit-reorder button {
+  all: unset;
+  cursor: pointer;
+  font-size: 8px;
+  line-height: 1;
+  padding: 2px 3px;
+  border-radius: 3px;
+  color: var(--fx-color, var(--accent));
+  background: color-mix(in srgb, var(--fx-color, var(--accent)) 12%, transparent);
+}
+.fx-unit-reorder button:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--fx-color, var(--accent)) 22%, transparent);
+}
+.fx-unit-reorder button:disabled { opacity: 0.25; cursor: default; }
+
+.fx-stage {
+  /* Was `flex: none; height: 125px` (shrunk from 240px, todo.md Task 1,
+     Antigravity, to make room for the FX chain). Grows to fill whatever
+     height `.fx-panel`'s stretch gives the unit (see that rule's comment).
+     The 125px floor here used to be a HARD CSS Grid minimum — with 2 units
+     per row that was fine, but 3+ active effects means 2 grid ROWS, and a
+     fixed-px min-height is respected as each row's intrinsic minimum
+     regardless of how little space is actually left, so 2 rows demanded
+     250px+ no matter what. In this frozen-size, never-scrolling window
+     (`.synth-scroll` clips overflow instead of scrolling) that silently
+     shoved `.env-panel` — a later flex sibling — off the bottom entirely
+     (todo.md, user: "FX modules way too big, cant see them all... cant
+     even see the envs at all"). Dropped to a much smaller floor so N rows
+     of stages can actually compress to fit instead of forcing overflow. */
+  flex: 1 1 auto;
+  min-height: 40px;
+  border: 1px solid color-mix(in srgb, var(--fx-color, var(--accent)) 32%, var(--border));
+  border-radius: 6px;
+  overflow: hidden;
+  background: #04060d;
+  box-shadow: inset 0 0 24px color-mix(in srgb, var(--fx-color, var(--accent)) 9%, transparent);
+}
+.fx-viz-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: ns-resize;
+  touch-action: none;
+}
+
+/* EQ header "pop out" button (todo.md — opens `EqEditorPopout`, same visual
+   language as `.fx-unit-bypass`/`.fx-unit-reorder button` beside it). */
+.fx-unit-popout {
+  all: unset;
+  cursor: pointer;
+  font-size: 11px;
+  line-height: 1;
+  padding: 2px 5px;
+  border-radius: 3px;
+  color: var(--fx-color, var(--accent));
+  background: color-mix(in srgb, var(--fx-color, var(--accent)) 12%, transparent);
+}
+.fx-unit-popout:hover { background: color-mix(in srgb, var(--fx-color, var(--accent)) 22%, transparent); }
+
+/* ---------------------------------------------------------------------------
+   Graphic parametric EQ (EqEditor.tsx, todo.md) — "no knobs at all... just
+   let it be controllable in the graphic pane". The compact stage fills the
+   same `.fx-stage` slot every other effect's canvas uses; the popout
+   mirrors `.function-editor-*` (styles.css, the LFO's modal) at the CSS
+   level but stays a separate class family since the two aren't otherwise
+   related and shouldn't have to change in lockstep.
+   --------------------------------------------------------------------------- */
+.eq-editor-stage { width: 100%; height: 100%; }
+.eq-editor-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+}
+.eq-editor-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: color-mix(in srgb, var(--bg-app) 78%, transparent);
+}
+.eq-editor-modal {
+  width: min(760px, calc(100vw - 32px));
+  max-height: calc(100vh - 32px);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  overflow: hidden;
+  border: 1px solid var(--border-active);
+  border-radius: 8px;
+  background: var(--bg-surface);
+  box-shadow: 0 18px 60px rgba(0,0,0,.45), 0 0 24px color-mix(in srgb, var(--accent) 22%, transparent);
+}
+.eq-editor-modal > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--text-primary);
+}
+.eq-editor-modal > header button {
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 20px;
+  cursor: pointer;
+}
+.eq-editor-modal-canvas {
+  width: 100%;
+  height: min(50vh, 380px);
+  min-height: 220px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.eq-editor-help {
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 9px;
+}
+.eq-menu-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 1005;
+}
+.eq-context-menu {
+  position: fixed;
+  z-index: 1010;
+  width: 220px;
+  padding: 5px;
+  margin: 0;
+  list-style: none;
+  border: 1px solid var(--border-active, #2a345e);
+  border-radius: 8px;
+  background: var(--bg-surface-elevated, #10162e);
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.75);
+  font-family: var(--font-sans, system-ui, sans-serif);
+  font-size: 11px;
+}
+.eq-context-menu-head {
+  padding: 4px 8px 5px;
+  color: var(--accent, #4fd1c5);
+  font-family: var(--font-mono, monospace);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border-soft, rgba(255,255,255,0.1));
+  margin-bottom: 4px;
+}
+.eq-context-menu button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 5px 8px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-primary, #d7dcf0);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.eq-context-menu button:hover,
+.eq-context-menu button.is-active {
+  background: color-mix(in srgb, var(--accent, #4fd1c5) 22%, transparent);
+  color: #ffffff;
+}
+.eq-context-menu button.is-active {
+  font-weight: 600;
+}
+.eq-context-menu-icon {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  font-family: var(--font-mono, monospace);
+  font-weight: bold;
+}
+.eq-context-menu-sub {
+  margin-left: auto;
+  font-size: 9px;
+  color: var(--text-muted, #7e8cb8);
+}
+
+/* Param knobs — the real OSC-card knob (size md), not the old `sm` ones the
+   user called "the cheap ones". One row, wraps if a unit gets narrow. */
+.fx-rack {
+  flex: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+  justify-content: space-between;
+  align-content: flex-start;
+}
+.fx-rack .knob { flex: 0 0 auto; }
+
+/* Dense FX racks compress their stage rows, so the fixed-size OSC-style
+   knobs must compress too. These plugin-only overrides keep the sparse rack
+   unchanged while scaling the complete knob geometry, labels, and spacing
+   together instead of letting 40px controls overlap their unit. */
+.fx-density-3 .fx-rack { gap: 2px 4px; }
+.fx-density-3 .fx-rack .knob { --knob-size: 34px; gap: 2px; }
+.fx-density-3 .fx-rack .knob-label { font-size: 6px; }
+.fx-density-3 .fx-rack .knob-value,
+.fx-density-3 .fx-rack .knob-input { font-size: 8px; }
+.fx-density-3 .fx-rack .knob-mod-plus { width: 10px; height: 10px; font-size: 8px; }
+
+.fx-density-4 .fx-rack { gap: 1px 3px; }
+.fx-density-4 .fx-rack .knob { --knob-size: 31px; gap: 1px; }
+.fx-density-4 .fx-rack .knob-label { font-size: 5.75px; }
+.fx-density-4 .fx-rack .knob-value,
+.fx-density-4 .fx-rack .knob-input { font-size: 7.25px; }
+.fx-density-4 .fx-rack .knob-mod-plus { width: 9px; height: 9px; font-size: 7px; }
+
+.fx-density-5 .fx-rack { gap: 1px 3px; }
+.fx-density-5 .fx-rack .knob { --knob-size: 28px; gap: 1px; }
+.fx-density-5 .fx-rack .knob-label { font-size: 5.5px; }
+.fx-density-5 .fx-rack .knob-value,
+.fx-density-5 .fx-rack .knob-input { font-size: 7px; }
+.fx-density-5 .fx-rack .knob-mod-plus { width: 9px; height: 9px; font-size: 7px; }
+
+.fx-density-6 .fx-rack { gap: 1px 2px; }
+.fx-density-6 .fx-rack .knob { --knob-size: 25px; gap: 0; }
+.fx-density-6 .fx-rack .knob-label { font-size: 5px; letter-spacing: 0.02em; }
+.fx-density-6 .fx-rack .knob-value,
+.fx-density-6 .fx-rack .knob-input { font-size: 6.5px; }
+.fx-density-6 .fx-rack .knob-mod-plus { display: none; }
+
+.fx-density-7 .fx-rack,
+.fx-density-8 .fx-rack { gap: 1px 2px; }
+.fx-density-7 .fx-rack .knob,
+.fx-density-8 .fx-rack .knob { --knob-size: 23px; gap: 0; }
+.fx-density-7 .fx-rack .knob-label,
+.fx-density-8 .fx-rack .knob-label { font-size: 5px; letter-spacing: 0.02em; }
+.fx-density-7 .fx-rack .knob-value,
+.fx-density-7 .fx-rack .knob-input,
+.fx-density-8 .fx-rack .knob-value,
+.fx-density-8 .fx-rack .knob-input { font-size: 6px; }
+.fx-density-7 .fx-rack .knob-mod-plus,
+.fx-density-8 .fx-rack .knob-mod-plus { display: none; }
+
+
+/* ---------------------------------------------------------------------------
+   FX chain-at-a-glance strip (todo.md — user: "a fx chain module that
+   allows us to see the chain at a glance... house it in the empty space on
+   the right hand side of the filters... visible from both the synth view
+   and also the fx view"). Drop-in replacement for the old `.fx-macro-area`
+   placeholder — same `flex: 1 1 auto` slot inside `.filter-fx-row`, whose
+   `align-items: stretch` is what gives this its actual height (the merged
+   Filter card's bigger knobs overflow the modulator grid's nominal 66px
+   row, and everything in this flex row stretches to match).
+   --------------------------------------------------------------------------- */
+/* The available slot is WIDE but SHORT (~95px tall, ~610px wide — the
+   Filter card's bigger knobs, not this strip, set that height) — a single
+   8-row vertical list didn't fit legibly (rows overlapped). A 2-column
+   grid (4 rows) uses the width that's actually there instead. */
+.fx-chain-strip {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: auto repeat(2, 1fr);
+  gap: 2px 6px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg, 8px);
+  padding: 3px 6px;
+  overflow: hidden;
+}
+.fx-chain-strip-head {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding-bottom: 2px;
+  border-bottom: 1px solid var(--border-soft);
+  margin-bottom: 2px;
+}
+/* The whole row is the toggle now (FxPanel.tsx) — was just the 8x8px dot
+   below, an almost-unhittable target (todo.md — user, after repeatedly
+   trying to enable more effects here: "still can only see 2 fx"). `cursor:
+   pointer` + a hover tint make the bigger hit area discoverable. */
+.fx-chain-row {
+  min-height: 0;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1;
+  color: var(--text-muted);
+  opacity: 0.55;
+  cursor: pointer;
+  border-radius: 3px;
+}
+.fx-chain-row:hover { opacity: 0.85; background: color-mix(in srgb, var(--fx-color, var(--accent)) 10%, transparent); }
+.fx-chain-row.is-on { color: var(--fx-color, var(--accent)); opacity: 1; }
+.fx-chain-row.is-on:hover { background: color-mix(in srgb, var(--fx-color, var(--accent)) 16%, transparent); }
+.fx-chain-toggle {
+  flex: none;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  border: 1px solid currentColor;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.fx-chain-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0;
+}
+.fx-chain-row.is-on .fx-chain-dot { opacity: 1; box-shadow: 0 0 4px currentColor; }
+.fx-chain-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.fx-chain-reorder { flex: none; display: flex; gap: 0; }
+.fx-chain-reorder button {
+  all: unset;
+  cursor: pointer;
+  font-size: 8px;
+  line-height: 1;
+  padding: 1px 1px;
+  color: inherit;
+}
+.fx-chain-reorder button:disabled { opacity: 0.25; cursor: default; }
+.fx-chain-reorder button:hover:not(:disabled) { color: var(--accent); }
+
+/* Relocated SYNTH/FX view toggle placed inside FX Chain header */
+.fx-chain-view-toggle {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  background: var(--bg-surface-elevated, #101642);
+  border: 1px solid var(--border-soft, rgba(120, 150, 255, 0.25));
+  border-radius: 4px;
+  padding: 1px 6px;
+  cursor: pointer;
+  line-height: 1.2;
+}
+.fx-chain-view-toggle:hover { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 45%, var(--border-soft)); }
+.fx-chain-view-toggle .fx-tab-dot { color: var(--accent); }
+
+/* ---------------------------------------------------------------------------
+   Modulator / oscillator layout pass (todo.md §132)
+   ---------------------------------------------------------------------------
+   The plugin keeps the full-width bottom row (velocity, filters and FX
+   chain), but the six ENV/LFO cards occupy only the left half of that row.
+   Six equal grid tracks make each card exactly half the width it had in the
+   three-column layout, while the unused three tracks remain open on the
+   right as workspace. Card height is intentionally unchanged.
+*/
+.env-grid {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  justify-content: start;
+}
+/* Card placement is explicit now: every ENV/LFO/module card sits in an
+   `.env-extra` wrapper carrying its own grid-row (EnvelopePanel). */
+.env-grid > .env-row-bottom {
+  grid-column: 1 / -1;
+  grid-row: 3;
+}
+
+/* OSC 1's annotated mockup moves the PHASE MOD group down into the lower
+   control area, below the Pitch/Level row. Apply the same visual redesign to
+   every oscillator card: keep FREQ MOD in its lower slot and nudge it right
+   to open the left edge of the modulation area. Transforms preserve the
+   card's established height budget and move the hit targets with the
+   controls, without disturbing the Wave/Filter and Level/Pan stacks. */
+
+
+
+/* ---------------------------------------------------------------------------
+   Modulation interaction extras (todo.md §81)
+   --------------------------------------------------------------------------- */
+
+/* Floating depth readout that follows the cable end while a wheel adjusts it. */
+.mod-cable-amt {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 60;
+  pointer-events: none;
+  padding: 2px 7px;
+  border-radius: 5px;
+  font-family: var(--font-mono, monospace);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: var(--src, var(--accent));
+  background: color-mix(in srgb, var(--src, var(--accent)) 14%, var(--bg-surface-elevated, #12172e));
+  border: 1px solid color-mix(in srgb, var(--src, var(--accent)) 55%, transparent);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+  white-space: nowrap;
+}
+.mod-cable-amt-hint {
+  color: var(--text-muted, var(--muted));
+  font-size: 9px;
+  letter-spacing: 0.04em;
+}
+
+/* Applied-only quick editor: a mute toggle per row + muted styling. */
+.mod-row .mod-mute {
+  appearance: none;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted, var(--muted));
+  border-radius: 4px;
+  width: 18px;
+  height: 18px;
+  line-height: 1;
+  font-size: 12px;
+  cursor: pointer;
+  flex: none;
+}
+.mod-row .mod-mute:hover { color: var(--text-primary, #d7dcf0); border-color: var(--accent); }
+.mod-row .mod-mute.is-muted { color: var(--danger, #ff6b8a); border-color: var(--danger, #ff6b8a); }
+.mod-row.is-muted { opacity: 0.5; }
+.mod-row.is-muted .mod-amount { text-decoration: line-through; }
+.mod-row-empty {
+  padding: 8px 10px;
+  font-size: 11px;
+  color: var(--text-muted, var(--muted));
+  text-align: center;
+}
+.mod-popover-applied { min-width: 190px; }
+
+/* ---------------------------------------------------------------------------
+   Visualizer (Scope.tsx) + right-click menus (todo.md §73 P7c)
+   --------------------------------------------------------------------------- */
+.faze-scope {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  overflow: hidden;
+  background: var(--bg-surface-elevated);
+  cursor: context-menu;
+}
+.faze-scope canvas { display: block; width: 100%; height: 100%; }
+.faze-scope:hover { border-color: color-mix(in srgb, var(--accent) 50%, var(--border)); }
+
+.faze-scope-menu-scrim { position: fixed; inset: 0; z-index: 40; }
+
+.faze-menu {
+  position: absolute;
+  z-index: 50;
+}
+.faze-menu.faze-menu-fixed { position: fixed; z-index: 60; }
+.faze-menu {
+  list-style: none;
+  margin: 0;
+  padding: 3px;
+  min-width: 148px;
+  background: var(--bg-surface-elevated, #12172e);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55);
+  font-size: 11px;
+}
+.faze-menu > li { margin: 0; }
+.faze-menu button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 5px 8px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-primary, #d7dcf0);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.faze-menu button:hover { background: color-mix(in srgb, var(--accent) 22%, transparent); }
+.faze-menu button.is-on { color: var(--accent); }
+.faze-menu-glyph { width: 14px; text-align: center; opacity: 0.85; }
+.faze-menu-sep { height: 1px; margin: 3px 2px; background: var(--border); }
+.faze-menu-head {
+  padding: 4px 8px 2px;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.faze-menu .swatch {
+  width: 11px; height: 11px; border-radius: 3px; flex: none;
+  border: 1px solid rgba(255,255,255,0.15);
+}
+.faze-menu-gains {
+  display: flex;
+  gap: 3px;
+  padding: 2px 4px 3px;
+}
+.faze-menu-gains button {
+  flex: 1 1 0;
+  justify-content: center;
+  padding: 4px 2px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-variant-numeric: tabular-nums;
+  font-size: 10px;
+}
+.faze-menu-gains button.is-on {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+}
+
+.op-wavetable-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  /* SS153: 8px top AND bottom held nothing (todo.md SS149 counted this
+     among the dead padding). `align-items: center` means the row already
+     sizes to its tallest child, so vertical padding here bought nothing but
+     the gap SS153 was asked to remove. */
+  padding: 0;
+}
+.op-wavetable-row .op-warp-select {
+  width: 140px;
+  /* Must override `.op-warp-select`'s height:14px -- this rule sets
+     font-size:11px + padding:4px, so under the global `* { box-sizing:
+     border-box }` a 14px box leaves a 4px content box and clips the label
+     to a 1-2px smear (this is the "dropdown shows -" bug, todo.md SS148
+     item 1). 24px = 11px line + 2*4px padding + 2*1px border. */
+  height: 24px;
+  text-align: center;
+  padding: 4px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--op-color);
+  border-radius: 4px;
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+/* Arp strip — replaces the FX chain strip in the Synth view's bottom row
+   when Arp View is on (same flex slot, so the OSC/modulator layout is
+   untouched). */
+.arp-strip {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg, 8px);
+  padding: 3px 8px;
+  overflow: hidden;
+}
+.arp-strip .arp-row { flex-wrap: nowrap; gap: 6px; }
+.arp-strip-knobs { display: flex; gap: 6px; margin-left: auto; }
+
+/* todo.md §166 v2 — Seq mode toggle + the popout-launch button.
+   `.arp-strip .arp-row` is `flex-wrap: nowrap` in a slot barely wide enough
+   for the existing five mode buttons plus Hold, so the two new controls are
+   deliberately SMALL and share the existing button language rather than
+   getting their own row: at this size two extra words fit where two extra
+   pills would not. */
+.arp-seq-btn,
+.arp-seq-edit {
+  flex: 0 0 auto;
+  height: 20px;
+  padding: 0 7px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-dim);
+  border-radius: 3px;
+  cursor: pointer;
+}
+.arp-seq-btn:hover,
+.arp-seq-edit:hover { color: var(--text-primary); border-color: var(--border-mid); }
+.arp-seq-btn.is-on {
+  color: var(--bg-app);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+/* The ⋯ launcher only reads as clickable if it looks like an action, not a
+   second mode toggle — hence the distinct width and no filled "on" state. */
+.arp-seq-edit { width: 20px; padding: 0; font-size: 11px; line-height: 1; }
+
+/* Sequencer editor popout. Mirrors `.function-editor-backdrop` /
+   `.function-editor` so the two popouts behave identically: click the dim
+   backdrop to dismiss, Escape-free close via the ×, and no native context menu
+   leaking through (the Function editor needed that too). */
+.seq-editor-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000; /* same layer as the Function editor; they never coexist */
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: color-mix(in srgb, var(--bg-app) 78%, transparent);
+}
+.seq-editor {
+  width: min(1180px, calc(100vw - 32px));
+  max-height: calc(100vh - 32px);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  overflow: auto;
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-dim);
+  border-radius: 6px;
+  box-shadow: 0 18px 48px rgb(0 0 0 / 55%);
+}
+.seq-editor > header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.seq-editor > header strong { font-size: 12px; letter-spacing: 0.06em; }
+.seq-editor-sub {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-muted);
+}
+.seq-editor-sub em { color: var(--warn, #d8a657); font-style: normal; }
+.seq-editor > header button {
+  margin-left: auto;
+  width: 22px;
+  height: 22px;
+  font-size: 15px;
+  line-height: 1;
+  color: var(--text-muted);
+  background: none;
+  border: 1px solid var(--border-dim);
+  border-radius: 3px;
+  cursor: pointer;
+}
+.seq-editor > header button:hover { color: var(--text-primary); }
+
+/* 16 lanes side by side. `minmax(0, 1fr)` (not a fixed px) so the whole row
+   scales to the popout width instead of overflowing on a narrow window —
+   the lanes hold three sliders each, which is what needs the room. */
+.seq-editor-lanes {
+  display: grid;
+  grid-template-columns: repeat(16, minmax(0, 1fr));
+  gap: 4px;
+}
+.seq-lane {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 5px 4px;
+  min-width: 0;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-dim);
+  border-radius: 4px;
+}
+.seq-lane.is-off { opacity: 0.5; }
+/* Parked steps (past the pattern length) are dimmed AND unclickable — the
+   inputs are disabled too, so this is a visual echo of the real state rather
+   than the only thing enforcing it. */
+.seq-lane.is-past { opacity: 0.28; }
+/* The playhead is the one lane-level highlight allowed to be loud: it is the
+   only thing telling you where you are in a 16-step loop at 20 Hz. */
+.seq-lane.is-playhead {
+  border-color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+.seq-lane-head {
+  height: 22px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-muted);
+  background: var(--bg-app);
+  border: 1px solid var(--border-dim);
+  border-radius: 3px;
+  cursor: pointer;
+}
+.seq-lane-head.is-on { color: var(--accent); border-color: var(--accent); }
+.seq-lane-head:disabled { cursor: default; }
+
+.seq-lane-field { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.seq-lane-field > span {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+/* Native range inputs, not the project's Knob: 16 lanes x 3 params = 48 knobs,
+   which at Knob size is a strip the popout was opened to escape. Sliders scale
+   to the column width instead of needing a fixed footprint. */
+.seq-lane-field input[type='range'] { width: 100%; min-width: 0; margin: 0; accent-color: var(--accent); }
+.seq-lane-field input[type='range']:disabled { cursor: default; }
+.seq-lane-field output {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  color: var(--text-muted);
+  text-align: right;
+}
+
+.seq-editor-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border-dim);
+}
+.seq-editor-steps { display: flex; align-items: center; gap: 6px; }
+.seq-editor-steps > span {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+.seq-editor-steps input[type='range'] { width: 120px; margin: 0; accent-color: var(--accent); }
+.seq-editor-steps output {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  min-width: 16px;
+  color: var(--text-primary);
+}
+.seq-editor-group { display: flex; gap: 6px; }
+.seq-editor-group button {
+  height: 22px;
+  padding: 0 9px;
+  font-size: 10px;
+  color: var(--text-muted);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-dim);
+  border-radius: 3px;
+  cursor: pointer;
+}
+.seq-editor-group button:hover { color: var(--text-primary); border-color: var(--border-mid); }
+.seq-editor-hint {
+  margin: 0 0 0 auto;
+  max-width: 340px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  line-height: 1.5;
+  text-align: right;
+  color: var(--text-muted);
+}
+.seq-editor-hint strong { color: var(--text-primary); }
+
+/* WT Pos as a horizontal slider under the wavetable picker. */
+.op-wtpos-row { display: flex; align-items: center; gap: 6px; width: 100%; padding: 0 4px; box-sizing: border-box; }
+.op-wtpos-lbl { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); }
+.op-wtpos-slider { flex: 1 1 auto; min-width: 0; accent-color: var(--op-color, var(--accent)); }
+.op-wtpos-val { font-family: var(--font-mono); font-size: 11px; color: var(--op-color, var(--accent)); min-width: 30px; text-align: right; }
+.op-wavetable-row { justify-content: center; }
+
+
+/* The Freq Mod caption hangs 10px below the FM knobs; with the old bottom row
+   gone it needs the card to reserve that room itself. */
+.op-card { padding-bottom: 10px; }
+.op-card-bot-row { margin: 0; }
+
+/* Macros: bare knobs (no container), bigger so they're easy to grab. */
+.plugin-macros { background: none; border: 0; padding: 0; gap: 8px; margin-left: 12px; }
+/* header knob sizing lives in topbar.css */
+.arp-strip .knob { --knob-size: 48px; }
+
+/* ---- Standalone window controls (the OS title bar is gone) ---- */
+.plugin-winctl { display: flex; align-items: center; gap: 2px; margin-left: 10px; }
+.plugin-winctl button {
+  appearance: none; border: 0; background: transparent; cursor: pointer;
+  width: 28px; height: 24px; font-size: 14px; line-height: 1; color: var(--text-muted); border-radius: 5px;
+}
+.plugin-winctl button:hover { background: rgba(255, 255, 255, 0.1); color: var(--text-primary); }
+.plugin-winctl button.is-close:hover { background: #d83b4b; color: #fff; }
+.plugin-header { -webkit-app-region: no-drag; }
+
+/* ---- FX / Arp view switches: always visible, stacked, in every view ---- */
+.view-switch { flex: 0 0 auto; display: flex; flex-direction: column; justify-content: center; gap: 6px; width: 84px; }
+.view-switch .fx-chain-view-toggle { margin-left: 0; justify-content: center; padding: 6px 4px; font-size: 10px; }
+.view-switch .fx-chain-view-toggle.is-on { color: var(--accent); border-color: var(--accent); box-shadow: 0 0 8px color-mix(in srgb, var(--accent) 45%, transparent); }
+
+/* ---- Wavetable folder button, right of the table picker ---- */
+.op-wt-folder {
+  appearance: none; cursor: pointer; flex: 0 0 auto; width: 26px; height: 24px; padding: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  color: var(--op-color, var(--accent)); background: rgba(0, 0, 0, 0.5);
+  border: 1px solid color-mix(in srgb, var(--op-color, var(--accent)) 55%, transparent); border-radius: 5px;
+}
+.op-wt-folder:hover { background: color-mix(in srgb, var(--op-color, var(--accent)) 22%, rgba(0, 0, 0, 0.5)); }
+.op-wavetable-row { gap: 6px; }
+.op-wavetable-row .op-warp-select { width: 150px; }
+
+/* ---- Space re-budget (user: filter row felt cramped; take it from the top
+   bar + the cards' bottom). Title bar is gone natively (+32px editor height);
+   here: tighter header, leaner card bottom, taller Filter/FX row. ---- */
+.plugin-header { padding-top: 2px; padding-bottom: 2px; }
+.op-card { padding-bottom: 8px; }
+.op-mod-cluster--fm .op-mod-cluster-lbl { bottom: -9px; }
+/* Two fixed card rows + the taller Filter/FX row (never resizes with the module count). */
+.env-grid { grid-template-rows: 66px 66px 92px; }
+.env-row-bottom .filter-panel { align-self: stretch; }
+.env-panel { flex: 0 0 auto; }
+
+/* Arp: key-snap controls + selects (no on/off button any more) */
+.arp-key { display: inline-flex; align-items: center; gap: 4px; }
+.arp-key-sel, .seq-editor-key select {
+  font-family: var(--font-mono); font-size: 10px; color: var(--text-secondary);
+  background: rgba(0, 0, 0, 0.45); border: 1px solid var(--border-soft); border-radius: 4px; padding: 3px 2px;
+}
+.arp-key-sel:disabled, .seq-editor-key select:disabled { opacity: 0.4; }
+.seq-editor-key button.is-on { color: var(--accent); border-color: var(--accent); }
+.arp-strip .arp-row { flex-wrap: wrap; row-gap: 4px; }
+
+/* Header "Key" sync button (same label/look as the arp's Key chip). */
+.key-sync-btn {
+  appearance: none; cursor: pointer; margin-right: 8px;
+  font-family: var(--font-mono); font-size: 10px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--text-secondary); background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-soft); border-radius: 4px; padding: 4px 10px;
+}
+.key-sync-btn:hover { color: var(--accent); border-color: var(--accent); }
+.key-sync-btn:active { background: color-mix(in srgb, var(--accent) 22%, var(--bg-surface-elevated)); }
+
+/* Filter card scaled up to the taller bottom row (user: "filter controls can
+   be increased in size ... scaled accordingly to the new container size"). */
+.filter-merged .filter-knob .knob,
+.filter-merged .knob { --knob-size: 66px; }
+.filter-merged .knob-value, .filter-merged .knob-input { font-size: 14px; }
+.filter-merged .knob-label { font-size: 10px; }
+.filter-seg button { font-size: 12px; padding: 5px 8px; }
+.filter-row-tag { font-size: 13px; width: 14px; }
+.filter-seg-stack { gap: 4px; }
+.filter-merged-body { gap: 10px; }
+.filter-row { gap: 6px; }
+
+.plugin-voice-mode {
+  align-self: stretch; padding: 6px 4px; font-size: 10px; font-weight: 700; letter-spacing: 0.08em;
+  border-radius: 6px; cursor: pointer; background: transparent; border: 1px solid; transition: box-shadow .15s;
+}
+/* a lit colour per mode: Poly = amber, Mono = magenta, Legato = cyan */
+.plugin-voice-mode.vm-poly   { color: #ffb347; border-color: #ffb347; background: rgba(255,179,71,.12); box-shadow: 0 0 8px rgba(255,179,71,.45); }
+.plugin-voice-mode.vm-mono   { color: #ff5fd2; border-color: #ff5fd2; background: rgba(255,95,210,.12); box-shadow: 0 0 8px rgba(255,95,210,.45); }
+.plugin-voice-mode.vm-legato { color: #5fe6ff; border-color: #5fe6ff; background: rgba(95,230,255,.12); box-shadow: 0 0 8px rgba(95,230,255,.45); }
+
+/* ---------------------------------------------------------------------------
+   Optional "+" modulators (todo.md P2): Audio Follower, ENV 4/5, LFO 4/5 and
+   the dashed add tile. They live in the right half of the 6-track
+   modulator grid; wrappers carry an explicit row, columns auto-fill.
+   --------------------------------------------------------------------------- */
+.env-grid > .env-extra { display: flex; min-width: 0; min-height: 0; }
+.env-grid > .env-extra > * { flex: 1 1 auto; min-width: 0; }
+
+.mod-remove {
+  margin-left: 4px; width: 16px; height: 16px; padding: 0; line-height: 1;
+  font-size: 13px; color: var(--text-secondary); background: transparent;
+  border: 0; border-radius: 4px; cursor: pointer; opacity: 0.55;
+}
+.mod-remove:hover { opacity: 1; color: #fff; background: rgba(255, 80, 80, 0.35); }
+
+.af-card .env-head { gap: 4px; }
+.af-head-fields { display: inline-flex; align-items: center; gap: 6px; margin-left: auto; }
+.af-field {
+  font: 600 9px var(--font-mono, monospace); color: var(--text-secondary);
+  cursor: ns-resize; user-select: none; touch-action: none; white-space: nowrap;
+}
+.af-field em { font-style: normal; color: var(--src, #a855f7); margin-right: 2px; opacity: 0.85; }
+.af-field:hover { color: #fff; }
+.af-src {
+  font: 700 8px var(--font-mono, monospace); letter-spacing: 0.06em; padding: 1px 4px; cursor: pointer;
+  color: var(--text-secondary); background: rgba(0, 0, 0, 0.35); border: 1px solid var(--border-soft, rgba(255,255,255,.2)); border-radius: 4px;
+}
+.af-src.is-out { color: #fff; background: color-mix(in srgb, var(--src, #a855f7) 55%, #000); border-color: var(--src, #a855f7); }
+.af-graph {
+  position: relative; flex: 1 1 auto; min-height: 0; margin-top: 2px;
+  border-radius: 6px; overflow: hidden; cursor: ew-resize; touch-action: none;
+  background: rgba(0, 0, 0, 0.35);
+}
+.af-bars { position: absolute; inset: 0; display: flex; align-items: flex-end; gap: 1px; padding: 0 1px; }
+.af-bars span { flex: 1 1 0; background: color-mix(in srgb, var(--src, #a855f7) 55%, #000); border-radius: 1px 1px 0 0; transition: none; }
+.af-band { position: absolute; top: 0; bottom: 0; background: color-mix(in srgb, var(--src, #a855f7) 22%, transparent); pointer-events: none; }
+.af-marker { position: absolute; top: 0; bottom: 0; width: 0; border-left: 1px dashed var(--src, #a855f7); pointer-events: none; }
+.af-band-label {
+  position: absolute; right: 4px; bottom: 1px; font: 600 8px var(--font-mono, monospace);
+  color: rgba(255, 255, 255, 0.7); pointer-events: none; text-shadow: 0 0 3px #000;
+}
+
+.mod-add-tile { position: relative; flex: 1 1 auto; min-width: 0; display: flex; }
+.mod-add-btn {
+  flex: 1 1 auto; font-size: 34px; font-weight: 200; line-height: 1;
+  color: rgba(255, 255, 255, 0.35); background: rgba(0, 0, 0, 0.25);
+  border: 1.5px dashed rgba(255, 255, 255, 0.28); border-radius: 12px; cursor: pointer;
+}
+.mod-add-btn:hover { color: #fff; border-color: rgba(255, 255, 255, 0.6); background: rgba(255, 255, 255, 0.05); }
+.mod-add-menu {
+  position: absolute; z-index: 1000; right: 0; bottom: calc(100% + 4px); min-width: 200px;
+  padding: 4px; border-radius: 8px; background: var(--bg-surface-elevated, #12172e);
+  border: 1px solid var(--border-soft, rgba(255, 255, 255, 0.15)); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+.mod-add-menu-title { font: 600 9px var(--font-mono, monospace); letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.55; padding: 3px 6px; }
+.mod-add-item {
+  display: flex; align-items: center; gap: 8px; width: 100%; padding: 5px 8px; text-align: left;
+  font: 600 11px var(--font-mono, monospace); color: var(--text-primary, #e8ecff);
+  background: transparent; border: 0; border-radius: 5px; cursor: pointer;
+}
+.mod-add-item:hover { background: rgba(255, 255, 255, 0.09); }
+.mod-add-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+/* FX chain strip: drag an active row onto another to reorder. */
+.fx-chain-row[data-fx-row].is-on { cursor: grab; touch-action: none; user-select: none; }
+.fx-chain-row.is-dragging { opacity: 0.55; cursor: grabbing; outline: 1px dashed var(--fx-color, var(--accent)); }
+.fx-chain-row.is-drop-target {
+  background: color-mix(in srgb, var(--fx-color, var(--accent)) 28%, transparent);
+  box-shadow: inset 0 0 0 1px var(--fx-color, var(--accent));
+}
+
+/* ---- Modulator pool: any number of ENV / LFO / Audio Follower cards. The card
+   area spans the first two grid rows (same height as before) and scrolls
+   vertically once more than two rows of cards exist. ---- */
+.env-grid > .env-cards {
+  grid-column: 1 / -1;
+  grid-row: 1 / span 2;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-auto-rows: 66px;
+  gap: inherit;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
+  scroll-snap-type: y mandatory;   /* rows never stop half-cut */
+}
+.env-cards > .env-extra { grid-row: auto; scroll-snap-align: start; }
+/* Every cell is a stretching flex box (the old `.env-grid > .env-extra` rule no longer matches
+   now the cards live inside `.env-cards`), so the "+" tile is exactly as tall as a card. */
+.env-cards > .env-extra { display: flex; min-width: 0; min-height: 0; height: 100%; }
+.env-cards > .env-extra > * { flex: 1 1 auto; min-width: 0; }
+.mod-add-tile { height: 100%; }
+.mod-add-btn { height: 100%; }
+.mod-add-count { margin-left: auto; padding-left: 10px; font-size: 9px; opacity: 0.55; }
+.mod-add-item:disabled { opacity: 0.35; cursor: default; }
+.mod-add-item:disabled:hover { background: transparent; }
+
+/* Audio Follower: A / R / G drag fields live INSIDE the graph (bottom-left) so the
+   header only holds dot + title + IN/OUT + x and the title is never truncated. */
+.af-fields {
+  position: absolute; left: 4px; bottom: 1px; display: inline-flex; gap: 6px;
+  padding: 0 3px; border-radius: 3px; background: rgba(0, 0, 0, 0.45); z-index: 2;
+}
+.af-card .env-title { white-space: nowrap; }
+.af-card .af-head-fields { flex: none; }
+
+/* Global colour grade, matching the adjustment made in the image editor:
+   Saturation 91, Brightness -8, Contrast +3, Hue 0, Lightness 0.
+   On `html` so it reaches body-level portals (popovers, menus) as well as #root. */
+/* Global colour grade (saturation 91, brightness -8, contrast +3) was a filter here; REMOVED while testing the
+   envelope card white-box glitch. */

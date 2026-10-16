@@ -1,0 +1,481 @@
+/* Docked sequencer editor (components/SeqEditor.tsx). Prefix: seqv- */
+.seqv {
+  --seqv-bg: color-mix(in srgb, var(--panel, #15171c) 92%, #000);
+  --seqv-line: color-mix(in srgb, var(--accent, #7cf) 14%, rgba(255,255,255,0.08));
+  --seqv-dim: rgba(255,255,255,0.45);
+  flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 8px;
+  padding: 10px 12px 8px; border: 1px solid var(--seqv-line); border-radius: 10px;
+  background: var(--seqv-bg); color: var(--text, #dde); font-size: 11px; user-select: none;
+}
+.seqv-head { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 8px 10px; padding-bottom: 8px; border-bottom: 1px solid var(--seqv-line); }
+.seqv-title { display: flex; flex-direction: column; gap: 1px; min-width: 90px; }
+.seqv-title strong { font-size: 14px; letter-spacing: .04em; color: var(--accent, #7cf); }
+.seqv-sub { font-size: 9px; color: var(--seqv-dim); max-width: 150px; line-height: 1.2; }
+.seqv-spacer { flex: 1 1 8px; }
+.seqv-field { display: flex; flex-direction: column; gap: 2px; }
+.seqv-field > span { font-size: 9px; text-transform: uppercase; letter-spacing: .06em; color: var(--seqv-dim); }
+.seqv select, .seqv input[type=number] {
+  background: rgba(0,0,0,.35); color: inherit; border: 1px solid var(--seqv-line); border-radius: 5px;
+  padding: 3px 5px; font: inherit; height: 24px; min-width: 0;
+}
+.seqv select:focus-visible, .seqv input:focus-visible, .seqv button:focus-visible { outline: 1px solid var(--accent, #7cf); }
+.seqv-field-num input[type=number] { width: 56px; }
+.seqv-field-num select { width: 84px; }
+.seqv-group { display: flex; align-items: center; gap: 4px; }
+.seqv-inline { display: flex; align-items: center; gap: 3px; }
+.seqv-inline input { width: 54px; }
+.seqv-btn {
+  height: 24px; padding: 0 9px; border-radius: 5px; border: 1px solid var(--seqv-line);
+  background: rgba(255,255,255,.04); color: inherit; font: inherit; cursor: pointer;
+}
+.seqv-btn:hover { background: rgba(255,255,255,.09); }
+.seqv-btn.is-on { background: var(--accent, #7cf); color: #04121a; border-color: transparent; font-weight: 600; }
+.seqv-btn.is-hot { border-color: var(--accent, #7cf); color: var(--accent, #7cf); box-shadow: 0 0 8px color-mix(in srgb, var(--accent, #7cf) 45%, transparent); }
+.seqv-icon { width: 26px; padding: 0; font-size: 14px; }
+.seqv-close { width: 26px; padding: 0; font-size: 17px; line-height: 1; }
+.seqv-btn:disabled, .seqv-mini:disabled { opacity: .35; cursor: default; }
+.seqv-switch { display: flex; border: 1px solid var(--seqv-line); border-radius: 5px; overflow: hidden; height: 24px; }
+.seqv-switch button { background: transparent; border: 0; color: inherit; font: inherit; padding: 0 9px; cursor: pointer; }
+.seqv-switch button.is-on { background: var(--accent, #7cf); color: #04121a; font-weight: 600; }
+.seqv-regen {
+  display: flex; align-items: center; gap: 6px; height: 34px; padding: 0 16px; border-radius: 8px; cursor: pointer;
+  border: 1px solid var(--accent, #7cf); color: var(--accent, #7cf); background: color-mix(in srgb, var(--accent, #7cf) 12%, transparent);
+  font: inherit; font-size: 12px; font-weight: 700; letter-spacing: .05em;
+}
+.seqv-regen svg { width: 20px; height: 20px; }
+.seqv-regen:hover { background: color-mix(in srgb, var(--accent, #7cf) 26%, transparent); }
+.seqv-regen:active { transform: scale(.97); }
+
+/* lanes */
+.seqv-lanes { display: flex; flex-direction: column; gap: 6px; }
+.seqv-lane {
+  --lc: var(--accent, #7cf);
+  display: grid; grid-template-columns: 148px minmax(0, 1fr); gap: 8px; align-items: stretch;
+  padding: 5px 6px; border-radius: 8px; background: rgba(255,255,255,.025); border: 1px solid rgba(255,255,255,.04);
+}
+.seqv-lane-on { --lc: #8fd6a2; }
+.seqv-lane-prob { --lc: #6fc1ff; }
+.seqv-lane-pitch { --lc: #ffb24d; }
+.seqv-lane-octave { --lc: #f07fb5; }
+.seqv-lane-vel { --lc: #b79cff; }
+.seqv-lane-gate { --lc: #4fe0d0; }
+.seqv-lane-slide { --lc: #e8d95a; }
+.seqv-lane-ctl { display: flex; flex-direction: column; gap: 4px; justify-content: center; border-left: 3px solid var(--lc); padding-left: 7px; }
+.seqv-lane-name { font-weight: 700; font-size: 12px; letter-spacing: .05em; color: var(--lc); }
+.seqv-lane-tools { display: flex; align-items: center; gap: 4px; }
+.seqv-dice {
+  display: flex; align-items: center; gap: 4px; height: 24px; padding: 0 7px; border-radius: 6px; cursor: ns-resize;
+  border: 1px solid var(--seqv-line); background: rgba(0,0,0,.3); color: var(--seqv-dim); font: inherit; touch-action: none;
+}
+.seqv-dice b { font-weight: 600; font-size: 10px; min-width: 28px; text-align: right; }
+.seqv-dice.is-armed { color: var(--lc); border-color: color-mix(in srgb, var(--lc) 55%, transparent); }
+.seqv-dice:hover { background: rgba(255,255,255,.1); }
+.seqv-mini {
+  width: 24px; height: 24px; padding: 0; border-radius: 6px; border: 1px solid var(--seqv-line);
+  background: rgba(0,0,0,.3); color: inherit; cursor: pointer; font-size: 12px;
+}
+.seqv-mini:hover:not(:disabled) { background: rgba(255,255,255,.1); }
+.seqv-lane-sel { display: flex; align-items: center; gap: 3px; color: var(--seqv-dim); }
+.seqv-lane-sel select { width: 46px; height: 22px; padding: 0 2px; }
+.seqv-rot { display: flex; gap: 2px; }
+.seqv-rot button {
+  width: 22px; height: 22px; padding: 0; font-size: 8px; border-radius: 5px; cursor: pointer;
+  border: 1px solid var(--seqv-line); background: rgba(0,0,0,.3); color: inherit;
+}
+.seqv-rot button:hover { background: rgba(255,255,255,.1); }
+
+.seqv-lane-main { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.seqv-bars {
+  position: relative; display: grid; grid-template-columns: repeat(16, minmax(0, 1fr)); gap: 3px;
+  height: 64px; cursor: crosshair; touch-action: none;
+}
+.seqv-col {
+  position: relative; border-radius: 3px; background: rgba(0,0,0,.35); overflow: hidden;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.04);
+}
+.seqv-col.is-beat { background: rgba(255,255,255,.055); }
+.seqv-col.is-off { opacity: .28; }
+.seqv-fill { position: absolute; left: 0; right: 0; background: var(--lc); opacity: .85; border-radius: 2px; }
+.seqv-col.is-rest .seqv-fill { display: none; }
+.seqv-bars.is-toggle .seqv-fill { border-radius: 3px; }
+.seqv-bars.is-bipolar::after {
+  content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: rgba(255,255,255,.18); pointer-events: none;
+}
+.seqv-col.is-play { box-shadow: inset 0 0 0 1px var(--lc), 0 0 8px color-mix(in srgb, var(--lc) 55%, transparent); }
+.seqv-col.is-play .seqv-fill { opacity: 1; filter: brightness(1.25); }
+.seqv-col.is-locked { background-image: repeating-linear-gradient(135deg, transparent 0 4px, rgba(255,255,255,.05) 4px 8px); }
+.seqv-col.has-ov .seqv-fill { opacity: .45; }
+.seqv-ghost {
+  position: absolute; left: 0; right: 0; height: 4px; margin-bottom: -2px; background: #fff; border-radius: 2px;
+  box-shadow: 0 0 6px var(--lc), 0 0 0 1px var(--lc); pointer-events: none;
+}
+.seqv-bars.is-toggle .seqv-ghost { display: none; }
+.seqv-bars.is-toggle .seqv-col.has-ov { outline: 1px dashed #fff; outline-offset: -2px; }
+.seqv-lenhandle {
+  position: absolute; top: -2px; bottom: -2px; width: 10px; margin-left: -5px; cursor: ew-resize; touch-action: none; z-index: 2;
+}
+.seqv-lenhandle::before { content: ''; position: absolute; left: 4px; top: 0; bottom: 0; width: 2px; background: var(--lc); border-radius: 1px; }
+.seqv-lenhandle::after {
+  content: ''; position: absolute; left: 1px; top: 50%; width: 8px; height: 14px; margin-top: -7px; background: var(--lc); border-radius: 3px; opacity: .9;
+}
+
+.seqv-vals, .seqv-locks { display: grid; grid-template-columns: repeat(16, minmax(0, 1fr)); gap: 3px; }
+.seqv-vals span { text-align: center; font-size: 9px; color: var(--seqv-dim); font-variant-numeric: tabular-nums; overflow: hidden; white-space: nowrap; }
+.seqv-vals span.has-ov { color: #fff; }
+.seqv-vals span.is-off, .seqv-locks .is-off { opacity: .3; }
+.seqv-locks button {
+  display: flex; align-items: center; justify-content: center; gap: 2px; height: 16px; padding: 0; border-radius: 3px;
+  border: 1px solid transparent; background: rgba(255,255,255,.04); color: var(--seqv-dim); font-size: 9px; cursor: pointer;
+}
+.seqv-locks button:hover { background: rgba(255,255,255,.12); color: #fff; }
+.seqv-locks button.is-locked { color: var(--lc); border-color: color-mix(in srgb, var(--lc) 50%, transparent); background: color-mix(in srgb, var(--lc) 12%, transparent); }
+.seqv-locks button.is-play { color: #fff; background: color-mix(in srgb, var(--lc) 35%, transparent); }
+
+/* scale weights */
+.seqv-weights { border: 1px solid var(--seqv-line); border-radius: 8px; background: rgba(255,255,255,.02); }
+.seqv-weights-toggle {
+  width: 100%; display: flex; align-items: center; gap: 6px; padding: 6px 9px; background: transparent; border: 0; color: inherit;
+  font: inherit; font-weight: 600; text-align: left; cursor: pointer;
+}
+.seqv-weights-toggle em { font-style: normal; font-weight: 400; color: var(--seqv-dim); font-size: 10px; }
+.seqv-chev { color: var(--accent, #7cf); width: 10px; }
+.seqv-weights-body { display: flex; align-items: flex-end; gap: 12px; padding: 4px 10px 10px; }
+.seqv-weights-grid { flex: 1; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 6px; }
+.seqv-weight { display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 10px; }
+.seqv-weight output { color: var(--seqv-dim); font-size: 9px; }
+.seqv-weight input[type=range] {
+  writing-mode: vertical-lr; direction: rtl; width: 18px; height: 70px; accent-color: var(--accent, #7cf); margin: 0;
+}
+.seqv-weight.is-root span { color: var(--accent, #7cf); font-weight: 700; }
+.seqv-weights-side { display: flex; flex-direction: column; gap: 5px; }
+
+.seqv-hint { margin: 0; font-size: 10px; color: var(--seqv-dim); line-height: 1.4; }
+.seqv-hint kbd { padding: 0 4px; border: 1px solid var(--seqv-line); border-radius: 3px; font: inherit; }
+
+@media (max-width: 900px) {
+  .seqv-lane { grid-template-columns: 1fr; }
+  .seqv-lane-ctl { flex-direction: row; flex-wrap: wrap; align-items: center; }
+  .seqv-vals span { font-size: 7px; }
+}
+
+/* Docked in the OSC-panel slot: never taller than the slot (the modulator strip + filter/arp row
+   below MUST stay visible so cables can be dragged onto lane targets); scroll inside if needed. */
+.seqv { flex: 1 1 0; min-height: 0; overflow-y: auto; overflow-x: hidden; gap: 6px; padding: 8px 12px 6px; scrollbar-width: thin; }
+.seqv-lanes { gap: 4px; }
+.seqv-bars { height: 34px; }
+.seqv-head { padding-bottom: 6px; }
+
+/* Compact lanes: with the visualizer hidden in the detailed views the slot is ~600px, and the 7 lanes + header
+   + scale weights must fit WITHOUT an inner scrollbar. Name sits beside the dice (2 control rows instead of 3). */
+.seqv-lane { grid-template-columns: 200px minmax(0, 1fr); padding: 3px 6px; }
+.seqv-lanes { gap: 3px; }
+.seqv-lane-ctl { flex-direction: row; flex-wrap: wrap; align-content: center; gap: 2px 6px; padding-left: 6px; }
+.seqv-lane-name { width: 46px; align-self: center; }
+.seqv-dice { height: 21px; }
+.seqv-mini { width: 21px; height: 21px; }
+.seqv-lane-sel select { height: 20px; }
+.seqv-rot button { width: 20px; height: 20px; }
+.seqv-bars { height: 24px; }
+.seqv-lane-main { gap: 1px; }
+.seqv-locks button { height: 13px; font-size: 8px; }
+.seqv-vals span { font-size: 8px; line-height: 10px; }
+
+/* ---- MEGA ARP layout (MEGA ARP.md + MEGA_ARP_DESIGN.png) -------------------------------------------
+   One viewport, no scrolling: lanes, then a control bar, then pattern area + side column. */
+.seqv { overflow: hidden; position: relative; }
+.seqv-head { padding-bottom: 4px; }
+.seqv-head .seqv-title { flex-direction: row; align-items: baseline; gap: 8px; min-width: 0; }
+.seqv-head .seqv-sub { max-width: none; }
+.seqv-close { margin-left: auto; }
+
+/* control bar under the lanes: regen | timing & feel | key */
+.seqv-bar { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 6px 14px; padding: 4px 0 2px; border-top: 1px solid var(--seqv-line); }
+.seqv-bar-group { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 6px; }
+.seqv-bar-regen .seqv-regen { height: 28px; padding: 0 12px; font-size: 11px; }
+.seqv-bar-regen .seqv-regen svg { width: 16px; height: 16px; }
+.seqv-bar-timing .seqv-field > select { width: 118px; }
+.seqv-bar-key select { width: 64px; }
+.seqv-bar-key select:last-of-type { width: 108px; }
+.seqv-bar .seqv-field-num input[type=number] { width: 48px; }
+
+/* body: pattern area on the left, side column on the right */
+.seqv-body { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 8px; flex: 1 1 auto; min-height: 0; }
+.seqv-pattern-area { position: relative; display: flex; flex-direction: column; gap: 4px; min-width: 0; min-height: 0; }
+.seqv-pattern-head { display: flex; align-items: center; justify-content: space-between; font-size: 9px; text-transform: uppercase; letter-spacing: .06em; color: var(--seqv-dim); }
+.seqv-pattern-grid { flex: 1 1 auto; min-height: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.seqv-pat-block { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-auto-rows: minmax(0, 1fr); gap: 4px; padding: 4px; border-radius: 8px; background: rgba(0,0,0,.2); border: 1px solid rgba(255,255,255,.04); }
+.seqv-pat {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 0; padding: 2px 3px;
+  border-radius: 6px; border: 1px solid transparent; background: rgba(255,255,255,.03); color: var(--seqv-dim); font: inherit; font-size: 9px; cursor: pointer;
+}
+.seqv-pat svg { width: 30px; height: 18px; }
+.seqv-pat:hover { background: rgba(255,255,255,.09); color: inherit; }
+/* Selected patterns: the border and the text light up, the inside stays unfilled.
+   Left-click pick = GREEN, right-click pick = BLUE, both on the same pattern = a slow green-to-blue gradient. */
+.seqv-pat.is-on { color: var(--lay-green); border-color: var(--lay-green); background: transparent; box-shadow: 0 0 7px color-mix(in srgb, var(--lay-green) 40%, transparent); font-weight: 700; }
+.seqv-pat.is-blue { color: var(--lay-blue); border-color: var(--lay-blue); background: transparent; box-shadow: 0 0 7px color-mix(in srgb, var(--lay-blue) 40%, transparent); font-weight: 700; }
+.seqv-pat.is-both {
+  /* the border: an opaque inner fill (hides the gradient) over a moving green-blue gradient */
+  border: 1px solid transparent;
+  background:
+    linear-gradient(var(--panel, #15171c), var(--panel, #15171c)) padding-box,
+    linear-gradient(90deg, var(--lay-green), var(--lay-blue), #7c6cf0, var(--lay-blue), var(--lay-green)) border-box 0 0 / 300% 100%;
+  box-shadow: 0 0 9px color-mix(in srgb, var(--lay-blue) 45%, transparent);
+  animation: seqv-trip 3.2s linear infinite;
+}
+/* the text: the same gradient, clipped to the letters */
+.seqv-pat.is-both > span {
+  background: linear-gradient(90deg, var(--lay-green), var(--lay-blue), #7c6cf0, var(--lay-blue), var(--lay-green)) 0 0 / 300% 100%;
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  animation: seqv-trip 3.2s linear infinite;
+}
+.seqv-pat.is-both svg { color: var(--lay-green); }
+@keyframes seqv-trip { from { background-position: 0 0, 0% 50%; } to { background-position: 0 0, 100% 50%; } }
+@media (prefers-reduced-motion: reduce) { .seqv-pat.is-both, .seqv-pat.is-both > span { animation: none; } }
+
+/* Scale Weights overlay: sits over the pattern area, nothing else */
+.seqv-weights-overlay {
+  position: absolute; inset: 0; z-index: 5; display: flex; align-items: stretch; gap: 10px; padding: 8px;
+  border-radius: 8px; background: color-mix(in srgb, var(--panel, #15171c) 96%, #000); border: 1px solid var(--seqv-line);
+}
+.seqv-weights-overlay .seqv-weights-grid { flex: 1; min-width: 0; }
+.seqv-weights-overlay .seqv-weight input[type=range] { height: 100%; min-height: 60px; }
+.seqv-weights-overlay .seqv-weights-side { justify-content: center; }
+.seqv-weights-overlay .seqv-weights-side .seqv-btn { height: 26px; }
+
+/* side column: Chaos ring, four knobs, transpose/velocity, on/hold */
+.seqv-side { display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 0; }
+.seqv-chaos { display: flex; flex-direction: column; align-items: center; gap: 0; cursor: ns-resize; touch-action: none; user-select: none; }
+.seqv-chaos-label { font-size: 9px; text-transform: uppercase; letter-spacing: .08em; color: var(--seqv-dim); }
+.seqv-chaos svg { display: block; margin: -4px 0 -6px; }
+.seqv-chaos-value { font-size: 16px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.seqv-knobs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 6px; justify-items: center; }
+.seqv-side-row { display: flex; gap: 6px; align-items: flex-end; justify-content: center; flex-wrap: wrap; }
+.seqv-side-row .seqv-field-num input[type=number] { width: 52px; }
+.seqv-side-row .seqv-btn { min-width: 52px; }
+
+/* dice: one toggle (-, -+, +); fader brightness comes from an inline opacity */
+.seqv-dice { position: relative; min-width: 74px; }
+.seqv-dice em { font-style: normal; font-size: 9px; color: var(--seqv-dim); min-width: 28px; text-align: right; font-variant-numeric: tabular-nums; }
+.seqv-dice b { min-width: 18px; font-size: 11px; }
+.seqv-dice.is-neg b, .seqv-dice.is-pos b, .seqv-dice.is-both b { color: var(--lc); }
+.seqv-dice.is-armed { box-shadow: 0 0 6px color-mix(in srgb, var(--lc) 30%, transparent); }
+.seqv-tip {
+  position: absolute; left: 50%; bottom: calc(100% + 4px); transform: translateX(-50%); padding: 2px 6px; border-radius: 4px;
+  background: #000; color: #fff; font-size: 10px; font-weight: 700; white-space: nowrap; pointer-events: none; z-index: 9;
+}
+
+/* while Scale Weights is open the pattern grid is dimmed behind the overlay */
+.seqv-state-weights .seqv-pattern-grid { opacity: .35; pointer-events: none; }
+
+/* fit-to-viewport pass: shorter lanes, side column as two compact rows */
+.seqv-bars { height: 16px; }
+.seqv-lanes { gap: 2px; }
+.seqv-lane { padding: 2px 6px; }
+.seqv-lane-main { gap: 0; }
+.seqv-vals span { line-height: 9px; font-size: 8px; }
+.seqv-locks button { height: 11px; font-size: 7px; }
+.seqv-dice { height: 18px; min-width: 64px; }
+.seqv-mini { width: 18px; height: 18px; }
+.seqv-rot button { width: 18px; height: 18px; }
+.seqv-lane-sel select { height: 18px; }
+.seqv-lane-ctl { gap: 1px 6px; }
+.seqv-side { gap: 4px; }
+.seqv-side-top { display: flex; align-items: center; gap: 10px; }
+.seqv-side-top .seqv-chaos svg { width: 64px; height: 64px; margin: 0; }
+.seqv-side-top .seqv-chaos-value { font-size: 13px; }
+.seqv-side-top .seqv-knobs { gap: 2px 4px; }
+.seqv-side-row .seqv-btn { height: 20px; }
+.seqv-side-row .seqv-field > span { font-size: 8px; }
+.seqv-side-row .seqv-field-num input[type=number] { height: 20px; }
+.seqv-side-top .seqv-knobs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+/* layers + tight + humanize, in the pattern header (moved from the retired ARP detail view) */
+.seqv-pattern-head { gap: 8px; flex-wrap: wrap; }
+.seqv-layers { display: flex; align-items: center; gap: 3px; flex-wrap: wrap; font-size: 9px; }
+.seqv-layers-tag { color: var(--seqv-dim); text-transform: uppercase; letter-spacing: .05em; margin: 0 2px 0 6px; }
+.seqv-layers-arp { display: flex; flex-direction: column; gap: 2px; }
+.seqv-layers-row { display: flex; gap: 2px; }
+.seqv-lbtn {
+  width: 22px; height: 16px; padding: 0; border-radius: 4px; cursor: pointer; font: inherit; font-size: 8px;
+  border: 1px solid var(--seqv-line); background: rgba(255,255,255,.04); color: var(--seqv-dim);
+}
+.seqv-lbtn:hover { background: rgba(255,255,255,.1); color: inherit; }
+.seqv-lbtn.is-on { background: var(--accent, #7cf); color: #04121a; border-color: transparent; font-weight: 700; }
+.seqv-layers .seqv-btn { height: 18px; padding: 0 6px; font-size: 9px; }
+.seqv-layers .seqv-field > span { display: none; }
+.seqv-layers .seqv-field-num input[type=number] { width: 44px; height: 18px; }
+.seqv-layers .seqv-field { flex-direction: row; align-items: center; gap: 4px; }
+.seqv-layers .seqv-field > span { display: inline; font-size: 8px; text-transform: uppercase; color: var(--seqv-dim); }
+.seqv-side-top .seqv-knobs .knob { --knob-size: 44px; }
+.seqv-side-top .seqv-knobs .knob-value, .seqv-side-top .seqv-knobs .knob-input { font-size: 10px; }
+.seqv-side-top .seqv-knobs .knob-label { font-size: 8px; }
+
+/* knobs: one row of four, big enough to read (Rate / Octaves / Swing / Gate) */
+.seqv-side-top { gap: 8px; }
+.seqv-side-top .seqv-knobs { grid-template-columns: repeat(4, 58px); gap: 2px; }
+.seqv-side-top .seqv-knobs .knob { --knob-size: 52px; }
+.seqv-side-top .seqv-knobs .knob-value, .seqv-side-top .seqv-knobs .knob-input { font-size: 11px; }
+.seqv-side-top .seqv-knobs .knob-label { font-size: 9px; }
+
+/* MEGA ARP follow-up: bigger layer buttons on their own line, Chord hit / Tight under the knobs */
+.seqv-pattern-head { flex-wrap: wrap; row-gap: 4px; }
+.seqv-layers { order: 3; width: 100%; gap: 4px; }
+.seqv-lbtn { width: 30px; height: 20px; font-size: 10px; }
+.seqv-layers-tag { min-width: 40px; font-size: 9px; }
+.seqv-layers-arp { gap: 3px; }
+.seqv-layers-row { gap: 3px; }
+.seqv-layers .seqv-btn { height: 22px; }
+.seqv-toggles { display: flex; gap: 6px; width: 100%; }
+.seqv-toggles .seqv-btn { flex: 1; height: 26px; }
+
+/* fit: the side column must end inside the body */
+.seqv-side-top .seqv-chaos svg { width: 54px; height: 54px; }
+.seqv-side-top .seqv-chaos-value { font-size: 12px; }
+.seqv-toggles .seqv-btn { height: 22px; }
+.seqv-side-row { margin-top: 0; }
+
+/* MEGA ARP UI fix 1: empty space goes to the step lanes; body keeps its content size */
+.seqv-lanes { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; gap: 3px; }
+.seqv-lane { flex: 1 1 0; min-height: 0; }
+.seqv-lane-main { flex: 1 1 auto; min-height: 0; }
+.seqv-bars { flex: 1 1 auto; height: auto; min-height: 16px; }
+.seqv-body { flex: 0 0 auto; }
+.seqv-layer-grid { display: grid; grid-template-columns: 44px repeat(5, 30px); gap: 3px; align-items: center; }
+.seqv-layer-grid .seqv-layers-tag { margin: 0; font-size: 9px; }
+.seqv-side { width: 100%; }
+
+.seqv-layer-grid .seqv-lbtn { width: 34px; height: 24px; font-size: 11px; }
+.seqv-layer-grid { grid-template-columns: 48px repeat(5, 34px); gap: 4px; }
+
+/* MEGA ARP UI fix 2: pattern keeps a fixed height so the lanes get the space above it */
+.seqv-pattern-area { flex: 0 0 auto; }
+.seqv-pattern-grid { flex: 0 0 auto; }
+.seqv-pat-block { grid-auto-rows: 36px; }
+.seqv-pat { min-height: 36px; }
+.seqv-body { align-items: start; }
+.seqv-bar-extra { gap: 6px; }
+.seqv-bar-extra .seqv-field-num input[type=number] { width: 50px; }
+
+/* MEGA ARP UI fix 3: lanes and the pattern area share the height (about 2:1); no empty band */
+.seqv-lanes { flex: 2 1 0; }
+.seqv-body { flex: 1 1 0; min-height: 0; align-items: stretch; }
+.seqv-pattern-area { flex: 1 1 auto; min-height: 0; }
+.seqv-pattern-grid { flex: 1 1 auto; min-height: 0; }
+.seqv-pat-block { grid-auto-rows: minmax(36px, 1fr); }
+.seqv-pat { min-height: 36px; }
+
+/* MEGA ARP UI fix 3b: body is at least its side column; pattern buttons fill it; lanes take the rest */
+.seqv-lanes { flex: 1 1 0; }
+.seqv-body { flex: 0 0 auto; }
+.seqv-pattern-grid { min-height: 150px; }
+
+/* layer colours: CHORD purple, ARP row 1 green (same green as the mini strip's On button), ARP row 2 blue */
+/* Lit layer buttons use the mini strip's recipe (.arp-m-arp: 85% tint over black, dark ink, 50% glow),
+   so the detail view's green reads the same as the mini panel's. Blue is a lighter tint of the same recipe. */
+.seqv { --lay-green: #4fd69c; --lay-blue: #6cb8ff; --lay-purple: #a855f7; }
+.seqv-lbtn[data-layer="chord"].is-on { background: var(--lay-purple); color: #fff; }
+.seqv-lbtn[data-row="1"].is-on { background: color-mix(in srgb, var(--lay-green) 85%, #000); color: #04140d; border-color: var(--lay-green); box-shadow: 0 0 8px color-mix(in srgb, var(--lay-green) 50%, transparent); }
+.seqv-lbtn[data-row="2"].is-on { background: color-mix(in srgb, var(--lay-blue) 85%, #000); color: #04121f; border-color: var(--lay-blue); box-shadow: 0 0 8px color-mix(in srgb, var(--lay-blue) 50%, transparent); }
+
+/* Rate knob with its dice stacked under it; the direction button sits beside the die */
+.seqv-kcol { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.seqv-kdice { display: flex; align-items: center; gap: 3px; }
+.seqv-kdice .seqv-dice { min-width: 0; width: 44px; height: 20px; }
+.seqv-pol {
+  min-width: 26px; height: 20px; padding: 0 5px; border-radius: 5px; border: 1px solid var(--seqv-line);
+  background: rgba(0,0,0,.3); color: var(--seqv-dim); font: inherit; font-size: 10px; font-weight: 700; cursor: pointer;
+}
+.seqv-pol:hover { background: rgba(255,255,255,.1); color: inherit; }
+
+/* header: Transpose / Vel % / Humanize sit beside the close button */
+.seqv-head { flex-wrap: nowrap; align-items: center; }
+.seqv-head-extra { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+.seqv-head-extra .seqv-field { flex-direction: row; align-items: center; gap: 4px; }
+.seqv-head-extra .seqv-field > span { font-size: 9px; text-transform: uppercase; color: var(--seqv-dim); }
+.seqv-head-extra .seqv-field-num input[type=number] { width: 50px; height: 20px; }
+.seqv-head .seqv-close { margin-left: 0; }
+
+/* Layer rows in the sequencer side panel: one horizontal strip each. Green = Arp row 1 (the mini strip's knobs), blue = Arp row 2. */
+.seqv-row { display: flex; align-items: center; gap: 8px; padding: 4px 6px 4px 8px; border-left: 3px solid var(--seqv-line); border-radius: 6px; }
+.seqv-row-green { border-left-color: var(--lay-green); }
+.seqv-row-blue { border-left-color: var(--lay-blue); }
+.seqv-row .seqv-knobs { grid-template-columns: repeat(4, auto); gap: 2px 6px; }
+/* Two rows must fit the side panel without pushing the lanes: smaller knobs and rings in a row. */
+.seqv-row .seqv-knobs { gap: 2px 4px; }
+.seqv-row .seqv-knobs .knob { --knob-size: 38px; }
+.seqv-row .seqv-knobs .knob-value, .seqv-row .seqv-knobs .knob-input { font-size: 9px; }
+.seqv-row .seqv-knobs .knob-label { font-size: 8px; }
+.seqv-row .seqv-chaos svg { width: 50px; height: 50px; margin: 0; }
+.seqv-row .seqv-chaos-value { font-size: 11px; }
+.seqv-row .seqv-chaos-label { font-size: 8px; }
+/* MOCKUP PASS: the layer rows are one line each, as in the layered mockup. The die sits beside its knob
+   (not under it), so the side column stays about as tall as the pattern grid and the lanes get the height. */
+.seqv-row { padding: 2px 4px 2px 6px; gap: 6px; }
+.seqv-row .seqv-chaos svg { width: 44px; height: 44px; margin: 0; }
+.seqv-row .seqv-chaos-value { font-size: 10px; }
+.seqv-row .seqv-chaos-label { display: none; }
+.seqv-row .seqv-knobs { display: flex; gap: 4px; align-items: center; }
+.seqv-row .seqv-kcol { flex-direction: row; align-items: center; gap: 2px; }
+.seqv-row .seqv-knobs .knob { --knob-size: 44px; }
+.seqv-row .seqv-kdice { flex-direction: column; gap: 2px; }
+.seqv-row .seqv-kdice .seqv-dice { width: 26px; height: 15px; min-width: 0; padding: 0; }
+.seqv-row .seqv-kdice .seqv-dice b, .seqv-row .seqv-kdice .seqv-dice em { display: none; }
+.seqv-row .seqv-kdice .seqv-pol { min-width: 26px; height: 13px; font-size: 8px; padding: 0 3px; }
+.seqv-layer-grid .seqv-lbtn { height: 18px; }
+.seqv-layer-grid { gap: 2px; }
+/* Control bar (regen, direction, length, swing/sync, key) sits ABOVE the step lanes now. The DOM order stays
+   header, lanes, bar, body; `order` puts the bar first so the lanes and the layer rows get the height. */
+.seqv-bar { order: 1; }
+.seqv-lanes { order: 2; }
+.seqv-body { order: 3; }
+/* Pattern block too tall: the body is as tall as the side column, so tighten the side and let the tiles shrink.
+   The step lanes take the freed height. */
+.seqv-pattern-grid { min-height: 0; }
+.seqv-pat-block { grid-auto-rows: minmax(24px, 1fr); }
+.seqv-pat { min-height: 24px; }
+.seqv-side { gap: 3px; }
+.seqv-toggles .seqv-btn { height: 20px; }
+.seqv-layer-grid .seqv-lbtn { height: 16px; }
+.seqv-layer-grid { gap: 1px; }
+/* Control bar now lives IN the sequencer header, on the same line as the title and Transpose / Vel % / Humanize.
+   The header is one row; the bar's controls shrink to fit it. */
+.seqv-head { display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; }
+.seqv-head > .seqv-title { flex: 0 0 auto; }
+.seqv-head > .seqv-head-extra { flex: 0 0 auto; }
+.seqv-head .seqv-bar { order: 0; display: flex; flex-wrap: nowrap; align-items: center; gap: 6px; flex: 1 1 auto; min-width: 0; padding: 0; border: 0; background: none; }
+.seqv-head .seqv-bar-group { display: flex; flex-wrap: nowrap; align-items: center; gap: 4px; min-width: 0; }
+.seqv-head .seqv-bar select, .seqv-head .seqv-bar input { height: 20px; font-size: 10px; }
+.seqv-head .seqv-bar .seqv-field { gap: 3px; }
+.seqv-head .seqv-bar .seqv-field > span { font-size: 8px; }
+.seqv-head .seqv-bar .seqv-field-num input { width: 40px; }
+.seqv-head .seqv-bar .seqv-btn, .seqv-head .seqv-bar .seqv-regen { height: 20px; padding: 0 6px; font-size: 9px; }
+.seqv-head .seqv-bar .seqv-switch button { height: 20px; padding: 0 5px; font-size: 9px; }
+.seqv-head .seqv-bar .seqv-icon { width: 20px; padding: 0; }
+/* Fit the bar into the header row: tighter selects, inputs and buttons, no wrapping of labels. */
+.seqv-head { gap: 6px; }
+.seqv-head .seqv-title strong { font-size: 12px; white-space: nowrap; }
+.seqv-head .seqv-bar select { width: auto; max-width: 96px; font-size: 9px; padding: 0 14px 0 4px; }
+.seqv-head .seqv-bar .seqv-btn, .seqv-head .seqv-bar .seqv-regen { white-space: nowrap; padding: 0 5px; }
+.seqv-head .seqv-bar .seqv-switch button { padding: 0 4px; }
+.seqv-head .seqv-bar .seqv-field-num input { width: 34px; }
+.seqv-head .seqv-bar .seqv-field > span { white-space: nowrap; }
+.seqv-head .seqv-head-extra { gap: 6px; }
+.seqv-head .seqv-head-extra .seqv-field-num input { width: 38px; }
+.seqv-head .seqv-head-extra .seqv-field > span { font-size: 8px; white-space: nowrap; }
+.seqv-head .seqv-close { flex: 0 0 auto; }
+/* Second fit pass for the header bar: swing input not clipped, Frozen/Live not clipped, selects do not overlap. */
+.seqv-head .seqv-bar { gap: 4px; }
+.seqv-head .seqv-bar .seqv-field-num input[type=number] { width: 40px; }
+.seqv-head .seqv-bar .seqv-switch { display: flex; }
+.seqv-head .seqv-bar .seqv-switch button { min-width: 0; padding: 0 3px; }
+.seqv-head .seqv-bar select { max-width: 84px; padding: 0 12px 0 3px; min-width: 0; }
+/* Detailed view: the layer tags (Chord / Arp) are gone, so the five offset buttons take the full row and are taller. */
+.seqv-layer-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; }
+.seqv-layer-grid .seqv-lbtn { width: 100%; height: 24px; font-size: 11px; }
+/* Layer buttons wider: the side column (layer rows + layer grid) takes 420px instead of 340px; the pattern tiles give up the room. */
+.seqv-body { grid-template-columns: minmax(0, 1fr) 420px; }
+/* Layer buttons (CHORD / ARP offsets): the grid fills the side column (it was shrink-wrapped to its content, so the
+   buttons came out narrow), and the buttons are taller. */
+.seqv-side .seqv-layer-grid { width: 100%; }
+.seqv-layer-grid .seqv-lbtn { width: 100%; height: 30px; font-size: 12px; }

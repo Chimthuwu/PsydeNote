@@ -1,0 +1,4535 @@
+/* ==========================================================================
+   DESIGN TOKENS
+   ==========================================================================
+   Phase 2 of the redesign brief (§10 of todo.md). Two rules govern this block:
+
+   1. **Themes redefine tokens; they do not get parallel stylesheets.** Before
+      this existed the stylesheet held 271 hard-coded colour values against 106
+      token uses, and the theme blocks told the story the user complained
+      about: `classic` had 34 override rules and `kawaii` 67, while
+      `cyberpunk`, `synthwave` and `monochrome` had *three each* — literally a
+      palette swap of `modern`. Personality has to live in the tokens
+      (surface separation, border weight, glow strength, radius, type), not
+      only in hue.
+
+   2. **Scoped to `.theme-*`, never `.app.theme-*`.** The pop-out root is
+      `.popout.theme-*`, so the old `.app`-scoped blocks never matched it and
+      every theme rendered there in the default palette. One selector now feeds
+      both windows.
+
+   The legacy aliases at the end map the original names onto the semantic ones,
+   so every un-migrated rule keeps working while components move across. The
+   old `.app.theme-*` blocks still win on specificity where they exist, which
+   is deliberate: this layer can land with zero visual change, and those blocks
+   get deleted as each component is migrated. */
+
+:root {
+  /* Spacing scale — the brief asks for one, used to create hierarchy. */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 24px;
+  --sp-6: 32px;
+  --sp-7: 48px;
+
+  /* Type: one UI face, one technical face. No more. */
+  --font-ui: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  --font-mono: ui-monospace, 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+
+  font-family: var(--font-ui);
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* --- Studio (default / `modern`) ----------------------------------------
+   Quiet professional monitoring equipment: near-black surfaces separated by
+   luminance rather than by borders, one restrained accent, glow used sparingly.
+   This is the palette the acceptance test is written against — it should still
+   read correctly with --accent forced to grey. */
+/* default fallback palette
+   This is the palette an UNTYPED element reads — and it must never be lighter
+   than a real theme, or a missing theme class shows as a pale haze rather than
+   as "no theme". It was `#070a1c` (a blue-grey), which is LIGHTER than both
+   Aurora ice (`#02030a`) and Graphite (`#0b0c0e`) — that mismatch is exactly
+   what the haze was. Pure black is the floor: every theme is a near-black, so
+   falling back can only ever be too dark, never washed out. The theme classes
+   still supply the hue for anything actually themed. */
+:root {
+  --bg-app: #000000;
+  --bg-surface: #06080f;
+  --bg-surface-elevated: #0a0d16;
+  --bg-gradient:
+    radial-gradient(ellipse at 20% 20%, rgba(125, 249, 255, 0.08), transparent 60%),
+    radial-gradient(ellipse at 80% 80%, rgba(180, 139, 255, 0.08), transparent 60%),
+    var(--bg-app);
+
+  --text-primary: #e8edff;
+  --text-secondary: #b6c2e8;
+  --text-muted: #8e9cc8;
+
+  --accent: #7df9ff;
+  --accent-bright: #b48bff;
+  --accent-soft: #ff8df0;
+
+  --border: rgba(120, 150, 255, 0.18);
+  --border-soft: rgba(120, 150, 255, 0.08);
+  --border-active: rgba(125, 249, 255, 0.55);
+
+  --waveform: #7df9ff;
+  --grid-major: rgba(120, 150, 255, 0.18);
+  --grid-minor: rgba(120, 150, 255, 0.08);
+
+  --success: #7fffaf;
+  --warning: #ffcc66;
+  --danger: #ff5d6c;
+  --rec: #39ff14;
+
+  /* Personality knobs — this is what stops themes being pure palette swaps. */
+  --glow: 0.45;
+  --radius: 10px;
+  --radius-lg: 14px;
+  --radius-pill: 999px;
+  --panel-blur: 10px;
+}
+
+/* --- Black ice: pure black, icy pale-cyan trace. Minimal, cold. --------- */
+.theme-black-ice {
+  --bg-app: #000000;
+  /* Surfaces lifted (user, 2026-10-10: "really a little too dark in some
+     places ... particularly at the very top bar where the macros are" — the
+     top bar is `background: var(--bg-surface-elevated)`, which was #080b0d,
+     i.e. all but black against a pure-black page). The page stays #000: that
+     black IS the theme. Only the things sitting ON it came up. */
+  --bg-surface: #0c0f11;
+  --bg-surface-elevated: #13171a;
+  --bg-gradient:
+    radial-gradient(ellipse at 30% 14%, rgba(168, 240, 255, 0.06), transparent 60%),
+    var(--bg-app);
+
+  --text-primary: #eafaff;
+  --text-secondary: #a9cdd6;
+  --text-muted: #6f929b;
+
+  --accent: #7fe3f5;
+  --accent-bright: #c4f4fc;
+  --accent-soft: #a8f0d8;
+
+  --border: rgba(168, 240, 255, 0.16);
+  --border-soft: rgba(168, 240, 255, 0.05);
+  --border-active: rgba(168, 240, 255, 0.5);
+
+  --waveform: #c4f4fc;
+  --grid-major: rgba(168, 240, 255, 0.1);
+  --grid-minor: rgba(168, 240, 255, 0.04);
+
+  --success: #7fe3f5;
+  --warning: #ffcc7a;
+  --danger: #ff6b8e;
+  --rec: #7fe3f5;
+
+  --glow: 0.35;
+  --radius: 8px;
+  --radius-lg: 12px;
+  --radius-pill: 999px;
+  --panel-blur: 0px;
+}
+
+/* --- Aurora ice: black ice's cold, but alive. Deep black with a slow-drifting
+   aurora (cyan -> violet -> mint) behind glassy, lit panels. ------------- */
+.theme-aurora-ice {
+  --bg-app: #02030a;
+  --bg-surface: #060a16;
+  --bg-surface-elevated: #080d1c;
+  --bg-gradient: var(--bg-app);
+
+  --text-primary: #f0fbff;
+  --text-secondary: #b4d4ee;
+  --text-muted: #7a98bd;
+
+  --accent: #6df0ff;
+  --accent-bright: #c9fbff;
+  --accent-soft: #a58bff;
+
+  --border: rgba(130, 220, 255, 0.22);
+  --border-soft: rgba(150, 190, 255, 0.09);
+  --border-active: rgba(109, 240, 255, 0.7);
+
+  --waveform: #8ff3ff;
+  --grid-major: rgba(130, 200, 255, 0.12);
+  --grid-minor: rgba(130, 200, 255, 0.05);
+
+  --success: #6dffd0;
+  --warning: #ffd27a;
+  --danger: #ff6b9a;
+  --rec: #ff6b9a;
+
+  --glow: 0.9;
+  --radius: 10px;
+  --radius-lg: 14px;
+  --radius-pill: 999px;
+  --panel-blur: 0px;
+}
+/* The aurora: one oversized, composited layer that only translates/rotates
+   (GPU-cheap — no gradient repaint per frame), sitting behind the UI. */
+.theme-aurora-ice.app { position: relative; isolation: isolate; overflow: hidden; background: var(--bg-app); }
+.theme-aurora-ice.app::before {
+  content: '';
+  position: fixed; inset: -25%;
+  z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(38% 30% at 22% 24%, rgba(40, 215, 255, 0.20), transparent 70%),
+    radial-gradient(34% 28% at 78% 18%, rgba(140, 90, 255, 0.20), transparent 70%),
+    radial-gradient(40% 32% at 62% 82%, rgba(60, 255, 200, 0.13), transparent 70%),
+    radial-gradient(30% 26% at 12% 78%, rgba(80, 120, 255, 0.16), transparent 70%);
+  will-change: transform;
+  animation: aurora-drift 48s ease-in-out infinite alternate;
+}
+@keyframes aurora-drift {
+  0%   { transform: translate3d(-3%, -2%, 0) rotate(0deg) scale(1); }
+  50%  { transform: translate3d(3%, 2%, 0) rotate(4deg) scale(1.08); }
+  100% { transform: translate3d(-1%, 3%, 0) rotate(-3deg) scale(1.03); }
+}
+@media (prefers-reduced-motion: reduce) { .theme-aurora-ice.app::before { animation: none; } }
+/* Lit glass panels: a bright top edge + cool inner glow. */
+.theme-aurora-ice .op-card,
+.theme-aurora-ice .env-card,
+.theme-aurora-ice .mod-card,
+.theme-aurora-ice .fx-chain-strip,
+.theme-aurora-ice .arp-strip {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    inset 0 0 22px rgba(109, 240, 255, 0.05),
+    0 0 calc(var(--glow) * 18px) color-mix(in srgb, var(--op-color, var(--accent)) 45%, transparent);
+}
+.theme-aurora-ice .plugin-header {
+  background: linear-gradient(180deg, rgba(109, 240, 255, 0.09), rgba(8, 13, 28, 0.85));
+  border-bottom: 1px solid rgba(109, 240, 255, 0.35);
+  box-shadow: 0 6px 24px -12px rgba(109, 240, 255, 0.6);
+}
+.theme-aurora-ice .plugin-brand {
+  background: linear-gradient(90deg, #6df0ff, #a58bff);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.theme-aurora-ice .main-viz,
+.theme-aurora-ice .faze-scope { border-radius: var(--radius-lg); box-shadow: 0 0 26px -8px rgba(109, 240, 255, 0.55), inset 0 0 0 1px rgba(109, 240, 255, 0.22); }
+.theme-aurora-ice .op-sampler-wave,
+.theme-aurora-ice .op-wavetable-graphic { box-shadow: inset 0 0 18px rgba(109, 240, 255, 0.08); }
+
+/* --- Graphite: the neutral one. No hue at all in the surfaces — a plain
+   greyscale stack with a silver accent — for when Black ice's cyan and Aurora
+   ice's blue are both too much of a colour. (Replaces the first attempt at a
+   third theme, "Aurora ember", which hue-rotated Aurora ice into amber/rose;
+   the user's verdict was "just kind of looks like brown, red, or orange ...
+   really looks awful", and the ask was for generic, not another tint.) The
+   semantic trio (success / warning / danger) keeps its hue on purpose — those
+   have to stay tellable apart whatever the theme is. ---------------------- */
+.theme-graphite {
+  --bg-app: #0b0c0e;
+  --bg-surface: #141619;
+  --bg-surface-elevated: #1b1e22;
+  --bg-gradient: var(--bg-app);
+
+  --text-primary: #f2f4f6;
+  --text-secondary: #c2c7cd;
+  --text-muted: #8a9099;
+
+  --accent: #d8dee6;
+  --accent-bright: #ffffff;
+  --accent-soft: #9aa3ad;
+
+  --border: rgba(205, 213, 222, 0.20);
+  --border-soft: rgba(205, 213, 222, 0.07);
+  --border-active: rgba(232, 238, 245, 0.62);
+
+  --waveform: #e4e9ef;
+  --grid-major: rgba(205, 213, 222, 0.11);
+  --grid-minor: rgba(205, 213, 222, 0.045);
+
+  --success: #7fd99a;
+  --warning: #ffd27a;
+  --danger: #ff6b6b;
+  --rec: #ff6b6b;
+
+  /* Low: a neutral theme that still glowed would just look grey-and-foggy. */
+  --glow: 0.3;
+  --radius: 10px;
+  --radius-lg: 14px;
+  --radius-pill: 999px;
+  --panel-blur: 0px;
+}
+/* No drifting aurora layer here — that is the two Aurora themes' thing, and
+   "generic" is the whole point of this one. Panels get a plain top highlight. */
+.theme-graphite .op-card,
+.theme-graphite .env-card,
+.theme-graphite .mod-card,
+.theme-graphite .fx-chain-strip,
+.theme-graphite .arp-strip {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07);
+}
+.theme-graphite .plugin-header {
+  background: linear-gradient(180deg, #23272c, #1b1e22);
+  border-bottom: 1px solid rgba(205, 213, 222, 0.22);
+}
+.theme-graphite .plugin-brand { color: var(--text-primary); }
+
+/* --- Legacy aliases ------------------------------------------------------
+   The original token names, expressed in terms of the semantic ones. This is
+   what lets the token layer land without touching 1800 lines of rules in the
+   same change: everything un-migrated keeps resolving, and the pop-out — which
+   never matched the old `.app.theme-*` blocks — starts themeing correctly
+   immediately. Delete an alias once nothing references it. */
+.theme-black-ice,
+.theme-aurora-ice,
+.theme-graphite,
+:root {
+  /* Knob hardware is NEUTRAL in every theme (user, 2026-10-10: "the knobs
+     shouldn't be too heavily affected by the theme colour ... they currently
+     are ... dial that back"). The housing, face and cap used to be built from
+     --bg-surface-elevated / --bg-app, so they picked up whatever hue the theme
+     carried — most obvious on a warm theme, where every knob went brown.
+     These two tokens are deliberately the SAME for all themes; a theme can
+     still override them, but by default only --knob-color (the arc and the
+     pointer) carries the accent, which is the part worth tinting. */
+  --knob-body: #1b1e22;
+  --knob-well: #0a0c0e;
+  --bg: var(--bg-app);
+  --bg-2: var(--bg-surface-elevated);
+  --fg: var(--text-primary);
+  --muted: var(--text-muted);
+  --accent-2: var(--accent-bright);
+  --accent-3: var(--accent-soft);
+  --line: var(--border);
+  --line-soft: var(--border-soft);
+  --ok: var(--success);
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--fg);
+}
+/* `html` is the root element, so it is where a custom property has to be
+   DEFINED for every descendant to see it — and `html` was resolving `--bg`
+   against `:root`'s bare Aurora-ice `#070a1c`, a blue-grey lighter than all
+   three real themes. It showed as a haze wherever `<body>` (which IS themed,
+   via the class mirrored onto it for portals) failed to cover the viewport:
+   scrollbar gutters, overscroll, the popout window. `useThemeVersion.ts`
+   mirrors the same class onto `document.documentElement`, so `html` and
+   `body` can never disagree. */
+html { background: var(--bg-app, #000000); }
+
+.app {
+  /* Flex, not grid: which rows exist now depends on the layout and on the
+     visibility toggles (title bar? HUD? board? footer?), and a column flexbox
+     doesn't care how many there are. The board is the only flexible child;
+     everything else is its natural height. */
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  position: relative;
+  background: var(--bg-gradient);
+  overflow: hidden;
+}
+
+/* HUD -------------------------------------------------------------------- */
+
+.hud {
+  display: grid;
+  grid-template-rows: auto auto auto auto;
+  gap: clamp(4px, 1vw, 8px);
+  padding: clamp(6px, 1.4vw, 12px) clamp(8px, 1.6vw, 16px);
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-surface-elevated);
+  backdrop-filter: blur(var(--panel-blur));
+  min-width: 0;
+}
+
+.hud-status {
+  display: flex;
+  align-items: center;
+  gap: clamp(6px, 1.2vw, 12px);
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.pill {
+  font-size: 12px;
+  padding: 4px 10px;
+  white-space: nowrap;
+  border-radius: var(--radius-pill);
+  letter-spacing: 0.04em;
+}
+.pill.on {
+  background: var(--bg-surface-elevated);
+  color: var(--success);
+  border: 1px solid var(--success);
+  box-shadow: 0 0 calc(8px * var(--glow)) var(--success);
+}
+.pill.off {
+  background: var(--bg-surface);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+
+.hud-mode {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+/* Grows to eat the leftover row space and shrinks to a 40px stub rather than
+   pushing the elapsed-time readout off the right edge. */
+.hud-buffer {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--text-muted);
+  flex: 1 1 140px;
+  min-width: 0;
+}
+.hud-buffer em {
+  white-space: nowrap;
+}
+.hud-buffer progress {
+  flex: 1 1 auto;
+  width: auto;
+  min-width: 40px;
+  max-width: 130px;
+  height: 6px;
+  border: none;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+}
+.hud-buffer progress::-webkit-progress-bar {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+}
+.hud-buffer progress::-webkit-progress-value {
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  border-radius: 4px;
+}
+
+.hud-vu {
+  position: relative;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.vu-bar {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2), var(--accent-3));
+  transition: width 60ms linear;
+}
+
+.hud-actions {
+  display: flex;
+  gap: clamp(5px, 1vw, 8px);
+  align-items: center;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+/* The save button carries the longest label, so it's the one that shrinks and
+   ellipsises when the row runs out of room — but it does NOT grow to fill it.
+   `flex-grow: 1` here is what made "Save last 10 min" a banner across the
+   whole HUD at every window size. */
+.hud-actions .primary {
+  flex: 0 1 auto;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* Push the transport to the right so the row reads status → actions. */
+.hud-actions {
+  justify-content: flex-end;
+}
+.hud-actions .ghost {
+  flex: 0 0 auto;
+}
+
+/* Label triples ------------------------------------------------------------
+   Every transport button ships three labels — full text, short text, glyph —
+   and exactly one is visible. `labels-auto` lets the breakpoints choose;
+   `labels-text` and `labels-icon` pin it regardless of window size. */
+.lbl-icon { display: none; }
+.lbl-short { display: none; }
+.labels-text .lbl-full { display: inline; }
+.labels-text .lbl-short,
+.labels-text .lbl-icon { display: none; }
+.labels-icon .lbl-full,
+.labels-icon .lbl-short { display: none; }
+.labels-icon .lbl-icon { display: inline; }
+
+/* Tight variant: bar strip + pop-out overlay. */
+button.is-tight {
+  padding: 3px 8px;
+  font-size: 12px;
+  border-radius: 6px;
+}
+button.primary.big.is-tight {
+  padding: 3px 9px;
+  font-size: 12px;
+}
+button.is-tight.labels-icon {
+  padding: 3px 6px;
+  min-width: 24px;
+}
+.transport-toggle.is-live .lbl-icon { color: var(--danger); }
+
+.hud-hint {
+  font-size: 11px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.hud-hint kbd {
+  padding: 2px 6px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.03);
+  font-family: inherit;
+  color: var(--fg);
+}
+
+/* "The device is quiet" is a state, not an error — it's what an idle WASAPI
+   endpoint looks like — so it gets a warning tint rather than the red bar. */
+.hud-quiet {
+  font-size: 11px;
+  white-space: nowrap;
+  color: #ffcc66;
+  background: rgba(255, 204, 102, 0.1);
+  border: 1px solid rgba(255, 204, 102, 0.3);
+  border-radius: 999px;
+  padding: 2px 8px;
+  cursor: help;
+}
+.hud-quiet.mini {
+  padding: 1px 5px;
+  flex: 0 0 auto;
+}
+
+.hud-error {
+  font-size: 12px;
+  color: var(--danger);
+  background: rgba(255, 93, 108, 0.08);
+  border: 1px solid rgba(255, 93, 108, 0.25);
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+
+/* Board ------------------------------------------------------------------ */
+
+.board {
+  position: relative;
+  flex: 1 1 auto;
+  margin: clamp(6px, 1.6vw, 16px);
+  min-width: 0;
+  min-height: 0;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--bg-surface);
+  box-shadow:
+    inset 0 0 60px rgba(0, 0, 0, 0.4),
+    0 0 0 1px var(--border-soft);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.board canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Sidebar ---------------------------------------------------------------- */
+
+.sidebar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: clamp(8px, 1.4vw, 12px);
+  padding: clamp(8px, 1.4vw, 12px) clamp(10px, 2vw, 20px) clamp(10px, 2vw, 20px);
+  border-top: 1px solid var(--border);
+  background: var(--bg-surface-elevated);
+  align-items: center;
+  min-width: 0;
+}
+.sidebar > * {
+  min-width: 0;
+}
+
+.picker-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(6px, 1.2vw, 12px);
+  min-width: 0;
+}
+.picker-row-stack {
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: auto auto auto;
+}
+.picker-row label {
+  font-size: 12px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  line-height: 1.15;
+}
+.picker-row small {
+  grid-column: 2 / 3;
+  font-size: 11px;
+  color: var(--muted);
+}
+.picker-select-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative; /* anchors the dropdown popover */
+  min-width: 0;
+  /* Device names are short; letting the trigger run the full width of the
+     window made the picker look like the most important control in the app. */
+  max-width: 460px;
+}
+
+select, input[type='text'], input[type='number'] {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  padding: 8px 10px;
+  border-radius: var(--radius);
+  font-family: inherit;
+  font-size: 13px;
+  outline: none;
+}
+select:focus, input:focus {
+  border-color: var(--accent);
+}
+option {
+  background: var(--bg-surface-elevated);
+  color: var(--text-primary);
+}
+
+/* Custom dropdown listbox ----------------------------------------------- */
+/* OS popup menus ignore most CSS, so the source picker uses an in-DOM
+   button + popover instead so we get full colour control. */
+
+.dd-trigger {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  padding: 8px 12px 8px 10px;
+  border-radius: var(--radius);
+  font-family: inherit;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+.dd-trigger:hover {
+  border-color: var(--border-active);
+}
+.dd-trigger:focus,
+.dd-trigger[aria-expanded='true'] {
+  border-color: var(--accent);
+  box-shadow: 0 0 calc(8px * var(--glow)) var(--border-active);
+}
+.dd-trigger.is-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.dd-trigger .dd-label {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.dd-trigger .dd-chevron {
+  font-size: 10px;
+  color: var(--text-muted);
+  transition: transform 120ms ease;
+}
+.dd-trigger[aria-expanded='true'] .dd-chevron {
+  transform: rotate(180deg);
+  color: var(--accent);
+}
+
+/* The picker lives in the footer, so the popover opens UPWARD into the board
+   area. Dropping down would run past the bottom of the window and get clipped
+   by `.app { overflow: hidden }`. max-height is viewport-relative so the list
+   still fits when the window is short. */
+.dd-popover {
+  position: absolute;
+  z-index: 50;
+  bottom: calc(100% + 6px);
+  left: 0;
+  right: 40px; /* leave room for refresh button */
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-active);
+  border-radius: var(--radius-lg);
+  box-shadow:
+    0 -18px 48px rgba(0, 0, 0, 0.55),
+    0 0 0 1px var(--border-soft),
+    0 0 calc(30px * var(--glow)) var(--border-active);
+  padding: 4px;
+  max-height: min(320px, 45vh);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* Custom scrollbar inside the popover */
+.dd-popover::-webkit-scrollbar {
+  width: 10px;
+}
+.dd-popover::-webkit-scrollbar-track {
+  background: transparent;
+}
+.dd-popover::-webkit-scrollbar-thumb {
+  background: var(--border-active);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+.dd-popover::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+  background-clip: content-box;
+}
+
+.dd-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.dd-empty {
+  padding: 14px 12px;
+  font-size: 12px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.dd-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: var(--radius);
+  font-size: 13px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  user-select: none;
+  transition: background 90ms ease, color 90ms ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.dd-item:hover {
+  background: var(--border-soft);
+  color: var(--text-primary);
+}
+.dd-item.is-selected {
+  background: var(--border);
+  color: var(--accent-bright);
+}
+.dd-item.is-selected::before {
+  content: '✓ ';
+  color: var(--accent);
+  margin-right: 4px;
+}
+.dd-item.is-placeholder {
+  color: var(--text-muted);
+  font-style: italic;
+  cursor: default;
+}
+.dd-item.is-placeholder:hover {
+  background: transparent;
+  color: var(--text-muted);
+}
+.dd-item-label {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.viz-buttons {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  min-width: 0;
+}
+
+/* Buttons --------------------------------------------------------------- */
+
+button {
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  border-radius: var(--radius);
+  transition: transform 80ms ease, background 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+}
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+button:active {
+  transform: scale(0.97);
+}
+button.primary {
+  background: linear-gradient(135deg, var(--accent), var(--accent-bright));
+  border: 0;
+  padding: 8px 14px;
+  color: var(--bg-app);
+  font-weight: 600;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+button.primary:hover {
+  filter: brightness(1.1);
+  box-shadow: 0 0 calc(8px * var(--glow)) var(--border-active);
+}
+button.primary.big {
+  padding: 10px 18px;
+  font-size: 14px;
+}
+button.ghost {
+  background: var(--border-soft);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  padding: 8px 10px;
+}
+button.ghost:hover {
+  background: var(--border);
+  border-color: var(--border-active);
+}
+button.chip {
+  background: var(--border-soft);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 6px 10px;
+  border-radius: var(--radius-pill);
+}
+button.chip.on {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--border);
+  box-shadow: 0 0 calc(6px * var(--glow)) var(--border-active);
+}
+
+.theme-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.theme-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 10px;
+  color: var(--fg);
+}
+.theme-card.on {
+  border-color: var(--accent);
+  background: rgba(125, 249, 255, 0.08);
+}
+.theme-card .swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  box-shadow: 0 0 10px currentColor;
+}
+.preset-row,
+.chip-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
+.slider-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.slider-row input[type='range'] {
+  flex: 1;
+  accent-color: var(--accent);
+}
+
+/* Velocity curve (SettingsPanel) --------------------------------------- */
+.vel-curve-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.vel-curve-preview {
+  flex: 1;
+  min-width: 0;
+  height: 64px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.25);
+}
+.vel-curve-axis {
+  stroke: var(--text-muted);
+  stroke-width: 1;
+  opacity: 0.6;
+}
+.vel-curve-line {
+  stroke: var(--accent);
+  stroke-width: 2;
+  filter: drop-shadow(0 0 4px var(--accent));
+}
+.vel-curve-tick {
+  fill: var(--text-muted);
+  font-size: 8px;
+  opacity: 0.8;
+}
+
+.checkbox-row {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 10px;
+  align-items: flex-start;
+  cursor: pointer;
+  padding: 10px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 10px;
+}
+.checkbox-row input { margin-top: 3px; }
+.checkbox-row strong { display: block; font-size: 13px; }
+.checkbox-row em {
+  display: block;
+  font-size: 11px;
+  color: var(--text-muted);
+  font-style: normal;
+  margin-top: 2px;
+}
+.checkbox-row {
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-active);
+}
+
+.template-tokens {
+  margin-top: 8px;
+}
+.template-tokens .chip {
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+/* Modal ------------------------------------------------------------------ */
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+.modal {
+  background: var(--bg-surface-elevated);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: clamp(12px, 2.4vw, 18px) clamp(12px, 2.6vw, 20px);
+  width: min(560px, 94vw);
+  max-height: 92vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: grid;
+  gap: 14px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5), 0 0 calc(60px * var(--glow)) var(--border-active);
+}
+.modal header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.modal header h2 {
+  margin: 0;
+  font-size: 16px;
+  letter-spacing: 0.04em;
+}
+.modal section {
+  display: grid;
+  gap: 8px;
+}
+
+/* No horizontal scrollbar, ever. Grid and flex children default to
+   `min-width: auto`, so any wide descendant (an <input>'s intrinsic size, the
+   un-wrapped theme-card row, a long <small>) pushed the whole dialog sideways
+   instead of shrinking. Floor every level at 0 and let content wrap. */
+.modal,
+.modal > *,
+.modal section,
+.modal section > *,
+.modal .radio,
+.modal .checkbox-row,
+.modal .theme-card,
+.modal .folder-row,
+.modal .folder-row code,
+.modal .slider-row,
+.modal .slider-row input {
+  min-width: 0;
+}
+.modal input[type='text'],
+.modal input[type='number'],
+.modal select {
+  width: 100%;
+  min-width: 0;
+}
+.modal small,
+.modal .radio em,
+.modal .checkbox-row em {
+  overflow-wrap: anywhere;
+}
+.modal .theme-card {
+  flex: 0 1 auto;
+}
+
+/* Slim, themed vertical scrollbar — the sections list is genuinely taller
+   than the screen, but the default chunky OS bar looks awful over the panel. */
+.modal::-webkit-scrollbar {
+  width: 8px;
+}
+.modal::-webkit-scrollbar-track {
+  background: transparent;
+}
+.modal::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 999px;
+}
+.modal::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
+.modal section > label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+.modal footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 6px;
+}
+.radio-group {
+  display: grid;
+  gap: 6px;
+}
+.radio {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-surface-elevated);
+  cursor: pointer;
+}
+.radio input { margin-top: 4px; }
+.radio strong { display: block; font-size: 13px; }
+.radio em { display: block; font-size: 11px; color: var(--text-muted); font-style: normal; margin-top: 2px; }
+.folder-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.folder-row code {
+  flex: 1;
+  background: var(--bg-surface);
+  border-radius: var(--radius);
+  padding: 8px 10px;
+  font-size: 12px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+small {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* Toasts ----------------------------------------------------------------- */
+
+.toast-stack {
+  position: fixed;
+  bottom: clamp(58px, 12vh, 80px);
+  right: clamp(8px, 2vw, 24px);
+  left: clamp(8px, 2vw, 24px);
+  justify-items: end;
+  display: grid;
+  gap: 8px;
+  z-index: 40;
+  pointer-events: none;
+}
+.toast {
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  color: var(--text-primary);
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  font-size: 13px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4);
+  max-width: min(360px, 100%);
+  animation: slide-in 200ms ease-out;
+  pointer-events: auto;
+}
+.toast.ok { border-left-color: var(--success); }
+.toast.err { border-left-color: var(--danger); }
+@keyframes slide-in {
+  from { transform: translateX(20px); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+
+/* Loading ---------------------------------------------------------------- */
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  font-size: 14px;
+  color: var(--muted);
+}
+@keyframes kawaii-pulse {
+  0%, 100% {
+    box-shadow:
+      inset 0 0 40px rgba(255, 143, 199, 0.14),
+      0 0 16px rgba(255, 95, 162, 0.45),
+      0 0 34px rgba(179, 157, 255, 0.32);
+  }
+  50% {
+    box-shadow:
+      inset 0 0 40px rgba(255, 143, 199, 0.2),
+      0 0 26px rgba(255, 95, 162, 0.7),
+      0 0 54px rgba(127, 231, 220, 0.45);
+  }
+}
+@keyframes kawaii-heartbeat {
+  0%, 100% { transform: scale(1); }
+  15%      { transform: scale(1.12); }
+  30%      { transform: scale(1); }
+}
+@keyframes kawaii-shimmer {
+  0%, 65%  { transform: translateX(-120%); }
+  100%     { transform: translateX(120%); }
+}
+
+
+/* Compact / responsive --------------------------------------------------- */
+/* The window can be dragged down to 380x300 (see minWidth/minHeight in
+   src/main/index.ts). Every step below sheds chrome so the three things that
+   matter — the transport buttons, the visualizer, and the source picker —
+   stay fully visible instead of being clipped by `.app { overflow: hidden }`. */
+
+/* --- narrow: footer stops being a two-column row --- */
+@media (max-width: 860px) {
+  .sidebar {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .viz-buttons {
+    justify-content: flex-start;
+  }
+}
+
+/* --- narrower: shorten labels, drop the helper copy --- */
+@media (max-width: 680px) {
+  .labels-auto .lbl-full { display: none; }
+  .labels-auto .lbl-short { display: inline; }
+
+  button.primary.big {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+  button.chip {
+    padding: 5px 9px;
+    font-size: 12px;
+  }
+  .picker-row small {
+    display: none;
+  }
+  .hud-buffer {
+    flex-basis: 100px;
+  }
+}
+
+/* --- very narrow: stack the picker label, hide the hotkey hint --- */
+@media (max-width: 520px) {
+  .hud-hint {
+    display: none;
+  }
+  .picker-row,
+  .picker-row-stack {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .picker-row small {
+    grid-column: 1 / -1;
+  }
+  .hud-mode {
+    display: none;
+  }
+  button.chip {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+  .toast {
+    font-size: 12px;
+    padding: 8px 11px;
+  }
+}
+
+/* --- floor: icon-only transport, buffer bar collapses to the readout --- */
+@media (max-width: 420px) {
+  .hud-buffer progress {
+    display: none;
+  }
+  .hud-actions {
+    gap: 4px;
+  }
+  button.primary.big {
+    padding: 7px 10px;
+    font-size: 12px;
+  }
+  button.ghost {
+    padding: 7px 8px;
+  }
+  .viz-buttons {
+    gap: 4px;
+  }
+}
+
+/* --- sub-360: the transport goes icon-only --- */
+@media (max-width: 360px) {
+  .labels-auto .lbl-short { display: none; }
+  .labels-auto .lbl-icon { display: inline; }
+  .hud-actions .primary {
+    flex: 0 0 auto;
+  }
+  .hud {
+    padding: 5px 7px;
+    gap: 4px;
+  }
+  .sidebar {
+    padding: 5px 7px 7px;
+  }
+  .picker-row small,
+  .picker-row label {
+    display: none;
+  }
+  .board {
+    margin: 4px;
+  }
+}
+
+/* --- sub-260: only the things you press survive --- */
+@media (max-width: 260px) {
+  .hud-buffer,
+  .hud-mode,
+  .viz-buttons {
+    display: none;
+  }
+  .pill {
+    padding: 3px 7px;
+    font-size: 11px;
+  }
+}
+
+/* --- short windows: the board must not get squeezed to nothing -------------
+   The window can be dragged to any height, and the failure mode is always the
+   same: the HUD and footer keep their full natural height while the board —
+   the only flexible child — collapses to a sliver. A window docked across the
+   top of a monitor is the worst case, because it's *wide*, so none of the
+   width breakpoints fire to help.
+
+   The single biggest win is dropping the HUD's stacked rows. A full-width row
+   holding two right-aligned buttons is mostly empty space, and every pixel of
+   it comes straight out of the visualizer. */
+@media (max-height: 520px) {
+  .hud-hint {
+    display: none;
+  }
+  .picker-row small {
+    display: none;
+  }
+  .board {
+    min-height: 60px;
+  }
+}
+
+@media (max-height: 460px) {
+  .hud {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: clamp(6px, 1.2vw, 12px);
+    padding: 5px clamp(8px, 1.6vw, 14px);
+  }
+  /* Shrinks rather than wraps, so the transport stays on the same line. */
+  .hud-status {
+    flex: 0 1 auto;
+    flex-wrap: nowrap;
+    overflow: hidden;
+    min-width: 0;
+  }
+  .hud-vu {
+    flex: 1 1 40px;
+    min-width: 24px;
+    height: 5px;
+  }
+  .hud-actions {
+    flex: 0 0 auto;
+    flex-wrap: nowrap;
+    margin-left: auto;
+  }
+  /* The one thing allowed a second row — it's the only feedback for an
+     unusable source, so it must never be silently dropped. */
+  .hud-error {
+    flex: 1 1 100%;
+    order: 9;
+    padding: 3px 8px;
+    font-size: 11px;
+  }
+  .board {
+    min-height: 56px;
+    margin: clamp(4px, 0.8vw, 8px);
+    border-radius: 8px;
+  }
+  .sidebar {
+    padding: 6px clamp(8px, 1.6vw, 14px);
+  }
+}
+
+@media (max-height: 340px) {
+  .hud-mode,
+  .hud-buffer {
+    display: none;
+  }
+  .picker-row label {
+    display: none;
+  }
+  /* The transport is the tallest thing left in the row, so its padding is the
+     last real claim on the visualizer's height. */
+  .hud-actions button,
+  .hud-actions button.primary.big {
+    padding: 4px 11px;
+    font-size: 12px;
+  }
+  .pill {
+    padding: 3px 8px;
+    font-size: 11px;
+  }
+  .board {
+    min-height: 44px;
+    margin: 3px;
+  }
+  .sidebar {
+    padding: 4px 10px;
+  }
+}
+
+/* Bottom of the range — a strip docked to a screen edge. Everything that isn't
+   the waveform or the transport goes; the right-click quick menu carries the
+   device picker and the visualizer modes at this size. */
+@media (max-height: 260px) {
+  .hud-vu {
+    display: none;
+  }
+  .sidebar {
+    display: none;
+  }
+  .hud {
+    padding: 3px 8px;
+    gap: 6px;
+  }
+  .board {
+    min-height: 32px;
+    margin: 2px;
+  }
+}
+
+/* Custom title bar --------------------------------------------------------
+   26px against the OS bar's ~32, and it carries the controls that matter for
+   a window docked to an edge. The strip itself is the drag region; every
+   interactive child opts back out. */
+
+.titlebar {
+  -webkit-app-region: drag;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+  height: 26px;
+  padding: 0 2px 0 8px;
+  background: rgba(5, 8, 22, 0.9);
+  border-bottom: 1px solid var(--line-soft);
+  user-select: none;
+  font-size: 11px;
+  color: var(--muted);
+}
+.titlebar.has-inline {
+  /* Bar layout: the strip is the whole app, so it needs room to breathe. */
+  height: auto;
+  min-height: 32px;
+  padding: 3px 2px 3px 8px;
+}
+
+.tb-dot {
+  width: 7px;
+  height: 7px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--muted);
+  box-shadow: 0 0 6px transparent;
+}
+.tb-dot.on {
+  background: var(--danger);
+  box-shadow: 0 0 8px var(--danger);
+  animation: tb-breathe 1.6s ease-in-out infinite;
+}
+@keyframes tb-breathe {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.45; }
+}
+
+.tb-name {
+  letter-spacing: 0.14em;
+  text-transform: lowercase;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.tb-spacer {
+  flex: 1 1 auto;
+  min-width: 8px;
+}
+.tb-inline {
+  -webkit-app-region: no-drag;
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+}
+.tb-actions {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  flex: 0 0 auto;
+}
+.tb-sep {
+  width: 1px;
+  height: 14px;
+  margin: 0 3px;
+  background: var(--line);
+}
+
+.tb-btn {
+  -webkit-app-region: no-drag;
+  background: transparent;
+  border: 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1;
+  padding: 0;
+  width: 26px;
+  height: 22px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.tb-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--fg);
+}
+.tb-btn:active {
+  transform: none;
+}
+.tb-btn.is-on {
+  color: var(--accent);
+  background: rgba(125, 249, 255, 0.12);
+}
+.tb-btn.tb-close:hover {
+  background: var(--danger);
+  color: #fff;
+}
+
+/* Bar layout --------------------------------------------------------------
+   One row, nothing else. Intended to live docked across the top of a monitor
+   with the visualizer popped out into its own window. */
+
+.app.layout-bar {
+  overflow: visible; /* the device popover has to escape a 38px window */
+}
+.barstrip {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex: 0 0 auto;
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--line-soft);
+  background: rgba(7, 10, 28, 0.85);
+  min-width: 0;
+}
+.pill.mini {
+  padding: 2px 6px;
+  font-size: 10px;
+  flex: 0 0 auto;
+}
+.hud-vu.mini {
+  flex: 1 1 40px;
+  min-width: 24px;
+  max-width: 120px;
+  height: 5px;
+}
+.bar-picker {
+  flex: 1 1 60px;
+  min-width: 0;
+}
+.bar-picker .picker-row {
+  gap: 4px;
+}
+/* In a 38px-tall window the popover has nowhere to go inside the client
+   area, so it drops below the strip instead of above it. */
+.app.layout-bar .dd-popover {
+  bottom: auto;
+  top: calc(100% + 4px);
+  right: 0;
+  min-width: 180px;
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.6), 0 0 30px rgba(125, 249, 255, 0.12);
+}
+
+/* Compact layout ----------------------------------------------------------- */
+
+.hud.is-compact {
+  grid-template-rows: auto;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 5px 8px;
+}
+.hud.is-compact .hud-status {
+  flex: 0 1 auto;
+}
+.hud.is-compact .hud-vu {
+  flex: 1 1 50px;
+  min-width: 30px;
+  height: 5px;
+}
+.hud.is-compact .hud-actions {
+  flex: 0 0 auto;
+}
+.sidebar.is-compact {
+  display: block;
+  padding: 4px 8px 6px;
+}
+
+/* Icon-only device picker: label and helper line are gone, the trigger keeps
+   a speaker glyph so it's still identifiable at ~90px wide. */
+.picker-row.is-compact {
+  display: block;
+}
+.picker-row.is-compact .picker-select-wrap {
+  gap: 4px;
+}
+.picker-row.is-compact .dd-trigger {
+  padding: 4px 8px 4px 6px;
+  font-size: 12px;
+  gap: 4px;
+}
+.picker-row.is-compact .ghost {
+  padding: 4px 6px;
+  font-size: 12px;
+}
+.dd-icon {
+  flex: 0 0 auto;
+  font-size: 11px;
+  opacity: 0.85;
+}
+
+/* Pop-out visualizer window ------------------------------------------------ */
+
+.popout {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #05070f;
+  color: var(--fg);
+  overflow: hidden;
+}
+
+.popout-drag {
+  -webkit-app-region: drag;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 20px;
+  padding: 0 2px 0 8px;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: rgba(0, 0, 0, 0.35);
+  flex: 0 0 auto;
+}
+.popout-title {
+  flex: 1 1 auto;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.popout-drag .tb-btn {
+  height: 18px;
+  width: 22px;
+}
+
+.popout-board {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+/* Recording ring.
+   This used to be a 1px border on `.popout-board`, which failed exactly where
+   it mattered most: docked to the top of a monitor the pop-out is ~100px tall,
+   the board gets ~60px of that, and `.popout-controls` — absolutely positioned
+   at bottom:0 and never fully transparent — covered the bottom edge. One green
+   pixel tucked under the 20px drag strip read as chrome, not as state.
+
+   So the ring now belongs to the window, not to the canvas: an overlay pinned
+   to `.popout` itself, above the controls in paint order, at a thickness that
+   survives a 100px-tall window. It can't be occluded and it can't be squeezed. */
+.popout::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+  border: 2px solid transparent;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.popout.is-capturing::after {
+  border-color: var(--rec, #39ff14);
+  box-shadow:
+    inset 0 0 22px -6px var(--rec, #39ff14),
+    inset 0 0 3px var(--rec, #39ff14);
+}
+@keyframes popout-rec-pulse {
+  0%, 100% { box-shadow: inset 0 0 20px -8px var(--rec), inset 0 0 3px var(--rec); }
+  50% { box-shadow: inset 0 0 34px -6px var(--rec), inset 0 0 6px var(--rec); }
+}
+.popout-board canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Controls sit over the waveform and fade up on hover so a parked pop-out is
+   just the visualizer. */
+.popout-controls {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 7px;
+  background: linear-gradient(0deg, rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
+  opacity: 0.25;
+  transition: opacity 140ms ease;
+  flex-wrap: wrap;
+}
+.popout-controls.is-shown {
+  opacity: 1;
+}
+.popout-chips {
+  /* Was pushed right (margin-left: auto) to sit beside the old Transport
+     Save button; that button's gone (todo.md §55, chips are the only
+     command left), so center it in the bar instead of leaving it stranded
+     on one edge. */
+  display: flex;
+  gap: 3px;
+  margin: 0 auto;
+}
+.popout-chips .chip {
+  padding: 2px 7px;
+  font-size: 12px;
+  line-height: 1.2;
+}
+/* ==========================================================================
+   Docked Mode Adjustments
+   ========================================================================== */
+
+.app.is-docked .hud-hint {
+  display: none;
+}
+
+.app.is-docked .board {
+  position: relative; /* ensure it's positioned for absolute children */
+}
+
+.app.is-docked .board .viz-buttons {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: 10;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 4px;
+  border-radius: 6px;
+  backdrop-filter: blur(4px);
+}
+
+.app.is-docked .board:hover .viz-buttons {
+  opacity: 1;
+}
+
+/* ==========================================================================
+   History Mode Selection Overlay
+   ========================================================================== */
+
+.history-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.history-interaction-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  cursor: text;
+  pointer-events: auto;
+  z-index: 10;
+}
+
+.history-selection {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  background: var(--accent);
+  opacity: 0.15;
+  pointer-events: none;
+}
+
+.history-selection-border {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  border-left: 2px solid var(--accent-bright);
+}
+.dd-icon {
+  flex: 0 0 auto;
+  font-size: 11px;
+  opacity: 0.85;
+}
+
+/* Pop-out visualizer window ------------------------------------------------ */
+
+.popout {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #05070f;
+  color: var(--fg);
+  overflow: hidden;
+}
+
+.popout-drag {
+  -webkit-app-region: drag;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 20px;
+  padding: 0 2px 0 8px;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: rgba(0, 0, 0, 0.35);
+  flex: 0 0 auto;
+}
+.popout-title {
+  flex: 1 1 auto;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.popout-drag .tb-btn {
+  height: 18px;
+  width: 22px;
+}
+
+.popout-board {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+/* Recording ring.
+   This used to be a 1px border on `.popout-board`, which failed exactly where
+   it mattered most: docked to the top of a monitor the pop-out is ~100px tall,
+   the board gets ~60px of that, and `.popout-controls` — absolutely positioned
+   at bottom:0 and never fully transparent — covered the bottom edge. One green
+   pixel tucked under the 20px drag strip read as chrome, not as state.
+
+   So the ring now belongs to the window, not to the canvas: an overlay pinned
+   to `.popout` itself, above the controls in paint order, at a thickness that
+   survives a 100px-tall window. It can't be occluded and it can't be squeezed. */
+.popout::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+  border: 2px solid transparent;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.popout.is-capturing::after {
+  border-color: var(--rec, #39ff14);
+  box-shadow:
+    inset 0 0 22px -6px var(--rec, #39ff14),
+    inset 0 0 3px var(--rec, #39ff14);
+}
+@keyframes popout-rec-pulse {
+  0%, 100% { box-shadow: inset 0 0 20px -8px var(--rec), inset 0 0 3px var(--rec); }
+  50% { box-shadow: inset 0 0 34px -6px var(--rec), inset 0 0 6px var(--rec); }
+}
+.popout-board canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Controls sit over the waveform and fade up on hover so a parked pop-out is
+   just the visualizer. */
+.popout-controls {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 7px;
+  background: linear-gradient(0deg, rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
+  opacity: 0.25;
+  transition: opacity 140ms ease;
+  flex-wrap: wrap;
+  z-index: 20;
+}
+.popout-controls.is-shown {
+  opacity: 1;
+}
+.popout-chips {
+  /* Was pushed right (margin-left: auto) to sit beside the old Transport
+     Save button; that button's gone (todo.md §55, chips are the only
+     command left), so center it in the bar instead of leaving it stranded
+     on one edge. */
+  display: flex;
+  gap: 3px;
+  margin: 0 auto;
+}
+.popout-chips .chip {
+  padding: 2px 7px;
+  font-size: 12px;
+  line-height: 1.2;
+}
+/* ==========================================================================
+}
+
+.app.is-docked .board:hover .docked-hover-controls {
+  opacity: 1;
+}
+
+/* ==========================================================================
+   History Mode Selection Overlay
+   ========================================================================== */
+
+.history-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.history-interaction-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  cursor: crosshair;
+  pointer-events: auto;
+  z-index: 5;
+}
+
+.history-selection {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  background: var(--accent);
+  opacity: 0.15;
+  pointer-events: auto;
+  cursor: grab;
+}
+.history-selection:active {
+  cursor: grabbing;
+}
+
+.history-selection-border {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  border-left: 2px solid var(--accent-bright);
+  border-right: 2px solid var(--accent-bright);
+  pointer-events: none;
+  box-sizing: border-box;
+}
+
+.history-handle {
+  position: absolute;
+  top: 0;
+  width: 16px;
+  height: 100%;
+  cursor: ew-resize;
+  pointer-events: auto;
+  z-index: 11;
+}
+.history-handle.left {
+  left: -8px;
+}
+.history-handle.right {
+  right: -8px;
+}
+
+.history-interaction-layer:focus {
+  outline: none;
+}
+
+.history-duration {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg-surface-elevated);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  pointer-events: none;
+  z-index: 12;
+}
+/* ==========================================================================
+   SYNTHESIZER (Phase 1)
+   --------------------------------------------------------------------------
+   Layout for the new top-level instrument view, kept inside the existing
+   `theme-*` design-token system. No hard-coded colours anywhere in this
+   block — themes override the meaning, not the rules.
+   ========================================================================== */
+
+.app.mode-synth {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.app.mode-synth .synth-root {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  gap: var(--sp-1);
+  /* §57: the root itself does NOT scroll any more — see `.synth-scroll`.
+     Scrolling the whole root (§54's fix) carried the header and the piano
+     out of view along with the controls on a short window, which broke the
+     "piano is always visible" guarantee `.synth-keys` was already trying to
+     keep (§30). `overflow: hidden` here just clips nothing (there's nothing
+     to clip — the scrollable child below handles its own overflow). */
+  overflow: hidden;
+}
+/* The instrument body between the header and the piano. It does NOT scroll
+   — hard rule: the Faze UI never grows a scrollbar (user, 2026-09-10; was
+   §54/§57's `overflow-y:auto`). `.sh-bar` (header) and `.synth-keys` (piano)
+   are fixed-size flex siblings pinned outside it, so they stay put; this
+   region takes the rest and its children compress/reflow to fit. On a window
+   too short for even the compressed layout the overflow is clipped, never
+   scrolled — size the panels for the minimum window instead. */
+.synth-scroll {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+}
+.synth-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.synth-scroll::-webkit-scrollbar-track {
+  background: var(--bg-surface);
+}
+.synth-scroll::-webkit-scrollbar-thumb {
+  background: var(--border-soft);
+  border-radius: 3px;
+}
+.synth-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
+
+.sh-tab-group {
+  display: inline-flex;
+  align-items: center;
+  background: var(--bg-surface-elevated, #1a1a24);
+  border: 1px solid var(--border, #333);
+  border-radius: 4px;
+  padding: 1px;
+  gap: 2px;
+}
+.sh-tab-btn {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 2px 8px;
+  border-radius: 3px;
+  background: transparent;
+  color: var(--text-muted);
+  border: none;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+.sh-tab-btn:hover {
+  color: var(--text-primary);
+}
+.sh-tab-btn.is-on {
+  background: var(--accent);
+  color: #000;
+  box-shadow: 0 0 6px var(--accent);
+}
+
+/* ----- Synth header (sub-bar between TitleBar and Visualizer) ----- */
+.sh-bar {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: 4px var(--sp-3);
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-soft);
+  flex: 0 0 auto;
+}
+
+.sh-left { display: flex; align-items: center; gap: var(--sp-3); flex-wrap: nowrap; min-width: 0; }
+.sh-center { display: flex; align-items: center; gap: var(--sp-3); justify-content: center; min-width: 0; }
+.sh-right { display: flex; align-items: center; gap: var(--sp-2); justify-content: flex-end; min-width: 0; }
+
+/* Master controls cluster (Octave/Semitone/Fine/Voice/Master) — the
+   whole-synth knobs grouped in the header's top-left corner. Fixed-width
+   fields so they don't stretch across the 1fr column; the `op-knob-label`
+   caption above each knob keeps the row self-describing. */
+.sh-master {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-3);
+  flex: 0 0 auto;
+}
+.sh-master .knob-field { flex: 0 0 auto; }
+.sh-master .op-knob-label { min-width: 0; }
+.sh-master .op-knob-label > span:first-child { white-space: nowrap; }
+
+/* SS153 follow-up: the plugin stylesheet (spike/elementary/ui/plugin-ui.css)
+   carries this rule and the Electron app did not, which is how the two hosts
+   drifted apart. Cells that render their own `.op-knob-label` header (PanCell,
+   and Filter A/B as of SS153) also pass `label` to <Knob>, so <Knob> renders
+   its own `.knob-label` below the ring as well -- a duplicate caption at 7px,
+   easy to miss in a dense panel. Scoped to `.op-panel` so header knobs
+   elsewhere (`.sh-master` and friends) keep their own label.
+   Symptom to recognise: a caption appearing both above and below one knob. */
+.op-panel .knob-field:has(.op-knob-label) .knob-label { display: none; }
+
+.sh-divider {
+  width: 1px;
+  height: 20px;
+  background: var(--border-soft);
+  flex: 0 0 auto;
+}
+
+.sh-pill {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border);
+  background: var(--bg-surface-elevated);
+  color: var(--text-secondary);
+}
+.sh-pill.synth {
+  color: var(--accent);
+  border-color: var(--border-active);
+  box-shadow: 0 0 calc(var(--glow) * 12px) var(--accent);
+}
+
+.sh-meta {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.sh-meta em {
+  color: var(--accent);
+  font-style: normal;
+  font-weight: 600;
+}
+.sh-meta-lbl {
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 10px;
+}
+
+.sh-mode-btn {
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  background: var(--bg-surface-elevated);
+  color: var(--accent);
+  border: 1px solid var(--border-active);
+  border-radius: var(--radius);
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: background 150ms ease, color 150ms ease, box-shadow 150ms ease;
+}
+.sh-mode-btn:hover {
+  background: var(--accent);
+  color: var(--bg-app);
+  box-shadow: 0 0 calc(var(--glow) * 18px) var(--accent);
+}
+.sh-mode-btn:active { transform: translateY(1px); }
+
+.sh-viz {
+  display: inline-flex;
+  align-items: stretch;
+  border: 1px solid var(--border);
+  background: var(--bg-surface-elevated);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.sh-viz-btn {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  color: var(--text-muted);
+  padding: 0 8px;
+  height: 24px;
+  font-size: 12px;
+  cursor: pointer;
+  border-right: 1px solid var(--border-soft);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  transition: color 150ms ease, background 150ms ease;
+}
+.sh-viz-btn:last-child { border-right: 0; }
+.sh-viz-btn:hover { color: var(--text-primary); background: var(--bg-surface); }
+.sh-viz-btn.is-on {
+  color: var(--accent);
+  background: var(--bg-surface);
+  box-shadow: inset 0 -2px 0 var(--accent);
+}
+
+.sh-theme {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+}
+.sh-theme select {
+  appearance: none;
+  background: var(--bg-surface-elevated);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-family: var(--font-ui);
+  font-size: 12px;
+  padding: 4px 22px 4px 8px;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--accent) 50%),
+    linear-gradient(135deg, var(--accent) 50%, transparent 50%);
+  background-position: calc(100% - 14px) 11px, calc(100% - 9px) 11px;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+.sh-theme select:focus {
+  outline: none;
+  border-color: var(--border-active);
+  box-shadow: 0 0 calc(var(--glow) * 8px) var(--accent);
+}
+
+/* Vital-style preset selector and browser. */
+.preset-bar { display: inline-flex; align-items: center; gap: 0; min-width: 0; }
+.preset-new-btn { appearance: none; border: 1px solid var(--border); border-radius: 6px; background: transparent; color: var(--text-muted); height: 24px; min-width: 24px; margin: 0 6px 0 4px; padding: 0; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
+.preset-new-btn:hover { color: var(--accent); border-color: var(--border-active); box-shadow: 0 0 calc(8px * var(--glow)) var(--border-active); }
+.preset-nav-arrow,
+.preset-save-icon { appearance: none; border: 0; background: transparent; color: var(--text-muted); height: 30px; min-width: 26px; padding: 0 6px; font-size: 25px; line-height: 1; cursor: pointer; }
+.preset-nav-arrow:hover:not(:disabled),
+.preset-save-icon:hover { color: var(--accent); }
+.preset-nav-arrow:disabled { opacity: .3; cursor: default; }
+.preset-selector { display: flex; align-items: center; justify-content: center; gap: 10px; width: min(300px, 25vw); min-width: 150px; height: 30px; padding: 0 12px; border: 1px solid var(--border); border-radius: 8px; background: linear-gradient(180deg, var(--bg-surface-elevated), var(--bg-surface)); color: var(--accent-bright); font-size: 15px; cursor: pointer; }
+.preset-selector:hover,
+.preset-selector.is-on { border-color: var(--border-active); box-shadow: 0 0 calc(10px * var(--glow)) var(--border-active); }
+.preset-selector-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.preset-selector-chevron { color: var(--text-muted); font-size: 16px; }
+.preset-save-icon { font-size: 21px; }
+.preset-browser { overflow-y: auto; padding: 8px; }
+.preset-browser-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 4px 6px 8px; border-bottom: 1px solid var(--border); color: var(--accent); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; }
+.preset-browser-head button { border: 1px solid var(--border); background: var(--bg-app); color: var(--text-secondary); border-radius: 5px; padding: 3px 8px; cursor: pointer; }
+.preset-browser-head button:hover { color: var(--accent); border-color: var(--border-active); }
+.preset-item { padding: 3px; }
+.preset-item.is-selected { background: color-mix(in srgb, var(--accent) 12%, transparent); }
+.preset-item-load { display: flex; flex: 1; flex-direction: column; min-width: 0; padding: 5px; border: 0; background: transparent; color: inherit; text-align: left; cursor: pointer; }
+.preset-item-load:hover { color: var(--accent); }
+.preset-browser-foot { margin-top: 6px; padding: 6px; border-top: 1px solid var(--border-soft); color: var(--text-muted); font-size: 10px; text-align: center; }
+.preset-save-pop { gap: 8px; }
+@media (max-width: 900px) { .preset-selector { width: 180px; min-width: 120px; font-size: 13px; } }
+
+
+.preset-btn {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--bg-surface-elevated);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 4px 10px;
+  height: 26px;
+  cursor: pointer;
+  transition: color 150ms ease, background 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
+}
+.preset-btn span { font-size: 12px; line-height: 1; }
+.preset-btn:hover {
+  color: var(--text-primary);
+  border-color: var(--border-active);
+  background: var(--bg-surface);
+}
+.preset-btn.is-on {
+  color: var(--accent);
+  border-color: var(--border-active);
+  box-shadow: 0 0 calc(var(--glow) * 10px) var(--accent);
+}
+
+.preset-pop {
+  position: fixed;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding: var(--sp-3);
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+}
+
+.preset-name-input {
+  appearance: none;
+  background: var(--bg-app);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  padding: 6px 9px;
+  outline: none;
+}
+.preset-name-input:focus {
+  border-color: var(--border-active);
+  box-shadow: 0 0 calc(var(--glow) * 8px) var(--accent);
+}
+
+.preset-pop-actions {
+  display: flex;
+  gap: var(--sp-2);
+}
+.preset-pop-btn {
+  appearance: none;
+  flex: 1;
+  background: var(--bg-app);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 0;
+  cursor: pointer;
+  transition: color 150ms ease, background 150ms ease, border-color 150ms ease;
+}
+.preset-pop-btn:hover:not(:disabled) {
+  color: var(--text-primary);
+  border-color: var(--border-active);
+}
+.preset-pop-btn.primary {
+  color: var(--accent);
+  border-color: var(--border-active);
+}
+.preset-pop-btn.primary.overwrite {
+  color: var(--danger, #e11d48);
+  border-color: var(--danger, #e11d48);
+}
+.preset-pop-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.preset-overwrite-hint {
+  margin: 0;
+  font-family: var(--font-ui);
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.preset-list {
+  overflow-y: auto;
+}
+.preset-empty {
+  margin: 0;
+  padding: var(--sp-2) 0;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  color: var(--text-muted);
+  text-align: center;
+}
+.preset-item {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: 6px 8px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background 150ms ease;
+}
+.preset-item:hover {
+  background: var(--bg-app);
+}
+.preset-item-main {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  flex: 1;
+}
+.preset-item-name {
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.preset-item-summary {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.preset-item-del {
+  appearance: none;
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: var(--text-muted);
+  border: 0;
+  border-radius: var(--radius);
+  font-size: 15px;
+  cursor: pointer;
+  transition: color 150ms ease, background 150ms ease;
+}
+.preset-item-del:hover {
+  color: var(--danger, #e11d48);
+  background: var(--bg-app);
+}
+
+/* ----- Visualizer host ----- */
+.synth-board {
+  flex: 1 1 0;
+  /* Phase 1.9: the main board is the instrument's centerpiece — it must
+     never shrink to near-nothing chasing "no scroll" (todo.md §28). Give
+     it a real floor; the controls below compact instead. This floor was
+     lowered from 170 so the whole layout fits a shorter window.
+     Capped with max-height (user feedback, todo.md §54) — on a tall
+     window it was previously flex-growing to swallow ALL leftover
+     vertical space, dwarfing the oscillator/envelope controls below it. */
+  min-height: 100px;
+  max-height: 200px;
+  margin: var(--sp-1) var(--sp-3);
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 0 calc(var(--glow) * 24px) var(--accent), inset 0 0 calc(var(--glow) * 8px) var(--accent);
+}
+
+/* ----- Controls column (todo.md §58: oscillators, then the modulator strip
+   below them — no more side-by-side sidebar; also caps the overall width a
+   bit, per user feedback the synth was reading "too long"). ----- */
+.synth-controls {
+  display: flex;
+  flex-direction: column;
+  /* Explicit width (not just relying on flex stretch) — a flex column child
+     containing a CSS Grid descendant with `1fr` tracks (the oscillator/
+     modulator grids) can't resolve those tracks without a definite
+     ancestor width, and shrink-to-fit sizing loses that fight silently. */
+  width: 100%;
+  max-width: 1100px;
+  box-sizing: border-box;
+  margin: 0 auto;
+  padding: 0 var(--sp-2) var(--sp-1);
+  /* flex: 1 1 auto closes the dead vertical gap above piano keys (todo.md Task 1) */
+  flex: 1 1 auto;
+  justify-content: flex-start;
+}
+
+/* ----- Oscillator panel (Phase 1.8 — every operator visible at once,
+   never scrolled; see todo.md §26) ----- */
+.op-panel {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 3px var(--sp-1);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-height: 0;
+  width: 100%;
+  box-sizing: border-box;
+  /* §58: `.synth-controls` used to be a CSS Grid row with the envelope
+     column beside it, and `align-self: start` here meant "don't stretch
+     vertically to match that taller sidebar." Now `.synth-controls` is a
+     flex COLUMN (the envelope strip moved below, full width) — in a column
+     flex container `align-self` controls the CROSS axis, i.e. horizontal,
+     so the old value was silently collapsing this panel to shrink-to-fit
+     width instead of filling the row. No longer needed either way (there's
+     no sidebar to avoid stretching against any more); default (stretch)
+     is correct now. */
+  /* Phase 1.9 (todo.md §28): the grid below reflows off THIS box's width,
+     not the viewport's — container queries instead of auto-fit/minmax,
+     which was collapsing to an ugly "3 cards + 1 stretched orphan" wrap
+     when the window got resized. Explicit stepped column counts instead. */
+  container-type: inline-size;
+}
+.op-section-title {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-soft);
+  padding-bottom: var(--sp-1);
+}
+
+.op-row { display: flex; gap: var(--sp-2); align-items: stretch; }
+.op-row-global { gap: var(--sp-2); align-items: flex-end; flex-wrap: wrap; }
+.op-row-wave { gap: 4px; }
+.op-row-knobs, .op-row-pitch { gap: var(--sp-2); align-items: flex-end; }
+.op-row-pitch { justify-content: center; }
+.op-row-levels { gap: 6px; align-items: flex-end; justify-content: center; }
+.op-row-levels .knob-field { flex: 0 0 auto; }
+.op-row-status { align-items: center; gap: var(--sp-4); border-top: 1px solid var(--border-soft); padding-top: 4px; flex: none; }
+
+/* 3-column card (todo.md §67 — the user's OSC 1 mockup): a left stack
+   (Pitch / Wave+Sample / Filter A-B), the centre PM+FM colour-ring
+   clusters, and a right stack (Level / Pan — the big knobs). Replaces the
+   old two-`.op-row-ctrls`-rows layout. */
+.op-body {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+.op-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+.op-col-left,
+.op-col-right { flex: 0 0 auto; }
+.op-col-mid {
+  flex: 1 1 0;
+  gap: 4px;
+  padding-top: 18px;
+}
+.op-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 1px 4px 2px;
+}
+.op-table-select-head {
+  max-width: 105px;
+  background: var(--bg-surface-elevated, #1a1a24);
+  color: var(--text-primary, #e0e0e0);
+  border: 1px solid var(--border, #333);
+  border-radius: 3px;
+  font-size: 9px;
+  padding: 1px 4px;
+  cursor: pointer;
+  outline: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.op-body-new {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  width: 100%;
+  padding-top: 1px;
+}
+.op-card-top-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  width: 100%;
+  gap: 1px;
+}
+.op-dual-warp-container {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  background: var(--bg-surface-elevated, #13131c);
+  border: 1px solid var(--border, #2a2a38);
+  border-radius: 4px;
+  padding: 2px 3px;
+  flex: 1 1 auto;
+  min-width: 0;
+  justify-content: center;
+}
+.op-warp-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  min-width: 0;
+}
+.op-warp-divider {
+  width: 1px;
+  height: 44px;
+  background: var(--border, #333);
+  flex-shrink: 0;
+}
+/* SS153 follow-up: a first `.op-warp-select` block used to sit here, declaring
+   `width/max-width: 66px` at 8px type. It was dead -- every property it set is
+   re-declared by the `.op-warp-select` block further down, which therefore won
+   all of them -- so it has been deleted rather than left in place to mislead a
+   reader, who has no way to tell it is inert. The plugin stylesheet hit the
+   same trap with `max-width: 66px`, which is what the user's original "these
+   are way too small" report was really about. */
+.op-table-select {
+  width: 80px;
+  background: var(--bg-surface-elevated, #1a1a24);
+  color: var(--text-primary, #e0e0e0);
+  border: 1px solid var(--border, #333);
+  border-radius: 3px;
+  font-size: 8px;
+  padding: 1px 2px;
+  cursor: pointer;
+  outline: none;
+  margin-bottom: 2px;
+  text-align: center;
+  text-overflow: ellipsis;
+}
+.op-warp-knobs {
+  display: flex;
+  gap: 2px;
+  align-items: center;
+}
+.op-knob-placeholder {
+  width: 28px;
+  height: 28px;
+}
+.op-card-mid-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 6px;
+}
+.op-mod-clusters-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+}
+.op-mod-spacer {
+  height: 6px;
+}
+.op-wave-knob-cell {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.op-wave-knob-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.op-card-bot-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 4px;
+}
+.op-bot-left,
+.op-bot-right {
+  flex: 0 0 auto;
+}
+.op-bot-center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+.op-mode-toggle-oval {
+  width: 54px;
+  height: 24px;
+  border-radius: 12px;
+  background: var(--bg-surface-elevated, #1a1a26);
+  border: 1px solid var(--border, #333);
+  color: var(--op-color, var(--accent));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+.op-mode-toggle-oval.is-wt {
+  box-shadow: 0 0 8px var(--op-color, var(--accent));
+  border-color: var(--op-color, var(--accent));
+}
+
+/* Compat/legacy (Phase 1.13 two-row layout — kept for any stragglers). */
+.op-row-ctrls {
+  display: flex;
+  /* Was flex-end: the PM/FM mod cluster (label + knob + its own ∿ badge,
+     per source) is the tallest cell in the row by a wide margin, and
+     bottom-aligning meant every SHORTER cell (Pitch/Wave, Level/Pan) had a
+     big dead gap above its own content instead of hugging the row's top —
+     exactly the "lots of unused and empty space" the cards were called out
+     for. Top-aligning removes that gap for free, no content lost. */
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 3px;
+}
+.op-cell {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+}
+.op-cell .knob-field { flex: 0 0 auto; }
+.op-mod-cluster {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+}
+.op-mod-cluster-lbl {
+  font-family: var(--font-mono);
+  font-size: 7px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.op-mod-cluster-knobs {
+  display: flex;
+  gap: 2px;
+  align-items: flex-start;
+  justify-content: center;
+}
+.op-mod-cluster-knobs .knob { flex: 0 0 auto; }
+/* Each PM/FM knob is its own column: knob + its label (rendered by the
+   Knob) + the ∿ mod badge under it — the knob is both a source-depth
+   control and a Pigments mod target (per-source depth modulation). */
+.op-mod-cluster-knob {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+}
+.op-wave-compact {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+}
+.op-wt-warp-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  width: 100%;
+}
+.op-warp-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  width: 100%;
+}
+.op-warp-select {
+  width: 100%;
+  max-width: 96px;
+  background: var(--bg-surface-elevated, #1a1a24);
+  color: var(--text-primary, #e0e0e0);
+  border: 1px solid var(--border, #333);
+  border-radius: 3px;
+  /* SS153 follow-up: 9px type in a select with no height was the Electron
+     half of the user's "these are way too small". Ported from the plugin
+     stylesheet, where the same control is 30px tall at 13px. `height` (not
+     padding) is deliberate: a native <select> ignores vertical padding for
+     its content box in Chromium, so the control stayed short no matter how
+     much padding was added. Width/max-width left as-is -- Electron's
+     `.op-grid` is `repeat(4, 1fr)` with fluid cards, so unlike the plugin
+     there is no fixed card width to size against. */
+  height: 26px;
+  font-size: 13px;
+  padding: 1px 2px;
+  cursor: pointer;
+  outline: none;
+  text-align: center;
+  text-overflow: ellipsis;
+}
+.op-warp-select:hover {
+  border-color: var(--op-color, var(--accent, #4f46e5));
+}
+.op-warp-knobs {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  justify-content: center;
+}
+/* Base look — the plugin (`.op-panel .op-sample-toggle` in plugin-ui.css)
+   overrides size/shape now that this is its own centred button rather
+   than living inside `.op-wave-compact` (todo.md §99). */
+.op-sample-toggle {
+  flex: 0 0 auto;
+  width: 24px;
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  border-radius: var(--radius);
+  padding: 2px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: color 150ms ease, background 150ms ease, box-shadow 150ms ease, border-color 150ms ease;
+  font-family: var(--font-ui);
+}
+.op-sample-toggle:hover {
+  color: var(--text-primary);
+  border-color: var(--border-active);
+}
+.op-sample-toggle.is-on {
+  color: var(--op-color, var(--accent));
+  background: var(--bg-surface);
+  border-color: var(--op-color, var(--border-active));
+  box-shadow: 0 0 calc(var(--glow) * 10px) var(--op-color, var(--accent));
+}
+.op-wave-glyph { font-size: 11px; line-height: 1; }
+
+/* Dual-filter crossfader (todo.md §60) — one compact row per operator card,
+   a single knob that splits this oscillator's signal between Filter A and
+   Filter B (default: all A). Static only (not mod-routable — see the
+   `ModTargetId` doc for why), so no ∿ badge here. */
+.op-row-filtermix {
+  gap: 4px;
+  align-items: center;
+  justify-content: center;
+}
+.op-filtermix-label {
+  font-family: var(--font-mono);
+  font-size: 7px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* Phase 1.11 (todo.md §33): the bare Record toggle an oscillator shows when
+   its wave is set to Sample — backend/source picking lives in Settings now,
+   so this is deliberately just a start/stop button + one status line. */
+.op-row-record { gap: 4px; align-items: center; }
+.op-record-btn {
+  flex: 1 1 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  border-radius: var(--radius);
+  padding: 4px 8px;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  transition: color 150ms ease, background 150ms ease, box-shadow 150ms ease, border-color 150ms ease;
+}
+.op-record-btn:hover:not(:disabled) {
+  color: var(--text-primary);
+  border-color: var(--border-active);
+}
+.op-record-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.op-record-btn.is-rec {
+  color: var(--rec, #ff4d6d);
+  border-color: var(--rec, #ff4d6d);
+  background: color-mix(in srgb, var(--rec, #ff4d6d) 12%, var(--bg-surface));
+  box-shadow: 0 0 calc(var(--glow) * 10px) var(--rec, #ff4d6d);
+}
+.op-record-glyph { font-size: 11px; line-height: 1; }
+.op-record-clear {
+  flex: none;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: var(--radius);
+  width: 22px;
+  height: 22px;
+  cursor: pointer;
+  font-size: 10px;
+}
+.op-record-clear:hover { color: var(--text-primary); border-color: var(--border-active); }
+/* Loop/Reverse toggles (Task 6, sampler upgrade) reuse this same button —
+   `.is-on` is the only addition needed to make the toggled state visible. */
+.op-record-clear.is-on {
+  color: var(--op-color, var(--accent));
+  border-color: var(--op-color, var(--accent));
+  background: color-mix(in srgb, var(--op-color, var(--accent)) 16%, transparent);
+}
+
+.op-knob-group { display: flex; flex-direction: column; gap: 2px; flex: 1 1 0; min-width: 0; }
+.op-knob-group.op-knob-wide { flex: 2 1 0; }
+.op-knob-label {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-2);
+}
+.op-knob-val { color: var(--accent); font-weight: 600; }
+
+.op-stepper {
+  display: inline-flex;
+  align-items: stretch;
+  border: 1px solid var(--border);
+  background: var(--bg-surface-elevated);
+  border-radius: var(--radius);
+  overflow: hidden;
+  align-self: flex-start;
+}
+.op-stepper button {
+  appearance: none;
+  background: transparent;
+  color: var(--text-secondary);
+  border: 0;
+  padding: 0 8px;
+  height: 24px;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1;
+}
+.op-stepper button:first-child { border-right: 1px solid var(--border-soft); }
+.op-stepper button:last-child  { border-left:  1px solid var(--border-soft); }
+.op-stepper button:hover { color: var(--accent); background: var(--bg-surface); }
+.op-stepper-val {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-primary);
+  min-width: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-right: 1px solid var(--border-soft);
+  border-left: 1px solid var(--border-soft);
+}
+
+.op-row-levels input[type="range"],
+.op-row-knobs input[type="range"],
+.op-row-pitch input[type="range"],
+.op-row-global input[type="range"] {
+  appearance: none;
+  width: 100%;
+  height: 16px;
+  background: transparent;
+  cursor: pointer;
+}
+.op-row-levels input[type="range"]::-webkit-slider-runnable-track,
+.op-row-knobs input[type="range"]::-webkit-slider-runnable-track,
+.op-row-pitch input[type="range"]::-webkit-slider-runnable-track,
+.op-row-global input[type="range"]::-webkit-slider-runnable-track {
+  height: 3px;
+  background: var(--border);
+  border-radius: 999px;
+}
+.op-row-levels input[type="range"]::-moz-range-track,
+.op-row-knobs input[type="range"]::-moz-range-track,
+.op-row-pitch input[type="range"]::-moz-range-track,
+.op-row-global input[type="range"]::-moz-range-track {
+  height: 3px;
+  background: var(--border);
+  border-radius: 999px;
+}
+.op-row-levels input[type="range"]::-webkit-slider-thumb,
+.op-row-knobs input[type="range"]::-webkit-slider-thumb,
+.op-row-pitch input[type="range"]::-webkit-slider-thumb,
+.op-row-global input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--bg-app);
+  box-shadow: 0 0 calc(var(--glow) * 8px) var(--accent);
+  margin-top: -4.5px;
+}
+.op-row-levels input[type="range"]::-moz-range-thumb,
+.op-row-knobs input[type="range"]::-moz-range-thumb,
+.op-row-pitch input[type="range"]::-moz-range-thumb,
+.op-row-global input[type="range"]::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--bg-app);
+  box-shadow: 0 0 calc(var(--glow) * 8px) var(--accent);
+}
+
+.op-status {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--text-muted);
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+}
+.op-status em { color: var(--accent); font-style: normal; font-weight: 600; }
+.op-status-hz { color: var(--text-secondary); }
+
+/* ----- Voice filters — BOTH in one card (todo.md §88.B, redesigned §116).
+   Filter A and B used to be two separate bordered `.mod-card`s; then one
+   card spanning 2 of the 3 modulator-grid cells (§88.B). §116 (user: "too
+   much empty space… panel doesn't need to take up the same amount of
+   space… knobs bigger, other controls bigger too") drops it to a SINGLE
+   cell — the freed cell is `.fx-macro-area` below. Fitting bigger controls
+   into a narrower card meant trimming the padding a redundant text label
+   used to cost (a "Cut"/"Res" label ABOVE each knob duplicated the knob's
+   OWN built-in bottom label — dropped, `lg` knobs use that space instead)
+   and stacking the type/slope button groups vertically instead of side by
+   side (frees width, not height — the 66px row has height to spare here,
+   not width). ----- */
+/* Filter card + reserved space share the last 2 grid cells (todo.md §116) —
+   the card sizes to its own content instead of being stretched across
+   both, so bigger knobs don't force the card wider than it needs; whatever
+   width is left becomes `.fx-macro-area`. */
+.env-row-bottom {
+  grid-column: span 3;
+  display: flex;
+  align-items: stretch;
+  gap: 6px;
+  min-width: 0;
+  min-height: 0;
+}
+.perf-card {
+  flex: 0 0 115px;
+  width: 115px;
+  min-width: 0;
+}
+.filter-fx-row {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  min-width: 0;
+  min-height: 0;
+}
+.filter-panel.filter-merged {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.filter-merged .env-head { flex: none; }
+/* A and B SIDE BY SIDE, not stacked (todo.md §92) — stacked, Filter B fell
+   outside the 66px grid cell and was clipped ("Cant see Filter B at all").
+   Two content-sized columns, each: tag · type/slope stack · Cut · Res. */
+.filter-merged-body {
+  flex: 0 0 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+}
+.filter-row {
+  flex: 0 0 auto;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+.filter-row + .filter-row {
+  border-left: 1px solid var(--border-soft);
+  padding-left: 6px;
+}
+.filter-row-tag {
+  flex: none;
+  width: 10px;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--src, var(--accent));
+}
+/* Type (LP/HP/BP) + slope (12/24) stacked, not side by side (§116) — this
+   is what actually bought the width back for bigger knobs; the 66px row
+   has vertical room to spare that the previous side-by-side layout wasn't
+   using. */
+.filter-seg-stack {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.filter-seg {
+  flex: none;
+  display: flex;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.filter-seg button {
+  appearance: none;
+  border: 0;
+  background: var(--bg-surface);
+  color: var(--text-muted, var(--muted));
+  font: inherit;
+  font-weight: 600;
+  font-size: 10px;
+  padding: 3px 5px;
+  cursor: pointer;
+}
+.filter-seg button + button { border-left: 1px solid var(--border); }
+.filter-seg button.is-on {
+  color: var(--src, var(--accent));
+  background: color-mix(in srgb, var(--src, var(--accent)) 16%, var(--bg-surface));
+}
+.filter-row .filter-knob { flex: 0 0 auto; align-items: center; gap: 0; }
+
+/* Reserved for a future FX macro area (todo.md §116) — deliberately empty,
+   a dashed outline rather than a solid card so it doesn't read as a broken
+   or unfinished control. */
+.fx-macro-area {
+  flex: 1 1 auto;
+  border: 1px dashed var(--border-soft);
+  border-radius: var(--radius-lg, 8px);
+  min-width: 0;
+  min-height: 0;
+}
+
+/* Keyboard (Velocity / KBD) card fills its cell too. */
+.mod-card > .const-row { flex: 1 1 auto; align-content: center; }
+
+/* ----- Operator grid — OSC 1-4, always visible + editable, no tabs (§26). ----- */
+.op-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 3px;
+  flex: none;
+}
+/* Stepped reflow keyed to `.op-panel`'s own width (container query, not
+   viewport) — always a clean N-per-row grid, never an orphaned card
+   stretched across a mostly-empty row. */
+@container (max-width: 900px) {
+  .op-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@container (max-width: 460px) {
+  .op-grid { grid-template-columns: repeat(1, 1fr); }
+}
+
+/* Each operator's identity colour (see lib/operator-colors.ts) is set as
+   --op-color on .op-card's inline style, then consumed by every
+   `var(--op-color, var(--accent))` fallback below — same "fixed identity
+   colour, not a theme token" pattern the Pigments mod-source dots already
+   use, extended to a whole operator's controls (Bitwig Phase-4 style). */
+.op-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  padding: 2px 3px;
+  border: 1px solid color-mix(in srgb, var(--op-color, var(--border)) 45%, var(--border));
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(160deg, color-mix(in srgb, var(--op-color, var(--accent)) 10%, transparent), transparent 55%),
+    color-mix(in srgb, var(--op-color, var(--accent)) 4%, var(--bg-surface-elevated));
+  /* Every operator is always on now (the on/off checkbox was retired), so
+     the full-strength glow that used to only appear when the checkbox was
+     checked is the permanent state. */
+  box-shadow: 0 0 calc(var(--glow) * 20px) color-mix(in srgb, var(--op-color, var(--accent)) 70%, transparent);
+  transition: box-shadow 200ms ease;
+}
+.op-card .op-row-levels input[type="range"]::-webkit-slider-thumb,
+.op-card .op-row-knobs input[type="range"]::-webkit-slider-thumb,
+.op-card .op-row-pitch input[type="range"]::-webkit-slider-thumb {
+  background: var(--op-color, var(--accent));
+  box-shadow: 0 0 calc(var(--glow) * 8px) var(--op-color, var(--accent));
+}
+.op-card .op-row-levels input[type="range"]::-moz-range-thumb,
+.op-card .op-row-knobs input[type="range"]::-moz-range-thumb,
+.op-card .op-row-pitch input[type="range"]::-moz-range-thumb {
+  background: var(--op-color, var(--accent));
+  box-shadow: 0 0 calc(var(--glow) * 8px) var(--op-color, var(--accent));
+}
+.op-card .op-knob-val { color: var(--op-color, var(--accent)); }
+
+.op-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  line-height: 1;
+}
+.op-name {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--op-color, var(--accent));
+}
+
+/* ----- Generic drag knob (level / pan / PM / FM depth) (§31) ----- */
+.knob-field {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  flex: 1 1 0;
+  min-width: 0;
+}
+.knob {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  min-width: 0;
+}
+/* ---------------------------------------------------------------------------
+   Hardware-style knob (Knob.tsx). Layered like profmitchell/AudioUI's
+   RotaryKnobDetailed but token-driven:
+     .knob-ring   recessed housing pressed into the panel
+     .knob-arc    thin lit value arc on the rim, --knob-color, --arc-from/to
+     .knob-ticks  tick marks just inside the arc
+     .knob-face   rotating metallic disc, transform: rotate(--ang)
+       .knob-indicator  the lit pointer line on the face
+     .knob-cap    dark centre inset with a specular highlight; holds the value
+   Only --knob-color carries hue — an FM/PM knob tinted with its source
+   operator's colour, or any of the six themes, stays coherent.
+   --------------------------------------------------------------------------- */
+.knob-lg { --knob-size: 50px; }
+.knob-md { --knob-size: 40px; }
+.knob-sm { --knob-size: 28px; }
+
+.knob-ring {
+  position: relative;
+  appearance: none;
+  width: var(--knob-size, 40px);
+  height: var(--knob-size, 40px);
+  border-radius: 50%;
+  padding: 0;
+  border: 0;
+  display: grid;
+  place-items: center;
+  cursor: ns-resize;
+  background: transparent;
+  outline: none;
+  isolation: isolate;
+  transition: filter 140ms ease;
+}
+.knob-ring:hover { filter: brightness(1.08); }
+.knob-ring:focus-visible { filter: brightness(1.12); }
+.knob-ring:focus-visible .knob-arc {
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--knob-color) 70%, transparent);
+}
+.knob.is-disabled { opacity: 0.4; pointer-events: none; }
+
+/* Recessed housing — a shallow bowl the face sits in. The rim highlight was
+   12 % white at 88 % body and washed straight out; now the bowl has a darker
+   outer lip so the FACE reads as sitting down inside it rather than floating,
+   which is most of the "more contrast" at a glance. */
+.knob-ring::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 36%,
+      color-mix(in srgb, var(--knob-body) 84%, #fff 16%) 0%,
+      var(--knob-body) 46%,
+      color-mix(in srgb, var(--knob-well) 62%, #000) 100%);
+  box-shadow:
+    inset 0 2px 5px rgba(0, 0, 0, 0.62),
+    inset 0 -1px 2px rgba(255, 255, 255, 0.10),
+    0 1px 2px rgba(0, 0, 0, 0.45);
+  z-index: 0;
+}
+
+/* Illuminated modulation ring (todo.md §87) — a bright coloured ring hugging
+   the rim of any knob a modulator is routed to, in the dominant source's
+   identity colour (`--mod-glow`), intensity `--mod-glow-amt`. Only rendered
+   under `.is-modded` (set by Knob / PitchDial when a route exists). */
+.is-modded .knob-ring::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  z-index: 3;
+  pointer-events: none;
+  border: 2px solid color-mix(in srgb,
+    var(--mod-glow, var(--accent)) calc(35% + var(--mod-glow-amt, 0.5) * 55%), transparent);
+  box-shadow:
+    0 0 calc(5px + var(--mod-glow-amt, 0.5) * 16px)
+      color-mix(in srgb, var(--mod-glow, var(--accent)) 75%, transparent),
+    inset 0 0 calc(3px + var(--mod-glow-amt, 0.5) * 9px)
+      color-mix(in srgb, var(--mod-glow, var(--accent)) 50%, transparent);
+  animation: knob-mod-pulse 2.6s ease-in-out infinite;
+}
+@keyframes knob-mod-pulse {
+  0%, 100% { opacity: 0.72; }
+  50% { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .is-modded .knob-ring::after { animation: none; opacity: 0.9; }
+}
+
+/* Per-knob "+" (todo.md §91/92 Pigments overhaul) — a small, low-key,
+   ALWAYS-present entry into the same assign list right-click already opens.
+   Sits in the ring's top-right corner so it never covers the value readout
+   or the drag surface's centre; dim until hovered/focused so it doesn't
+   compete with the mod-glow ring on an already-routed knob. */
+.knob-mod-plus {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  z-index: 4;
+  width: 12px;
+  height: 12px;
+  padding: 0;
+  border-radius: 50%;
+  appearance: none;
+  border: 1px solid var(--border);
+  background: var(--bg-surface-elevated);
+  color: var(--text-muted);
+  font-size: 9px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0.45;
+  transition: opacity 120ms ease, color 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+}
+.knob-sm .knob-mod-plus { width: 10px; height: 10px; font-size: 8px; }
+.knob-ring:hover .knob-mod-plus,
+.knob-mod-plus:hover,
+.knob-mod-plus:focus-visible {
+  opacity: 1;
+  color: var(--text-primary);
+  border-color: var(--border-active);
+  box-shadow: 0 0 calc(var(--glow) * 6px) var(--accent);
+}
+
+/* Value arc — a conic wedge from --arc-from to --arc-to, masked to a thin
+   ring on the rim, glowing in --knob-color. Plus the persistent mod glow. */
+.knob-arc {
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  z-index: 1;
+  pointer-events: none;
+  background: conic-gradient(from -135deg,
+    color-mix(in srgb, var(--knob-color) 90%, #fff 10%) var(--arc-from, 0deg),
+    var(--knob-color) var(--arc-from, 0deg),
+    var(--knob-color) var(--arc-to, 0deg),
+    transparent var(--arc-to, 0deg));
+  -webkit-mask: radial-gradient(circle, transparent 66%, #000 68%, #000 83%, transparent 85%);
+  mask: radial-gradient(circle, transparent 66%, #000 68%, #000 83%, transparent 85%);
+  filter: drop-shadow(0 0 3px color-mix(in srgb, var(--knob-color) 38%, transparent));
+  box-shadow:
+    0 0 calc(var(--glow, 1) * 22px * var(--mod-glow-amt, 0))
+      color-mix(in srgb, var(--mod-glow, transparent) 80%, transparent);
+}
+
+/* Tick marks — short radial dashes just inside the arc. */
+.knob-ticks {
+  position: absolute;
+  inset: 8%;
+  border-radius: 50%;
+  z-index: 1;
+  pointer-events: none;
+  background: repeating-conic-gradient(from -138deg,
+    color-mix(in srgb, var(--border) 80%, #fff 20%) 0deg 1.4deg,
+    transparent 1.4deg 27deg);
+  -webkit-mask: radial-gradient(circle, transparent 74%, #000 76%, #000 92%, transparent 94%);
+  mask: radial-gradient(circle, transparent 74%, #000 76%, #000 92%, transparent 94%);
+  opacity: 0.5;
+}
+
+/* Rotating metallic face. */
+.knob-face {
+  position: absolute;
+  inset: 14%;
+  border-radius: 50%;
+  z-index: 2;
+  transform: rotate(var(--ang, 0deg));
+  transition: transform 60ms linear;
+  /* Measured: this gradient previously fell from luminance 94 at the highlight
+     to 23 by 46 % radius and 7 at the rim, with only a 4 %-white knurl on top
+     — so nearly the whole disc sat in a narrow dark band and read flat. The
+     shape is now a brighter, TIGHTER specular held further out (highlight 0 %
+     -> 18 %, still falling to the same dark rim), which is what gives a turned
+     metal disc its read: a small very bright spot, a fast falloff, and a dark
+     edge. Contrast comes from the highlight, not from lifting the whole disc
+     (which would grey out the dark theme). */
+  background:
+    radial-gradient(circle at 34% 26%,
+      color-mix(in srgb, var(--knob-body) 20%, #fff) 0%,
+      color-mix(in srgb, var(--knob-body) 62%, #fff 6%) 18%,
+      color-mix(in srgb, var(--knob-body) 88%, #000 16%) 52%,
+      color-mix(in srgb, var(--knob-well) 55%, #000) 100%),
+    /* Knurling: was rgba(255,255,255,0.04) / rgba(0,0,0,0.05) — invisible at
+       40 px. Raised to 0.09 / 0.14 so the machined edge actually reads, and
+       kept low-saturation so it doesn't tint the face. */
+    repeating-conic-gradient(from 0deg,
+      rgba(255, 255, 255, 0.09) 0deg 2deg,
+      rgba(0, 0, 0, 0.14) 2deg 4deg);
+  box-shadow:
+    inset 0 1px 2px rgba(255, 255, 255, 0.20),
+    inset 0 -3px 6px rgba(0, 0, 0, 0.62),
+    0 1px 3px rgba(0, 0, 0, 0.45);
+}
+.knob-ring:active .knob-face { transition: none; }
+
+/* The lit pointer line on the face. */
+.knob-indicator {
+  position: absolute;
+  left: 50%;
+  top: 7%;
+  width: 2.5px;
+  height: 34%;
+  margin-left: -1.25px;
+  border-radius: 2px;
+  background: linear-gradient(to bottom,
+    color-mix(in srgb, var(--knob-color) 60%, #fff),
+    var(--knob-color));
+  /* Halo softened with the rest of the de-theming — the pointer still reads
+     as the accent, it just no longer washes the whole face in it. */
+  box-shadow:
+    0 0 3px color-mix(in srgb, var(--knob-color) 55%, transparent),
+    0 0 6px color-mix(in srgb, var(--knob-color) 25%, transparent);
+}
+.knob-sm .knob-indicator { width: 2px; margin-left: -1px; }
+
+/* Centre-detent notch on the housing (bipolar params). */
+.knob-detent {
+  position: absolute;
+  top: -1px;
+  left: 50%;
+  width: 2px;
+  height: 4px;
+  margin-left: -1px;
+  border-radius: 1px;
+  background: color-mix(in srgb, var(--text-muted) 80%, #fff 20%);
+  z-index: 3;
+  pointer-events: none;
+}
+
+/* Dark centre inset with a top-left specular — the value sits on it. The
+   specular was rgba(255,255,255,0.16) fading by 30 %, which is a wide weak
+   wash; it is now a smaller, brighter spot (0.24, gone by 22 %) so the cap
+   reads as a polished dome rather than a grey disc, and still sits well below
+   the value text's own contrast. */
+.knob-cap {
+  position: absolute;
+  inset: 34%;
+  border-radius: 50%;
+  z-index: 3;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 36% 30%,
+      rgba(255, 255, 255, 0.24) 0%,
+      rgba(255, 255, 255, 0.06) 22%,
+      transparent 48%),
+    color-mix(in srgb, var(--knob-well) 70%, #000);
+  box-shadow:
+    inset 0 1px 2px rgba(0, 0, 0, 0.85),
+    inset 0 -1px 1px rgba(255, 255, 255, 0.08);
+}
+
+.knob-value,
+.knob-input {
+  position: relative;
+  z-index: 4;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  line-height: 1;
+  color: var(--text-primary);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.85);
+  pointer-events: none;
+}
+.knob-sm .knob-value, .knob-sm .knob-input { font-size: 7.5px; }
+.knob-lg .knob-value, .knob-lg .knob-input { font-size: 11px; }
+.knob-input {
+  width: 78%;
+  text-align: center;
+  background: var(--bg-app, #05070f);
+  border: 1px solid var(--knob-color);
+  border-radius: 3px;
+  color: var(--text-primary);
+  pointer-events: auto;
+  outline: none;
+  padding: 1px 0;
+}
+.knob-label {
+  font-family: var(--font-ui);
+  font-size: 7px;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--text-muted);
+}
+.knob-sm .knob-label { color: color-mix(in srgb, var(--knob-color) 35%, var(--text-muted)); }
+
+/* Cable-drop hover highlight (the drag layer sets --drag-color). */
+.is-mod-dragging .knob[data-mod-target] .knob-arc { opacity: 0.5; }
+.is-mod-dragging .knob[data-mod-target].is-mod-drop .knob-arc {
+  opacity: 1;
+  background: conic-gradient(from -135deg, var(--drag-color, var(--accent)) 0deg 360deg);
+  filter: drop-shadow(0 0 6px var(--drag-color, var(--accent)));
+}
+
+/* ----- Pitch dial (Phase 1.7 — drag to sweep, double-click to type) ----- */
+.pitch-dial {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  flex: none;
+  /* The knob body reuses .knob-* (see PitchDial.tsx) at this size. */
+  --knob-size: 44px;
+}
+.pitch-dial-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-mono);
+  font-size: 7px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.pitch-dial-knob { touch-action: none; }
+.pitch-dial-knob input.knob-input::-webkit-outer-spin-button,
+.pitch-dial-knob input.knob-input::-webkit-inner-spin-button { appearance: none; margin: 0; }
+.pitch-dial-unit {
+  font-family: var(--font-mono);
+  font-size: 7px;
+  color: var(--text-muted);
+}
+
+/* ----- Per-operator dedicated visualizer + mode chips — small monitor
+   scopes, not the main board (which stays the big one at the top). ----- */
+.op-viz-row {
+  display: flex;
+  align-items: stretch;
+  gap: 3px;
+}
+.op-viz {
+  flex: 1 1 auto;
+  min-width: 0;
+  /* Bigger per-operator scope (todo.md: "increase their visualizer size") —
+     was 34px, grown to 54px. Trimmed back slightly per todo.md §143 ("shrink
+     the OSC down a bit") once the card layout itself was approved as final. */
+  height: 44px;
+  border: 1px solid var(--op-color, var(--border));
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--bg-surface-elevated);
+}
+.op-viz-modes {
+  flex: none;
+  align-self: center;
+}
+.op-viz-modes.sh-viz .sh-viz-btn {
+  height: 16px;
+  min-width: 16px;
+  padding: 0 3px;
+  font-size: 8px;
+}
+.op-card .sh-viz-btn.is-on {
+  color: var(--op-color, var(--accent));
+  box-shadow: inset 0 -2px 0 var(--op-color, var(--accent));
+}
+
+.synth-panic {
+  appearance: none;
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--danger);
+  color: var(--danger);
+  border-radius: 999px;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  font-size: 11px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 150ms ease, color 150ms ease, box-shadow 150ms ease;
+  flex: none;
+}
+.synth-panic:hover:not(:disabled) {
+  background: var(--danger);
+  color: var(--bg-app);
+  box-shadow: 0 0 calc(var(--glow) * 8px) var(--danger);
+}
+.synth-panic:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ----- Modulator strip (todo.md §58) — moved below the oscillator engine,
+   full width, one responsive grid of compact cards instead of a narrow
+   right-hand sidebar of stacked sections. Mirrors `.op-grid`'s pattern:
+   stepped column counts via container query, not auto-fit (todo.md §28's
+   "3 cards + 1 stretched orphan" lesson applies here too). ----- */
+.env-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-top: 2px;
+  width: 100%;
+  box-sizing: border-box;
+  container-type: inline-size;
+}
+/* .env-panel-title removed — the "Modulators" heading row was dead vertical
+   space (user, 2026-09-10). Panic moved to the header (SynthHeader /
+   plugin-header). */
+/* One flat grid — 9 modulator/filter cards, every cell the same box
+   (todo.md §82; was 4 columns of stacked pairs, which left the 3-card
+   filter column visibly taller than the rest). Fixed row height so ENV /
+   LFO / S&H / Random / Keyboard / Filter cards all read identical. */
+.env-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: 66px; /* §83 — was 84; the strip was taking too much room */
+  gap: 3px;
+}
+.env-grid > * {
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+}
+@container (max-width: 560px) {
+  .env-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@container (max-width: 340px) {
+  .env-grid { grid-template-columns: 1fr; }
+}
+/* Card chrome — same identity-tint pattern as `.op-card` (there: --op-color,
+   here: --src, set inline per card to the source's fixed identity colour
+   from mod-sources.ts). "Hidden by default, only the visualizer visible"
+   (todo.md §58): no knob rows any more — the graph itself is the control. */
+.mod-card {
+  padding: 3px 4px;
+  border: 1px solid color-mix(in srgb, var(--src, var(--border)) 40%, var(--border));
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(160deg, color-mix(in srgb, var(--src, var(--accent)) 8%, transparent), transparent 55%),
+    color-mix(in srgb, var(--src, var(--accent)) 3%, var(--bg-surface-elevated));
+  min-width: 0;
+  /* Every card is now a fixed-height grid cell (§82) — lay its content out
+     as a column: a fixed-height head, then a graph / control area that
+     fills whatever's left. */
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
+}
+.env-block {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  height: 100%;
+}
+.env-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-2);
+  flex: none;
+  min-height: 13px;
+}
+.env-title {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* Identity-colour source dot (source colour, not a theme token — see
+   mod-sources.ts). It's a real element now so it can be a cable-drag handle. */
+.env-source-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--src);
+  border: 1px solid color-mix(in srgb, var(--src) 55%, white);
+  box-shadow: 0 0 calc(var(--glow) * 6px) var(--src);
+  cursor: grab;
+  flex: none;
+  touch-action: none;
+}
+.env-source-dot:hover {
+  box-shadow: 0 0 calc(var(--glow) * 12px) var(--src);
+  transform: scale(1.2);
+}
+.env-source-dot:active {
+  cursor: grabbing;
+}
+/* Click-to-assign armed state (todo.md §91/92) — reuses the same pulse
+   keyframes as a knob's mod-glow ring so "this is live" reads consistently
+   everywhere in the synth. */
+.env-source-dot.is-armed {
+  transform: scale(1.25);
+  box-shadow: 0 0 calc(var(--glow) * 16px) var(--src);
+  animation: knob-mod-pulse 1.4s ease-in-out infinite;
+}
+
+/* Mod-source overview row (todo.md §91/92 Pigments overhaul) — every source
+   in one slim strip. Lives in the plugin header (not the modulator strip —
+   that column is already budgeted to the pixel for the no-scroll rule, see
+   todo.md §77), so it's a plain inline row with no padding/border of its
+   own; the header supplies those. Dots only, no labels — see the component
+   doc comment for why. */
+.mod-overview-row {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+}
+.mod-overview-item {
+  display: inline-flex;
+  align-items: center;
+}
+/* Disambiguates same-colour sources within a family (ENV 2/3, LFO 1/2/3) —
+   see the component doc comment. */
+.mod-overview-num {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  line-height: 1;
+  color: color-mix(in srgb, var(--src) 75%, var(--text-muted));
+  margin-left: 1px;
+}
+/* Velocity / KBD constant-source strip. */
+.const-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 3px 0 1px;
+}
+
+.fx-header-mix-slider {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: auto;
+  font-family: var(--font-mono, monospace);
+  font-size: 8px;
+  color: var(--text-muted, #8e9cc8);
+}
+.fx-header-mix-label {
+  font-weight: bold;
+  letter-spacing: 0.08em;
+  color: var(--fx-color, var(--accent));
+}
+.fx-header-mix-slider input[type="range"] {
+  width: 55px;
+  height: 10px;
+  accent-color: var(--fx-color, var(--accent));
+  cursor: pointer;
+}
+.fx-header-mix-val {
+  min-width: 24px;
+  color: var(--text-primary, #ffffff);
+  text-align: right;
+}
+
+/* Velocity / Keyboard curve card (todo.md §88.E). */
+.perf-head { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+.perf-dots { gap: 8px; padding: 0; }
+.perf-dots .const-source { font-size: 8px; }
+.perf-tabs { display: inline-flex; border: 1px solid var(--border); border-radius: 4px; overflow: hidden; flex: none; }
+.perf-tabs button {
+  appearance: none; border: 0; background: var(--bg-surface);
+  color: var(--text-muted, var(--muted)); font: inherit; font-size: 8px;
+  padding: 2px 6px; cursor: pointer;
+}
+.perf-tabs button + button { border-left: 1px solid var(--border); }
+.perf-tabs button.is-on { color: var(--src, var(--accent)); background: color-mix(in srgb, var(--src, var(--accent)) 16%, var(--bg-surface)); }
+.perf-graph { flex: 1 1 auto; min-height: 0; }
+.env-graph {
+  /* Fills the card below the head (§82 — card height is fixed by the grid). */
+  flex: 1 1 auto;
+  min-height: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-surface-elevated);
+  overflow: hidden;
+}
+.env-graph-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+  touch-action: none;
+}
+.env-graph-canvas:active { cursor: grabbing; }
+
+/* ----- LFO / Sample & hold graphs — the graph itself is now the control
+   surface (todo.md §58): drag the canvas (or the corner readout) to set
+   rate, double-click to open the Function editor. No more knob row
+   underneath. ----- */
+.lfo-graph {
+  /* Fills the card below the head — same as `.env-graph` so ENV / LFO /
+     S&H / Random cards all read identical (§82). */
+  flex: 1 1 auto;
+  min-height: 0;
+  position: relative;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  /* Cable-drop glow when an ENV/LFO is routed onto this LFO's rate. */
+  box-shadow: 0 0 calc(var(--mod-glow-amt, 0) * 10px) var(--mod-glow, transparent);
+  background: var(--bg-surface-elevated);
+  overflow: hidden;
+}
+.lfo-graph-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+}
+/* The small Hz readout, bottom-left corner of the graph — itself a drag
+   control (vertical, log-scaled) and a double-click-to-type field. */
+.lfo-rate-corner {
+  position: absolute;
+  left: 2px;
+  bottom: 2px;
+  padding: 1px 4px;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--bg-app) 55%, transparent);
+  font-family: var(--font-mono);
+  font-size: 8px;
+  line-height: 1.4;
+  color: var(--src, var(--text-primary));
+  cursor: ns-resize;
+  user-select: none;
+  touch-action: none;
+}
+.lfo-rate-corner:hover { color: var(--text-primary); }
+input.lfo-rate-input {
+  position: absolute;
+  left: 2px;
+  bottom: 2px;
+  width: 34px;
+  padding: 1px 3px;
+  border-radius: 3px;
+  border: 1px solid var(--src, var(--border-active));
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 8px;
+}
+input.lfo-rate-input::-webkit-outer-spin-button,
+input.lfo-rate-input::-webkit-inner-spin-button { appearance: none; margin: 0; }
+/* Sample & hold toggle — a small button in the LFO card's header row,
+   replacing the old 5-button wave picker (shape is a continuous drag on the
+   graph now; S&H is categorically separate, not part of that spectrum). */
+/* LFO header modulation affordances — a tiny "Rate ∿" / "Shape ∿" pair so
+   the LFO's own rate + shape morph can be Pigments-routed (todo.md §66). */
+.lfo-head-mods {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+}
+.lfo-head-mod {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+.lfo-head-mod-lbl {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* Random card — stepped decoration + hint, no interactive graph. */
+.random-graph {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-surface-elevated);
+  overflow: hidden;
+}
+.random-hint {
+  position: absolute;
+  bottom: 2px;
+  right: 5px;
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.function-editor-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: color-mix(in srgb, var(--bg-app) 78%, transparent);
+}
+.function-editor {
+  width: min(620px, calc(100vw - 32px));
+  max-height: calc(100vh - 32px);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  overflow: hidden;
+  border: 1px solid var(--border-active);
+  border-radius: 8px;
+  background: var(--bg-surface);
+  box-shadow: 0 18px 60px rgba(0,0,0,.45), 0 0 24px color-mix(in srgb, var(--accent) 22%, transparent);
+}
+.function-editor > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--text-primary);
+}
+.function-editor > header button {
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 20px;
+  cursor: pointer;
+}
+.function-editor-graph {
+  display: block;
+  width: 100%;
+  height: min(46vh, 300px);
+  min-height: 180px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-surface-elevated);
+  touch-action: none;
+}
+.function-editor-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 5px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 9px;
+}
+.function-editor-toolbar button {
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 3px 7px;
+  background: var(--bg-surface-elevated);
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.function-editor-toolbar button.is-on,
+.function-editor-toolbar button:hover { color: var(--accent); border-color: var(--accent); }
+/* Grid line-count fields (todo.md — adjustable grid, capped 1-32). Drag ↕ or
+   scroll to change, no typing — a small drag/scroll target, same idiom as
+   `.lfo-rate-corner`. */
+.function-editor-grid-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 5px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg-surface-elevated);
+  cursor: ns-resize;
+  user-select: none;
+  touch-action: none;
+}
+.function-editor-grid-field.is-dragging,
+.function-editor-grid-field:hover { color: var(--accent); border-color: var(--accent); }
+.function-editor-help { flex-basis: 100%; }
+
+.lfo-sh-toggle {
+  appearance: none;
+  flex: none;
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 4px;
+  padding: 1px 4px;
+  font-family: var(--font-mono);
+  font-size: 7px;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: color 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+}
+/* The wrench ("open the Function editor") shares the toggle chrome but holds a
+   glyph, not two characters of text — so it gets square padding and centres its
+   SVG instead of sitting on the mono-font baseline. */
+.lfo-edit-btn { display: inline-flex; align-items: center; justify-content: center; padding: 1px 3px; }
+.lfo-edit-btn:hover { color: var(--accent); border-color: var(--accent); box-shadow: 0 0 calc(var(--glow) * 6px) color-mix(in srgb, var(--accent) 50%, transparent); }
+.lfo-sh-toggle:hover { color: var(--text-primary); border-color: var(--border-active); }
+.lfo-sh-toggle.is-on {
+  color: var(--src);
+  border-color: var(--src);
+  box-shadow: 0 0 calc(var(--glow) * 6px) var(--src);
+}
+
+/* Hz/kHz-style segmented toggle — shared with the Filter's Type/Slope
+   toggles (OscillatorPanel.tsx's FilterSection). */
+.lfo-unit {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+  flex: none;
+}
+.lfo-unit button {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  border-right: 1px solid var(--border);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 7px;
+  letter-spacing: 0.08em;
+  line-height: 1.5;
+  padding: 0 4px;
+  cursor: pointer;
+  transition: color 120ms ease, background 120ms ease;
+}
+.lfo-unit button:last-child { border-right: 0; }
+.lfo-unit button:hover { color: var(--text-primary); }
+.lfo-unit button.is-on {
+  color: var(--src, var(--accent));
+  background: color-mix(in srgb, var(--src, var(--accent)) 16%, transparent);
+}
+
+/* ----- Modulation popover + badges (Pigments-style) ----- */
+.op-knob-right {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+.op-mod-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.mod-dots {
+  display: inline-flex;
+  gap: 2px;
+  align-items: center;
+}
+.mod-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--src);
+  box-shadow: 0 0 calc(var(--glow) * 5px) var(--src);
+}
+/* The ∿ badge button is gone (todo.md §88.C) — right-click a knob to assign. */
+.op-mod-btn { display: none; }
+.op-mod-btn {
+  appearance: none;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 4px;
+  width: 14px;
+  height: 14px;
+  font-size: 9px;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: color 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+  flex: none;
+}
+.op-mod-btn:hover {
+  color: var(--text-primary);
+  border-color: var(--border-active);
+}
+.op-mod-btn.is-open,
+.op-mod-btn.has-mod {
+  color: var(--accent);
+  border-color: var(--border-active);
+}
+.op-mod-btn.is-open {
+  box-shadow: 0 0 calc(var(--glow) * 8px) var(--accent);
+}
+
+/* Combined selector (not a plain `.mod-popover-bysource` rule) so this wins
+   over `.mod-popover`'s own `width` regardless of which rule is declared
+   first in the file — two single-class selectors of equal specificity would
+   otherwise resolve by source order, and silently losing this override is
+   exactly the kind of bug that's invisible without a live visual check
+   (found in review: it briefly lost this way). */
+.mod-popover.mod-popover-bysource {
+  width: 240px; /* target labels ("Osc 3 PM depth"…) run longer than source names */
+}
+.mod-popover {
+  position: fixed;
+  z-index: 80;
+  width: 216px;
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-active);
+  border-radius: var(--radius);
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.45),
+    0 0 calc(var(--glow) * 14px) var(--accent);
+  padding: var(--sp-2);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.mod-pop-head {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--sp-2);
+  padding: 0 4px 6px;
+  border-bottom: 1px solid var(--border-soft);
+  margin-bottom: 4px;
+}
+.mod-pop-hint {
+  font-size: 9px;
+  text-transform: none;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+.mod-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 6px;
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+  cursor: ns-resize;
+  touch-action: none;
+  user-select: none;
+  transition: background 120ms ease, border-color 120ms ease;
+}
+.mod-row:hover {
+  background: var(--bg-surface);
+  border-color: var(--border);
+}
+.mod-chip {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--src);
+  box-shadow: 0 0 calc(var(--glow) * 8px) var(--src);
+  flex: none;
+}
+.mod-name {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+.mod-amount {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--src);
+  min-width: 58px;
+  text-align: right;
+}
+.mod-clear {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 2px;
+  border-radius: 4px;
+}
+.mod-clear:hover:not(:disabled) {
+  color: var(--danger);
+}
+.mod-clear:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+
+/* ----- Pigments-style cable routing (ENV dot → knob) ----- */
+.mod-cable-layer {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 200;
+  overflow: visible;
+}
+.mod-cable {
+  fill: none;
+  stroke-width: 2px;
+  stroke-linecap: round;
+  stroke-dasharray: 6 5;
+  filter: drop-shadow(0 0 6px currentColor);
+}
+.mod-cable-end {
+  r: 5px;
+  filter: drop-shadow(0 0 6px currentColor);
+}
+/* ----- Mod cable drag — drop-target illumination (todo.md BUG3) -----
+   While a source dot is being dragged, the root gets `.is-mod-dragging`
+   and every `[data-mod-target]` knob lights up so the user can see where
+   the cable can be dropped. The hovered knob (`.is-mod-drop`) glows in the
+   SOURCE's identity colour (`--drag-color`), so you see the colour the
+   knob will take on before you let go. */
+.is-mod-dragging [data-mod-target] {
+  outline: 1px solid color-mix(in srgb, var(--drag-color, var(--accent)) 45%, transparent);
+  outline-offset: 2px;
+  border-radius: var(--radius);
+  transition: outline-color 120ms ease, box-shadow 120ms ease;
+}
+.is-mod-dragging [data-mod-target].knob .knob-ring {
+  box-shadow: 0 0 calc(var(--glow) * 14px) color-mix(in srgb, var(--drag-color, var(--accent)) 40%, transparent);
+}
+.is-mod-dragging [data-mod-target].is-mod-drop {
+  outline: 2px solid var(--drag-color, var(--accent));
+  box-shadow: 0 0 calc(var(--glow) * 22px) var(--drag-color, var(--accent));
+}
+.op-mod-wrap.is-mod-drop {
+  outline: 2px solid var(--drag-color, var(--accent));
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* ----- Piano host ----- */
+.synth-keys {
+  /* Phase 1.9b (todo.md §30): "piano must always be visible, at any window
+     size" — it had no explicit flex-shrink, so the default (1) let it get
+     squeezed by the flex column under pressure with nothing preventing
+     `.pk-row`'s fixed height from then overflowing its own shrunk box.
+     flex: 0 0 auto pins it at its natural size unconditionally; only
+     `.synth-board` (flex: 1 1 0, with a floor) absorbs window-height
+     pressure. */
+  flex: 0 0 auto;
+  margin: 0 var(--sp-3) var(--sp-2);
+}
+.pk-row {
+  position: relative;
+  height: 50px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: inset 0 0 calc(var(--glow) * 6px) var(--accent);
+  user-select: none;
+  touch-action: none;
+}
+.pk-whites {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+}
+.pk-white {
+  position: relative;
+  flex: 1 1 0;
+  background:
+    linear-gradient(to bottom,
+      var(--bg-surface-elevated) 0%,
+      color-mix(in srgb, var(--bg-surface-elevated) 92%, var(--accent) 8%) 92%,
+      var(--bg-surface-elevated) 100%);
+  border-right: 1px solid var(--border);
+  cursor: pointer;
+  transition: background 80ms linear;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  padding-bottom: 4px;
+}
+.pk-white:last-child { border-right: 0; }
+.pk-white[data-active="1"] {
+  background: linear-gradient(to bottom, var(--accent) 0%, color-mix(in srgb, var(--accent) 70%, var(--bg-surface-elevated)) 100%);
+  box-shadow: inset 0 -2px 0 var(--border-active);
+}
+.pk-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+.pk-white[data-active="1"] .pk-label { color: var(--bg-app); }
+
+.pk-blacks {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 64%;
+  pointer-events: none;
+}
+.pk-black {
+  position: absolute;
+  top: 0;
+  /* Real width is set inline as 0.65 / (white-key count) of the row so black
+     keys stay ~65% of a white key at any visible range. Fallback only. */
+  width: 3.5%;
+  transform: translateX(-50%);
+  height: 100%;
+  background:
+    linear-gradient(to bottom,
+      color-mix(in srgb, var(--bg-app) 85%, black) 0%,
+      color-mix(in srgb, var(--bg-app) 92%, var(--accent) 8%) 100%);
+  border: 1px solid color-mix(in srgb, var(--bg-app) 90%, black);
+  border-top: 0;
+  border-radius: 0 0 var(--radius) var(--radius);
+  box-shadow: 0 4px 6px rgba(0,0,0,0.6), inset 0 -2px 0 rgba(0,0,0,0.6);
+  pointer-events: auto;
+  cursor: pointer;
+  transition: background 80ms linear, box-shadow 80ms linear;
+}
+.pk-black[data-active="1"] {
+  background: linear-gradient(to bottom, var(--accent) 0%, var(--bg-app) 100%);
+  box-shadow: 0 4px 12px var(--accent), inset 0 -2px 0 var(--bg-app);
+}
+
+/* ----- Responsive: narrow widths ----- */
+@media (max-width: 720px) {
+  .op-row-knobs { flex-wrap: wrap; }
+  .op-row-levels { flex-wrap: wrap; }
+  .pk-row { height: 30px; }
+}
+/* ==========================================================================
+   SYNTHESIZER Phase 1.5 — sampler picker, mode-switch button, waveform tile.
+   Token-driven. Adds to the synth block.
+   ========================================================================== */
+
+/* ----- Title bar mode-switch button (Phase 1.5 nav fix) ----- */
+.tb-mode-switch {
+  appearance: none;
+  background: var(--bg-surface-elevated);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0 8px;
+  height: 22px;
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: color 150ms ease, background 150ms ease, box-shadow 150ms ease, border-color 150ms ease;
+}
+.tb-mode-switch:hover {
+  color: var(--accent);
+  border-color: var(--border-active);
+  background: var(--bg-surface);
+}
+.tb-mode-switch.is-on {
+  /* Always-on accent when synth is the active mode. */
+  color: var(--accent);
+  border-color: var(--border-active);
+  box-shadow: 0 0 calc(var(--glow) * 6px) var(--accent);
+}
+.tb-mode-glyph { font-size: 13px; line-height: 1; }
+.tb-mode-text { display: inline; }
+
+/* When the chrome is very narrow, hide the text and keep only the glyph. */
+@media (max-width: 720px) {
+  .tb-mode-text { display: none; }
+}
+
+/* Empty-state visual on the Sample toggle button in the Oscillator panel
+   (button is `.op-sample-toggle` on its own now — moved out of the Wave
+   row, todo.md §99 — this used to also require `.op-wave`). */
+.op-sample-toggle.is-empty {
+  border-style: dashed;
+  color: var(--text-muted);
+}
+.op-sample-toggle.is-empty:hover {
+  color: var(--accent);
+  border-color: var(--border-active);
+  border-style: solid;
+}
+.op-sample-toggle.is-empty.is-on {
+  border-style: solid;
+}
+
+/* ----- Arp panel — a third view alongside SYNTH/FX (todo.md §166 v1). ----- */
+.arp-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  padding: 8px;
+}
+.arp-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.arp-power, .arp-hold {
+  appearance: none;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-surface-elevated);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+.arp-power.is-on {
+  color: var(--accent-bright);
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 18%, var(--bg-surface-elevated));
+  box-shadow: 0 0 calc(var(--glow) * 10px) var(--accent);
+}
+.arp-hold.is-on {
+  color: var(--accent-bright);
+  border-color: var(--border-active);
+}
+.arp-modes {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.arp-mode-btn {
+  appearance: none;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-surface-elevated);
+  color: var(--text-muted);
+  font-size: 11px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+.arp-mode-btn.is-on {
+  color: var(--accent-bright);
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 14%, var(--bg-surface-elevated));
+}
+.arp-knobs {
+  display: flex;
+  gap: 24px;
+  align-items: flex-end;
+}
+.arp-hint {
+  font-size: 11px;
+  color: var(--text-muted);
+  max-width: 60ch;
+  line-height: 1.4;
+}
+
+/* ----- Per-OSC WT | SMP switch + sampler face (todo.md §167 S0) ----- */
+.op-card-head { position: relative; }
+.op-src-toggle {
+  position: absolute; right: 2px; top: 50%; transform: translateY(-50%);
+  display: inline-flex; border: 1px solid var(--border-soft); border-radius: 5px; overflow: hidden;
+}
+.op-src-toggle button {
+  appearance: none; border: 0; background: transparent; cursor: pointer;
+  font-family: var(--font-mono); font-size: 8px; letter-spacing: 0.08em; padding: 1px 5px;
+  color: var(--text-muted);
+}
+.op-src-toggle button.is-on { background: color-mix(in srgb, var(--op-color, var(--accent)) 28%, transparent); color: var(--op-color, var(--accent)); }
+.op-sampler { display: flex; flex-direction: column; gap: 4px; width: 100%; padding: 2px 4px; box-sizing: border-box; }
+.op-sampler-wave {
+  position: relative; height: 70px; border-radius: 6px; overflow: hidden; cursor: crosshair; touch-action: none;
+  background: rgba(0, 0, 0, 0.45); border: 1px solid var(--border-soft);
+}
+.op-sampler-wave svg { position: absolute; inset: 0; width: 100%; height: 100%; fill: var(--op-color, var(--accent)); opacity: 0.9; }
+.op-sampler-dim { position: absolute; top: 0; bottom: 0; background: rgba(0, 0, 0, 0.6); pointer-events: none; }
+.op-sampler-sel {
+  position: absolute; top: 0; bottom: 0; pointer-events: none;
+  background: color-mix(in srgb, var(--op-color, var(--accent)) 14%, transparent);
+  border-left: 1px solid var(--op-color, var(--accent)); border-right: 1px solid var(--op-color, var(--accent));
+}
+.op-sampler-handle { position: absolute; top: 0; bottom: 0; width: 6px; background: var(--op-color, var(--accent)); opacity: 0.35; }
+.op-sampler-handle.is-start { left: 0; border-radius: 0 3px 3px 0; }
+.op-sampler-handle.is-end { right: 0; border-radius: 3px 0 0 3px; }
+.op-sampler-empty {
+  appearance: none; width: 100%; height: 100%; border: 0; background: transparent; cursor: pointer;
+  font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);
+}
+.op-sampler-empty:hover { color: var(--op-color, var(--accent)); }
+.op-sampler-row { display: flex; align-items: center; gap: 4px; }
+.op-sampler-btn, .op-sampler-root {
+  appearance: none; cursor: pointer; font-family: var(--font-mono); font-size: 10px; line-height: 1;
+  color: var(--text-secondary); background: rgba(0, 0, 0, 0.45);
+  border: 1px solid var(--border-soft); border-radius: 4px; padding: 4px 6px;
+}
+.op-sampler-btn.is-on { color: var(--op-color, var(--accent)); border-color: var(--op-color, var(--accent)); }
+.op-sampler-btn:disabled { opacity: 0.35; cursor: default; }
+.op-sampler-dur { flex: 1 1 auto; min-width: 0; font-family: var(--font-mono); font-size: 9px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.preset-hist { position: relative; display: inline-flex; align-items: center; }
+.preset-hist-toggle { position: absolute; left: 50%; bottom: -7px; transform: translateX(-50%); appearance: none; border: 0; background: transparent; color: var(--text-muted); font-size: 10px; line-height: 1; height: 10px; padding: 0 8px; cursor: pointer; }
+.preset-hist-toggle:hover:not(:disabled), .preset-hist-toggle.is-on { color: var(--accent); }
+.preset-hist-toggle:disabled { opacity: .3; cursor: default; }
+.preset-hist-menu { position: absolute; top: calc(100% + 6px); left: 0; z-index: 70; min-width: 210px; max-height: 320px; overflow-y: auto; display: flex; flex-direction: column; padding: 4px; background: var(--bg-surface-elevated); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: 0 8px 30px rgba(0,0,0,.35); }
+.preset-hist-item { appearance: none; border: 0; background: transparent; color: var(--text-secondary); text-align: left; font-size: 12px; padding: 5px 8px; border-radius: 5px; cursor: pointer; white-space: nowrap; }
+.preset-hist-item:hover { background: color-mix(in srgb, var(--accent) 14%, transparent); color: var(--accent); }
+.preset-hist-item.is-redo { opacity: .6; }
+.preset-hist-cur { color: var(--accent); font-size: 11px; padding: 4px 8px; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); margin: 2px 0; }
+
+/* Envelope card header controls — same row treatment the LFO cards use, so the
+   wrench (multi-point shape editor) and the × line up identically on both. */
+.env-head-mods { display: inline-flex; align-items: center; gap: 3px; margin-left: auto; }

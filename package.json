@@ -1,0 +1,71 @@
+{
+  "name": "faze",
+  "version": "3.0.0",
+  "description": "Faze — a 4-operator FM/PM software synthesizer (Electron + Web Audio; VST3 spike in spike/elementary)",
+  "main": "dist/main/index.js",
+  "author": "Serge",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently -k -n vite,electron -c cyan,magenta \"npm:dev:renderer\" \"npm:dev:electron\"",
+    "dev:renderer": "vite",
+    "dev:electron": "wait-on tcp:5173 && tsc -p tsconfig.main.json && cross-env NODE_ENV=development electron .",
+    "build:main": "tsc -p tsconfig.main.json",
+    "build:renderer": "vite build",
+    "build": "npm run build:main && npm run build:renderer",
+    "typecheck": "tsc -p tsconfig.main.json --noEmit && tsc -p tsconfig.renderer.json --noEmit",
+    "package": "npm run build && electron-builder",
+    "package:dir": "npm run build && electron-builder --dir",
+    "start": "cross-env NODE_ENV=production electron ."
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.30",
+    "@types/react": "^18.2.79",
+    "@types/react-dom": "^18.2.25",
+    "@vitejs/plugin-react": "^4.2.1",
+    "concurrently": "^8.2.2",
+    "cross-env": "^7.0.3",
+    "electron": "^30.0.5",
+    "electron-builder": "^24.13.3",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "typescript": "^5.4.5",
+    "vite": "^5.2.10",
+    "wait-on": "^7.2.0"
+  },
+  "build": {
+    "appId": "com.serge.faze",
+    "productName": "Faze",
+    "files": [
+      "dist/**/*",
+      "package.json",
+      "node_modules/koffi/**/*"
+    ],
+    "asarUnpack": [
+      "**/node_modules/koffi/**"
+    ],
+    "extraResources": [
+      {
+        "from": "loopback-build",
+        "to": "loopback-build",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "directories": {
+      "output": "release"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "mac": {
+      "target": "dmg"
+    },
+    "linux": {
+      "target": "AppImage"
+    }
+  },
+  "dependencies": {
+    "koffi": "^3.1.5"
+  }
+}

@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <!-- net8.0 (without -windows) avoids pulling in WPF/WinForms which we
+         don't need; NAudio's WASAPI playback is pure P/Invoke. -->
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>FazeLoopback</RootNamespace>
+    <AssemblyName>faze-loopback</AssemblyName>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <!-- Framework-dependent: relies on the user's installed .NET 8 runtime,
+         which keeps the published bytes to ~50 KB instead of ~110 MB. -->
+    <SelfContained>false</SelfContained>
+    <PublishSingleFile>false</PublishSingleFile>
+    <UseAppHost>true</UseAppHost>
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NAudio" Version="2.2.1" />
+  </ItemGroup>
+
+</Project>

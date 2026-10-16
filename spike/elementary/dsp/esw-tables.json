@@ -1,0 +1,2276 @@
+[
+  {
+    "id": 0,
+    "category": "Analog",
+    "name": "303 Saw",
+    "path": "Analog/ESW Analog - 303 Saw.wav"
+  },
+  {
+    "id": 1,
+    "category": "Analog",
+    "name": "80's PWM",
+    "path": "Analog/ESW Analog - 80's PWM.wav"
+  },
+  {
+    "id": 2,
+    "category": "Analog",
+    "name": "ARP Pulse",
+    "path": "Analog/ESW Analog - ARP Pulse.wav"
+  },
+  {
+    "id": 3,
+    "category": "Analog",
+    "name": "ARP Saw",
+    "path": "Analog/ESW Analog - ARP Saw.wav"
+  },
+  {
+    "id": 4,
+    "category": "Analog",
+    "name": "ARP Square",
+    "path": "Analog/ESW Analog - ARP Square.wav"
+  },
+  {
+    "id": 5,
+    "category": "Analog",
+    "name": "ARP Triangle",
+    "path": "Analog/ESW Analog - ARP Triangle.wav"
+  },
+  {
+    "id": 6,
+    "category": "Analog",
+    "name": "Arp Sine",
+    "path": "Analog/ESW Analog - Arp Sine.wav"
+  },
+  {
+    "id": 7,
+    "category": "Analog",
+    "name": "Brute Saw",
+    "path": "Analog/ESW Analog - Brute Saw.wav"
+  },
+  {
+    "id": 8,
+    "category": "Analog",
+    "name": "Circle PWM",
+    "path": "Analog/ESW Analog - Circle PWM.wav"
+  },
+  {
+    "id": 9,
+    "category": "Analog",
+    "name": "JP800 Saw",
+    "path": "Analog/ESW Analog - JP800 Saw.wav"
+  },
+  {
+    "id": 10,
+    "category": "Analog",
+    "name": "JP800 Square",
+    "path": "Analog/ESW Analog - JP800 Square.wav"
+  },
+  {
+    "id": 11,
+    "category": "Analog",
+    "name": "Juno 60 Sine 01",
+    "path": "Analog/ESW Analog - Juno 60 Sine 01.wav"
+  },
+  {
+    "id": 12,
+    "category": "Analog",
+    "name": "Juno 60 Square",
+    "path": "Analog/ESW Analog - Juno 60 Square.wav"
+  },
+  {
+    "id": 13,
+    "category": "Analog",
+    "name": "Jupiter 8 Saw",
+    "path": "Analog/ESW Analog - Jupiter 8 Saw.wav"
+  },
+  {
+    "id": 14,
+    "category": "Analog",
+    "name": "Jupiter 8 Square",
+    "path": "Analog/ESW Analog - Jupiter 8 Square.wav"
+  },
+  {
+    "id": 15,
+    "category": "Analog",
+    "name": "Jupiter 8 Triang",
+    "path": "Analog/ESW Analog - Jupiter 8 Triang.wav"
+  },
+  {
+    "id": 16,
+    "category": "Analog",
+    "name": "Korg Pro Saw",
+    "path": "Analog/ESW Analog - Korg Pro Saw.wav"
+  },
+  {
+    "id": 17,
+    "category": "Analog",
+    "name": "MS20 Square",
+    "path": "Analog/ESW Analog - MS20 Square.wav"
+  },
+  {
+    "id": 18,
+    "category": "Analog",
+    "name": "Mini Moog Pulse",
+    "path": "Analog/ESW Analog - Mini Moog Pulse.wav"
+  },
+  {
+    "id": 19,
+    "category": "Analog",
+    "name": "Moog Saw 01",
+    "path": "Analog/ESW Analog - Moog Saw 01.wav"
+  },
+  {
+    "id": 20,
+    "category": "Analog",
+    "name": "Moog Saw 02",
+    "path": "Analog/ESW Analog - Moog Saw 02.wav"
+  },
+  {
+    "id": 21,
+    "category": "Analog",
+    "name": "Moog Saw 03",
+    "path": "Analog/ESW Analog - Moog Saw 03.wav"
+  },
+  {
+    "id": 22,
+    "category": "Analog",
+    "name": "Moog Sine 02",
+    "path": "Analog/ESW Analog - Moog Sine 02.wav"
+  },
+  {
+    "id": 23,
+    "category": "Analog",
+    "name": "Moog Square 01",
+    "path": "Analog/ESW Analog - Moog Square 01 .wav"
+  },
+  {
+    "id": 24,
+    "category": "Analog",
+    "name": "Moog Triangle",
+    "path": "Analog/ESW Analog - Moog Triangle.wav"
+  },
+  {
+    "id": 25,
+    "category": "Analog",
+    "name": "PWM Drift",
+    "path": "Analog/ESW Analog - PWM Drift.wav"
+  },
+  {
+    "id": 26,
+    "category": "Analog",
+    "name": "Pluse Waves",
+    "path": "Analog/ESW Analog - Pluse Waves.wav"
+  },
+  {
+    "id": 27,
+    "category": "Analog",
+    "name": "Prophet Saw",
+    "path": "Analog/ESW Analog - Prophet Saw.wav"
+  },
+  {
+    "id": 28,
+    "category": "Analog",
+    "name": "Prophet Square",
+    "path": "Analog/ESW Analog - Prophet Square.wav"
+  },
+  {
+    "id": 29,
+    "category": "Analog",
+    "name": "Prophet Triangle",
+    "path": "Analog/ESW Analog - Prophet Triangle.wav"
+  },
+  {
+    "id": 30,
+    "category": "Analog",
+    "name": "Russians",
+    "path": "Analog/ESW Analog - Russians.wav"
+  },
+  {
+    "id": 31,
+    "category": "Analog",
+    "name": "SH101 Saw",
+    "path": "Analog/ESW Analog - SH101 Saw.wav"
+  },
+  {
+    "id": 32,
+    "category": "Analog",
+    "name": "SH101 Square 1",
+    "path": "Analog/ESW Analog - SH101 Square 1.wav"
+  },
+  {
+    "id": 33,
+    "category": "Analog",
+    "name": "SH101 Square 2",
+    "path": "Analog/ESW Analog - SH101 Square 2.wav"
+  },
+  {
+    "id": 34,
+    "category": "Analog",
+    "name": "Sys8",
+    "path": "Analog/ESW Analog - Sys8.wav"
+  },
+  {
+    "id": 35,
+    "category": "Analog",
+    "name": "Ultra Saw",
+    "path": "Analog/ESW Analog - Ultra Saw.wav"
+  },
+  {
+    "id": 36,
+    "category": "Analog",
+    "name": "VMS Saw",
+    "path": "Analog/ESW Analog - VMS Saw.wav"
+  },
+  {
+    "id": 37,
+    "category": "Basics",
+    "name": "Deep High",
+    "path": "Basics/ESW Basics - Deep High.wav"
+  },
+  {
+    "id": 38,
+    "category": "Basics",
+    "name": "MB Saw",
+    "path": "Basics/ESW Basics - MB Saw.wav"
+  },
+  {
+    "id": 39,
+    "category": "Basics",
+    "name": "PWM Pulse 01",
+    "path": "Basics/ESW Basics - PWM Pulse 01.wav"
+  },
+  {
+    "id": 40,
+    "category": "Basics",
+    "name": "PWM Saw 01",
+    "path": "Basics/ESW Basics - PWM Saw 01.wav"
+  },
+  {
+    "id": 41,
+    "category": "Basics",
+    "name": "Pulse Acid",
+    "path": "Basics/ESW Basics - Pulse Acid.wav"
+  },
+  {
+    "id": 42,
+    "category": "Basics",
+    "name": "Saw Collection",
+    "path": "Basics/ESW Basics - Saw Collection.wav"
+  },
+  {
+    "id": 43,
+    "category": "Basics",
+    "name": "Saw Dual 01",
+    "path": "Basics/ESW Basics - Saw Dual 01.wav"
+  },
+  {
+    "id": 44,
+    "category": "Basics",
+    "name": "Saw Dual 02",
+    "path": "Basics/ESW Basics - Saw Dual 02.wav"
+  },
+  {
+    "id": 45,
+    "category": "Basics",
+    "name": "Saw Dual 03",
+    "path": "Basics/ESW Basics - Saw Dual 03.wav"
+  },
+  {
+    "id": 46,
+    "category": "Basics",
+    "name": "Saw Dual 04",
+    "path": "Basics/ESW Basics - Saw Dual 04.wav"
+  },
+  {
+    "id": 47,
+    "category": "Basics",
+    "name": "Saw Dual 05",
+    "path": "Basics/ESW Basics - Saw Dual 05.wav"
+  },
+  {
+    "id": 48,
+    "category": "Basics",
+    "name": "Saw Fifth 01",
+    "path": "Basics/ESW Basics - Saw Fifth 01.wav"
+  },
+  {
+    "id": 49,
+    "category": "Basics",
+    "name": "Saw Fifth 02",
+    "path": "Basics/ESW Basics - Saw Fifth 02.wav"
+  },
+  {
+    "id": 50,
+    "category": "Basics",
+    "name": "Saw Fifth 03",
+    "path": "Basics/ESW Basics - Saw Fifth 03.wav"
+  },
+  {
+    "id": 51,
+    "category": "Basics",
+    "name": "Saw Mellow",
+    "path": "Basics/ESW Basics - Saw Mellow.wav"
+  },
+  {
+    "id": 52,
+    "category": "Basics",
+    "name": "Saw Morph 01",
+    "path": "Basics/ESW Basics - Saw Morph 01.wav"
+  },
+  {
+    "id": 53,
+    "category": "Basics",
+    "name": "Saw Morph 02",
+    "path": "Basics/ESW Basics - Saw Morph 02.wav"
+  },
+  {
+    "id": 54,
+    "category": "Basics",
+    "name": "Saw Morph 03",
+    "path": "Basics/ESW Basics - Saw Morph 03.wav"
+  },
+  {
+    "id": 55,
+    "category": "Basics",
+    "name": "Saw Phaser",
+    "path": "Basics/ESW Basics - Saw Phaser.wav"
+  },
+  {
+    "id": 56,
+    "category": "Basics",
+    "name": "Saw Reece",
+    "path": "Basics/ESW Basics - Saw Reece.wav"
+  },
+  {
+    "id": 57,
+    "category": "Basics",
+    "name": "Saw Squeeze",
+    "path": "Basics/ESW Basics - Saw Squeeze.wav"
+  },
+  {
+    "id": 58,
+    "category": "Basics",
+    "name": "Saw Thin",
+    "path": "Basics/ESW Basics - Saw Thin.wav"
+  },
+  {
+    "id": 59,
+    "category": "Basics",
+    "name": "Sine 03",
+    "path": "Basics/ESW Basics - Sine 03.wav"
+  },
+  {
+    "id": 60,
+    "category": "Basics",
+    "name": "Sine 909",
+    "path": "Basics/ESW Basics - Sine 909.wav"
+  },
+  {
+    "id": 61,
+    "category": "Basics",
+    "name": "Sine Dwmsmple",
+    "path": "Basics/ESW Basics - Sine Dwmsmple.wav"
+  },
+  {
+    "id": 62,
+    "category": "Basics",
+    "name": "Sine PWM",
+    "path": "Basics/ESW Basics - Sine PWM.wav"
+  },
+  {
+    "id": 63,
+    "category": "Basics",
+    "name": "Sine Pulse",
+    "path": "Basics/ESW Basics - Sine Pulse.wav"
+  },
+  {
+    "id": 64,
+    "category": "Basics",
+    "name": "Sine Saw Reveal",
+    "path": "Basics/ESW Basics - Sine Saw Reveal.wav"
+  },
+  {
+    "id": 65,
+    "category": "Basics",
+    "name": "Sine Soft",
+    "path": "Basics/ESW Basics - Sine Soft.wav"
+  },
+  {
+    "id": 66,
+    "category": "Basics",
+    "name": "Sine to Saw",
+    "path": "Basics/ESW Basics - Sine to Saw.wav"
+  },
+  {
+    "id": 67,
+    "category": "Basics",
+    "name": "Sine to Square",
+    "path": "Basics/ESW Basics - Sine to Square.wav"
+  },
+  {
+    "id": 68,
+    "category": "Basics",
+    "name": "Square Collection",
+    "path": "Basics/ESW Basics - Square Collection.wav"
+  },
+  {
+    "id": 69,
+    "category": "Basics",
+    "name": "Square Morph 01",
+    "path": "Basics/ESW Basics - Square Morph 01.wav"
+  },
+  {
+    "id": 70,
+    "category": "Basics",
+    "name": "Square Pushy",
+    "path": "Basics/ESW Basics - Square Pushy.wav"
+  },
+  {
+    "id": 71,
+    "category": "Basics",
+    "name": "Square Saw 01",
+    "path": "Basics/ESW Basics - Square Saw 01.wav"
+  },
+  {
+    "id": 72,
+    "category": "Basics",
+    "name": "Square Saw",
+    "path": "Basics/ESW Basics - Square Saw.wav"
+  },
+  {
+    "id": 73,
+    "category": "Basics",
+    "name": "Square Sine",
+    "path": "Basics/ESW Basics - Square Sine.wav"
+  },
+  {
+    "id": 74,
+    "category": "Basics",
+    "name": "Sub Sine 01",
+    "path": "Basics/ESW Basics - Sub Sine 01.wav"
+  },
+  {
+    "id": 75,
+    "category": "Basics",
+    "name": "Sub Sine 02",
+    "path": "Basics/ESW Basics - Sub Sine 02.wav"
+  },
+  {
+    "id": 76,
+    "category": "Basics",
+    "name": "Sub Sine 03",
+    "path": "Basics/ESW Basics - Sub Sine 03.wav"
+  },
+  {
+    "id": 77,
+    "category": "Basics",
+    "name": "Triangle Saw",
+    "path": "Basics/ESW Basics - Triangle Saw.wav"
+  },
+  {
+    "id": 78,
+    "category": "Chill",
+    "name": "Axis",
+    "path": "Chill/ESW Chill - Axis.wav"
+  },
+  {
+    "id": 79,
+    "category": "Chill",
+    "name": "Bad Signs",
+    "path": "Chill/ESW Chill - Bad Signs.wav"
+  },
+  {
+    "id": 80,
+    "category": "Chill",
+    "name": "Cloudy",
+    "path": "Chill/ESW Chill - Cloudy.wav"
+  },
+  {
+    "id": 81,
+    "category": "Chill",
+    "name": "Cosine",
+    "path": "Chill/ESW Chill - Cosine.wav"
+  },
+  {
+    "id": 82,
+    "category": "Chill",
+    "name": "Foamer",
+    "path": "Chill/ESW Chill - Foamer.wav"
+  },
+  {
+    "id": 83,
+    "category": "Chill",
+    "name": "Kick it",
+    "path": "Chill/ESW Chill - Kick it.wav"
+  },
+  {
+    "id": 84,
+    "category": "Chill",
+    "name": "Meshy",
+    "path": "Chill/ESW Chill - Meshy.wav"
+  },
+  {
+    "id": 85,
+    "category": "Chill",
+    "name": "Purple Haze",
+    "path": "Chill/ESW Chill - Purple Haze.wav"
+  },
+  {
+    "id": 86,
+    "category": "Chill",
+    "name": "Top Down",
+    "path": "Chill/ESW Chill - Top Down.wav"
+  },
+  {
+    "id": 87,
+    "category": "Chill",
+    "name": "Topix",
+    "path": "Chill/ESW Chill - Topix.wav"
+  },
+  {
+    "id": 88,
+    "category": "Digital",
+    "name": "Sylenth VA",
+    "path": "Digital/ESW Basics - Sylenth VA.wav"
+  },
+  {
+    "id": 89,
+    "category": "Digital",
+    "name": "Acid Saw 02",
+    "path": "Digital/ESW Digital - Acid Saw 02.wav"
+  },
+  {
+    "id": 90,
+    "category": "Digital",
+    "name": "Acid Saw",
+    "path": "Digital/ESW Digital - Acid Saw.wav"
+  },
+  {
+    "id": 91,
+    "category": "Digital",
+    "name": "Acid",
+    "path": "Digital/ESW Digital - Acid.wav"
+  },
+  {
+    "id": 92,
+    "category": "Digital",
+    "name": "Additive Tones",
+    "path": "Digital/ESW Digital - Additive Tones.wav"
+  },
+  {
+    "id": 93,
+    "category": "Digital",
+    "name": "Air Lazer",
+    "path": "Digital/ESW Digital - Air Lazer.wav"
+  },
+  {
+    "id": 94,
+    "category": "Digital",
+    "name": "Angry 02",
+    "path": "Digital/ESW Digital - Angry 02.wav"
+  },
+  {
+    "id": 95,
+    "category": "Digital",
+    "name": "Aries",
+    "path": "Digital/ESW Digital - Aries.wav"
+  },
+  {
+    "id": 96,
+    "category": "Digital",
+    "name": "Astro Scorpio",
+    "path": "Digital/ESW Digital - Astro Scorpio.wav"
+  },
+  {
+    "id": 97,
+    "category": "Digital",
+    "name": "Bass Angry 01",
+    "path": "Digital/ESW Digital - Bass Angry 01.wav"
+  },
+  {
+    "id": 98,
+    "category": "Digital",
+    "name": "Big Booty Saws",
+    "path": "Digital/ESW Digital - Big Booty Saws.wav"
+  },
+  {
+    "id": 99,
+    "category": "Digital",
+    "name": "Bit Bass",
+    "path": "Digital/ESW Digital - Bit Bass.wav"
+  },
+  {
+    "id": 100,
+    "category": "Digital",
+    "name": "Chill 808",
+    "path": "Digital/ESW Digital - Chill 808.wav"
+  },
+  {
+    "id": 101,
+    "category": "Digital",
+    "name": "Chill Sines",
+    "path": "Digital/ESW Digital - Chill Sines.wav"
+  },
+  {
+    "id": 102,
+    "category": "Digital",
+    "name": "Circuit Bending",
+    "path": "Digital/ESW Digital - Circuit Bending.wav"
+  },
+  {
+    "id": 103,
+    "category": "Digital",
+    "name": "Complex Saw 01",
+    "path": "Digital/ESW Digital - Complex Saw 01.wav"
+  },
+  {
+    "id": 104,
+    "category": "Digital",
+    "name": "Cypher",
+    "path": "Digital/ESW Digital - Cypher.wav"
+  },
+  {
+    "id": 105,
+    "category": "Digital",
+    "name": "Deep House",
+    "path": "Digital/ESW Digital - Deep House.wav"
+  },
+  {
+    "id": 106,
+    "category": "Digital",
+    "name": "Evo",
+    "path": "Digital/ESW Digital - Evo.wav"
+  },
+  {
+    "id": 107,
+    "category": "Digital",
+    "name": "Expansion",
+    "path": "Digital/ESW Digital - Expansion.wav"
+  },
+  {
+    "id": 108,
+    "category": "Digital",
+    "name": "Felicity",
+    "path": "Digital/ESW Digital - Felicity.wav"
+  },
+  {
+    "id": 109,
+    "category": "Digital",
+    "name": "Filter Sweep Pulse",
+    "path": "Digital/ESW Digital - Filter Sweep Pulse.wav"
+  },
+  {
+    "id": 110,
+    "category": "Digital",
+    "name": "Filter Sweep",
+    "path": "Digital/ESW Digital - Filter Sweep.wav"
+  },
+  {
+    "id": 111,
+    "category": "Digital",
+    "name": "Flanger Talk",
+    "path": "Digital/ESW Digital - Flanger Talk.wav"
+  },
+  {
+    "id": 112,
+    "category": "Digital",
+    "name": "Flanges Saw",
+    "path": "Digital/ESW Digital - Flanges Saw.wav"
+  },
+  {
+    "id": 113,
+    "category": "Digital",
+    "name": "Flavor X",
+    "path": "Digital/ESW Digital - Flavor X.wav"
+  },
+  {
+    "id": 114,
+    "category": "Digital",
+    "name": "Flavors",
+    "path": "Digital/ESW Digital - Flavors.wav"
+  },
+  {
+    "id": 115,
+    "category": "Digital",
+    "name": "Fluffy",
+    "path": "Digital/ESW Digital - Fluffy.wav"
+  },
+  {
+    "id": 116,
+    "category": "Digital",
+    "name": "Folded Saws",
+    "path": "Digital/ESW Digital - Folded Saws.wav"
+  },
+  {
+    "id": 117,
+    "category": "Digital",
+    "name": "Formantish",
+    "path": "Digital/ESW Digital - Formantish.wav"
+  },
+  {
+    "id": 118,
+    "category": "Digital",
+    "name": "Frion",
+    "path": "Digital/ESW Digital - Frion.wav"
+  },
+  {
+    "id": 119,
+    "category": "Digital",
+    "name": "Fuzz Saw",
+    "path": "Digital/ESW Digital - Fuzz Saw.wav"
+  },
+  {
+    "id": 120,
+    "category": "Digital",
+    "name": "Fuzz Screech",
+    "path": "Digital/ESW Digital - Fuzz Screech.wav"
+  },
+  {
+    "id": 121,
+    "category": "Digital",
+    "name": "Gemini",
+    "path": "Digital/ESW Digital - Gemini.wav"
+  },
+  {
+    "id": 122,
+    "category": "Digital",
+    "name": "Glass Formant",
+    "path": "Digital/ESW Digital - Glass Formant.wav"
+  },
+  {
+    "id": 123,
+    "category": "Digital",
+    "name": "Gruff Throat",
+    "path": "Digital/ESW Digital - Gruff Throat.wav"
+  },
+  {
+    "id": 124,
+    "category": "Digital",
+    "name": "Hex Code",
+    "path": "Digital/ESW Digital - Hex Code .wav"
+  },
+  {
+    "id": 125,
+    "category": "Digital",
+    "name": "Hot Folds",
+    "path": "Digital/ESW Digital - Hot Folds.wav"
+  },
+  {
+    "id": 126,
+    "category": "Digital",
+    "name": "I Dunno Know 2",
+    "path": "Digital/ESW Digital - I Dunno Know 2.wav"
+  },
+  {
+    "id": 127,
+    "category": "Digital",
+    "name": "I Dunno Know",
+    "path": "Digital/ESW Digital - I Dunno Know.wav"
+  },
+  {
+    "id": 128,
+    "category": "Digital",
+    "name": "Leo",
+    "path": "Digital/ESW Digital - Leo.wav"
+  },
+  {
+    "id": 129,
+    "category": "Digital",
+    "name": "Libra",
+    "path": "Digital/ESW Digital - Libra.wav"
+  },
+  {
+    "id": 130,
+    "category": "Digital",
+    "name": "Loli Pops",
+    "path": "Digital/ESW Digital - Loli Pops.wav"
+  },
+  {
+    "id": 131,
+    "category": "Digital",
+    "name": "Magix",
+    "path": "Digital/ESW Digital - Magix.wav"
+  },
+  {
+    "id": 132,
+    "category": "Digital",
+    "name": "Megatron",
+    "path": "Digital/ESW Digital - Megatron.wav"
+  },
+  {
+    "id": 133,
+    "category": "Digital",
+    "name": "Metalish",
+    "path": "Digital/ESW Digital - Metalish.wav"
+  },
+  {
+    "id": 134,
+    "category": "Digital",
+    "name": "Mirror",
+    "path": "Digital/ESW Digital - Mirror.wav"
+  },
+  {
+    "id": 135,
+    "category": "Digital",
+    "name": "Neurotic",
+    "path": "Digital/ESW Digital - Neurotic.wav"
+  },
+  {
+    "id": 136,
+    "category": "Digital",
+    "name": "Phase Spectra Wide",
+    "path": "Digital/ESW Digital - Phase Spectra Wide.wav"
+  },
+  {
+    "id": 137,
+    "category": "Digital",
+    "name": "Phase Spectra",
+    "path": "Digital/ESW Digital - Phase Spectra.wav"
+  },
+  {
+    "id": 138,
+    "category": "Digital",
+    "name": "Phaser Saw",
+    "path": "Digital/ESW Digital - Phaser Saw.wav"
+  },
+  {
+    "id": 139,
+    "category": "Digital",
+    "name": "Protozoa",
+    "path": "Digital/ESW Digital - Protozoa.wav"
+  },
+  {
+    "id": 140,
+    "category": "Digital",
+    "name": "Pulse Acid",
+    "path": "Digital/ESW Digital - Pulse Acid.wav"
+  },
+  {
+    "id": 141,
+    "category": "Digital",
+    "name": "Pyramid Scheme",
+    "path": "Digital/ESW Digital - Pyramid Scheme.wav"
+  },
+  {
+    "id": 142,
+    "category": "Digital",
+    "name": "Redish",
+    "path": "Digital/ESW Digital - Redish.wav"
+  },
+  {
+    "id": 143,
+    "category": "Digital",
+    "name": "Roboto",
+    "path": "Digital/ESW Digital - Roboto.wav"
+  },
+  {
+    "id": 144,
+    "category": "Digital",
+    "name": "SSW 01",
+    "path": "Digital/ESW Digital - SSW 01.wav"
+  },
+  {
+    "id": 145,
+    "category": "Digital",
+    "name": "SSW 02",
+    "path": "Digital/ESW Digital - SSW 02.wav"
+  },
+  {
+    "id": 146,
+    "category": "Digital",
+    "name": "SSW 03",
+    "path": "Digital/ESW Digital - SSW 03.wav"
+  },
+  {
+    "id": 147,
+    "category": "Digital",
+    "name": "SSW 04",
+    "path": "Digital/ESW Digital - SSW 04.wav"
+  },
+  {
+    "id": 148,
+    "category": "Digital",
+    "name": "Saw Formant",
+    "path": "Digital/ESW Digital - Saw Formant.wav"
+  },
+  {
+    "id": 149,
+    "category": "Digital",
+    "name": "Saw Harmonics",
+    "path": "Digital/ESW Digital - Saw Harmonics.wav"
+  },
+  {
+    "id": 150,
+    "category": "Digital",
+    "name": "Saw Square Sync",
+    "path": "Digital/ESW Digital - Saw Square Sync.wav"
+  },
+  {
+    "id": 151,
+    "category": "Digital",
+    "name": "Screamer Saw",
+    "path": "Digital/ESW Digital - Screamer Saw.wav"
+  },
+  {
+    "id": 152,
+    "category": "Digital",
+    "name": "Scrums",
+    "path": "Digital/ESW Digital - Scrums.wav"
+  },
+  {
+    "id": 153,
+    "category": "Digital",
+    "name": "Simple Formant",
+    "path": "Digital/ESW Digital - Simple Formant.wav"
+  },
+  {
+    "id": 154,
+    "category": "Digital",
+    "name": "Sine Fingers",
+    "path": "Digital/ESW Digital - Sine Fingers.wav"
+  },
+  {
+    "id": 155,
+    "category": "Digital",
+    "name": "Sqaure Saw Bits",
+    "path": "Digital/ESW Digital - Sqaure Saw Bits.wav"
+  },
+  {
+    "id": 156,
+    "category": "Digital",
+    "name": "Square Bendz",
+    "path": "Digital/ESW Digital - Square Bendz.wav"
+  },
+  {
+    "id": 157,
+    "category": "Digital",
+    "name": "Square Cutoff",
+    "path": "Digital/ESW Digital - Square Cutoff.wav"
+  },
+  {
+    "id": 158,
+    "category": "Digital",
+    "name": "Square Harmonics",
+    "path": "Digital/ESW Digital - Square Harmonics.wav"
+  },
+  {
+    "id": 159,
+    "category": "Digital",
+    "name": "Super Dirt",
+    "path": "Digital/ESW Digital - Super Dirt.wav"
+  },
+  {
+    "id": 160,
+    "category": "Digital",
+    "name": "Sweep 01",
+    "path": "Digital/ESW Digital - Sweep 01.wav"
+  },
+  {
+    "id": 161,
+    "category": "Digital",
+    "name": "Sync House",
+    "path": "Digital/ESW Digital - Sync House.wav"
+  },
+  {
+    "id": 162,
+    "category": "Digital",
+    "name": "Sync Ring",
+    "path": "Digital/ESW Digital - Sync Ring.wav"
+  },
+  {
+    "id": 163,
+    "category": "Digital",
+    "name": "Synth Brass",
+    "path": "Digital/ESW Digital - Synth Brass.wav"
+  },
+  {
+    "id": 164,
+    "category": "Digital",
+    "name": "Synth Bug",
+    "path": "Digital/ESW Digital - Synth Bug.wav"
+  },
+  {
+    "id": 165,
+    "category": "Digital",
+    "name": "Tadpoles",
+    "path": "Digital/ESW Digital - Tadpoles.wav"
+  },
+  {
+    "id": 166,
+    "category": "Digital",
+    "name": "Taurus",
+    "path": "Digital/ESW Digital - Taurus.wav"
+  },
+  {
+    "id": 167,
+    "category": "Digital",
+    "name": "Throaty",
+    "path": "Digital/ESW Digital - Throaty.wav"
+  },
+  {
+    "id": 168,
+    "category": "Digital",
+    "name": "Virgo",
+    "path": "Digital/ESW Digital - Virgo.wav"
+  },
+  {
+    "id": 169,
+    "category": "Digital",
+    "name": "Warm Tubes",
+    "path": "Digital/ESW Digital - Warm Tubes.wav"
+  },
+  {
+    "id": 170,
+    "category": "Digital",
+    "name": "ESW Digital Bell 03",
+    "path": "Digital/ESW Digital Bell 03.wav"
+  },
+  {
+    "id": 171,
+    "category": "Digital",
+    "name": "Danger",
+    "path": "Digital/ESW Digitial - Danger.wav"
+  },
+  {
+    "id": 172,
+    "category": "FM",
+    "name": "Acetate",
+    "path": "FM/ESW FM - Acetate.wav"
+  },
+  {
+    "id": 173,
+    "category": "FM",
+    "name": "Acidic",
+    "path": "FM/ESW FM - Acidic.wav"
+  },
+  {
+    "id": 174,
+    "category": "FM",
+    "name": "Advanced",
+    "path": "FM/ESW FM - Advanced.wav"
+  },
+  {
+    "id": 175,
+    "category": "FM",
+    "name": "Angry Robot",
+    "path": "FM/ESW FM - Angry Robot.wav"
+  },
+  {
+    "id": 176,
+    "category": "FM",
+    "name": "Brutal",
+    "path": "FM/ESW FM - Brutal.wav"
+  },
+  {
+    "id": 177,
+    "category": "FM",
+    "name": "Buzz Saw",
+    "path": "FM/ESW FM - Buzz Saw.wav"
+  },
+  {
+    "id": 178,
+    "category": "FM",
+    "name": "Comb Filtered",
+    "path": "FM/ESW FM - Comb Filtered.wav"
+  },
+  {
+    "id": 179,
+    "category": "FM",
+    "name": "Feliz",
+    "path": "FM/ESW FM - Feliz.wav"
+  },
+  {
+    "id": 180,
+    "category": "FM",
+    "name": "Freaky",
+    "path": "FM/ESW FM - Freaky.wav"
+  },
+  {
+    "id": 181,
+    "category": "FM",
+    "name": "Grizzly",
+    "path": "FM/ESW FM - Grizzly.wav"
+  },
+  {
+    "id": 182,
+    "category": "FM",
+    "name": "Groxy",
+    "path": "FM/ESW FM - Groxy.wav"
+  },
+  {
+    "id": 183,
+    "category": "FM",
+    "name": "Harmful If Swallowed",
+    "path": "FM/ESW FM - Harmful If Swallowed.wav"
+  },
+  {
+    "id": 184,
+    "category": "FM",
+    "name": "Harmonics 01",
+    "path": "FM/ESW FM - Harmonics 01.wav"
+  },
+  {
+    "id": 185,
+    "category": "FM",
+    "name": "Harmonics 02",
+    "path": "FM/ESW FM - Harmonics 02.wav"
+  },
+  {
+    "id": 186,
+    "category": "FM",
+    "name": "Modal",
+    "path": "FM/ESW FM - Modal.wav"
+  },
+  {
+    "id": 187,
+    "category": "FM",
+    "name": "Paper Cut",
+    "path": "FM/ESW FM - Paper Cut.wav"
+  },
+  {
+    "id": 188,
+    "category": "FM",
+    "name": "Pig Squeel",
+    "path": "FM/ESW FM - Pig Squeel.wav"
+  },
+  {
+    "id": 189,
+    "category": "FM",
+    "name": "Reverrsed",
+    "path": "FM/ESW FM - Reverrsed.wav"
+  },
+  {
+    "id": 190,
+    "category": "FM",
+    "name": "Saw FM8",
+    "path": "FM/ESW FM - Saw FM8.wav"
+  },
+  {
+    "id": 191,
+    "category": "FM",
+    "name": "Sine Folds",
+    "path": "FM/ESW FM - Sine Folds.wav"
+  },
+  {
+    "id": 192,
+    "category": "FM",
+    "name": "Squealer 01",
+    "path": "FM/ESW FM - Squealer 01.wav"
+  },
+  {
+    "id": 193,
+    "category": "FM",
+    "name": "Squealer 02",
+    "path": "FM/ESW FM - Squealer 02.wav"
+  },
+  {
+    "id": 194,
+    "category": "FM",
+    "name": "Sticky",
+    "path": "FM/ESW FM - Sticky.wav"
+  },
+  {
+    "id": 195,
+    "category": "FM",
+    "name": "Sub Grits",
+    "path": "FM/ESW FM - Sub Grits.wav"
+  },
+  {
+    "id": 196,
+    "category": "FM",
+    "name": "Swirlys",
+    "path": "FM/ESW FM - Swirlys.wav"
+  },
+  {
+    "id": 197,
+    "category": "FM",
+    "name": "Translator",
+    "path": "FM/ESW FM - Translator.wav"
+  },
+  {
+    "id": 198,
+    "category": "FM",
+    "name": "X Noise",
+    "path": "FM/ESW FM - X Noise.wav"
+  },
+  {
+    "id": 199,
+    "category": "Growl",
+    "name": "Angular",
+    "path": "Growl/ESW Growl - Angular.wav"
+  },
+  {
+    "id": 200,
+    "category": "Growl",
+    "name": "Banimal",
+    "path": "Growl/ESW Growl - Banimal.wav"
+  },
+  {
+    "id": 201,
+    "category": "Growl",
+    "name": "Beats",
+    "path": "Growl/ESW Growl - Beats.wav"
+  },
+  {
+    "id": 202,
+    "category": "Growl",
+    "name": "Dark Matter",
+    "path": "Growl/ESW Growl - Dark Matter.wav"
+  },
+  {
+    "id": 203,
+    "category": "Growl",
+    "name": "Dino",
+    "path": "Growl/ESW Growl - Dino.wav"
+  },
+  {
+    "id": 204,
+    "category": "Growl",
+    "name": "Emmie",
+    "path": "Growl/ESW Growl - Emmie.wav"
+  },
+  {
+    "id": 205,
+    "category": "Growl",
+    "name": "Engine Noise",
+    "path": "Growl/ESW Growl - Engine Noise.wav"
+  },
+  {
+    "id": 206,
+    "category": "Growl",
+    "name": "Flubs",
+    "path": "Growl/ESW Growl - Flubs.wav"
+  },
+  {
+    "id": 207,
+    "category": "Growl",
+    "name": "Grizzly",
+    "path": "Growl/ESW Growl - Grizzly.wav"
+  },
+  {
+    "id": 208,
+    "category": "Growl",
+    "name": "Machine Gun",
+    "path": "Growl/ESW Growl - Machine Gun.wav"
+  },
+  {
+    "id": 209,
+    "category": "Growl",
+    "name": "Mission",
+    "path": "Growl/ESW Growl - Mission.wav"
+  },
+  {
+    "id": 210,
+    "category": "Growl",
+    "name": "Monsters",
+    "path": "Growl/ESW Growl - Monsters.wav"
+  },
+  {
+    "id": 211,
+    "category": "Growl",
+    "name": "Outer Space",
+    "path": "Growl/ESW Growl - Outer Space.wav"
+  },
+  {
+    "id": 212,
+    "category": "Growl",
+    "name": "Roar",
+    "path": "Growl/ESW Growl - Roar.wav"
+  },
+  {
+    "id": 213,
+    "category": "Growl",
+    "name": "Sputter",
+    "path": "Growl/ESW Growl - Sputter.wav"
+  },
+  {
+    "id": 214,
+    "category": "Growl",
+    "name": "Thorns",
+    "path": "Growl/ESW Growl - Thorns.wav"
+  },
+  {
+    "id": 215,
+    "category": "Growl",
+    "name": "Ugh",
+    "path": "Growl/ESW Growl - Ugh.wav"
+  },
+  {
+    "id": 216,
+    "category": "Growl",
+    "name": "V8",
+    "path": "Growl/ESW Growl - V8.wav"
+  },
+  {
+    "id": 217,
+    "category": "Growl",
+    "name": "Vocal Nodes",
+    "path": "Growl/ESW Growl - Vocal Nodes.wav"
+  },
+  {
+    "id": 218,
+    "category": "Growl",
+    "name": "We Wow",
+    "path": "Growl/ESW Growl - We Wow.wav"
+  },
+  {
+    "id": 219,
+    "category": "Instruments",
+    "name": "Acoustic Guitar",
+    "path": "Instruments/ESW Real - Acoustic Guitar.wav"
+  },
+  {
+    "id": 220,
+    "category": "Instruments",
+    "name": "BR French Horn 01",
+    "path": "Instruments/ESW Real - BR French Horn 01.wav"
+  },
+  {
+    "id": 221,
+    "category": "Instruments",
+    "name": "BR Trombone 01",
+    "path": "Instruments/ESW Real - BR Trombone 01.wav"
+  },
+  {
+    "id": 222,
+    "category": "Instruments",
+    "name": "BR Trombone Clean",
+    "path": "Instruments/ESW Real - BR Trombone Clean.wav"
+  },
+  {
+    "id": 223,
+    "category": "Instruments",
+    "name": "BR Trumpeter 02",
+    "path": "Instruments/ESW Real - BR Trumpeter 02.wav"
+  },
+  {
+    "id": 224,
+    "category": "Instruments",
+    "name": "BR Trumpeter 03",
+    "path": "Instruments/ESW Real - BR Trumpeter 03.wav"
+  },
+  {
+    "id": 225,
+    "category": "Instruments",
+    "name": "BS Elect",
+    "path": "Instruments/ESW Real - BS Elect.wav"
+  },
+  {
+    "id": 226,
+    "category": "Instruments",
+    "name": "BS Upright",
+    "path": "Instruments/ESW Real - BS Upright .wav"
+  },
+  {
+    "id": 227,
+    "category": "Instruments",
+    "name": "Bell Thin Metal",
+    "path": "Instruments/ESW Real - Bell Thin Metal.wav"
+  },
+  {
+    "id": 228,
+    "category": "Instruments",
+    "name": "Big Brass 01",
+    "path": "Instruments/ESW Real - Big Brass 01.wav"
+  },
+  {
+    "id": 229,
+    "category": "Instruments",
+    "name": "Big Brass 02",
+    "path": "Instruments/ESW Real - Big Brass 02.wav"
+  },
+  {
+    "id": 230,
+    "category": "Instruments",
+    "name": "Brass Brass Stab",
+    "path": "Instruments/ESW Real - Brass Brass Stab.wav"
+  },
+  {
+    "id": 231,
+    "category": "Instruments",
+    "name": "Brass Shorts",
+    "path": "Instruments/ESW Real - Brass Shorts.wav"
+  },
+  {
+    "id": 232,
+    "category": "Instruments",
+    "name": "Brassy Bell",
+    "path": "Instruments/ESW Real - Brassy Bell.wav"
+  },
+  {
+    "id": 233,
+    "category": "Instruments",
+    "name": "Cello",
+    "path": "Instruments/ESW Real - Cello.wav"
+  },
+  {
+    "id": 234,
+    "category": "Instruments",
+    "name": "Clarinet",
+    "path": "Instruments/ESW Real - Clarinet.wav"
+  },
+  {
+    "id": 235,
+    "category": "Instruments",
+    "name": "Electric Guitar",
+    "path": "Instruments/ESW Real - Electric Guitar.wav"
+  },
+  {
+    "id": 236,
+    "category": "Instruments",
+    "name": "GT Acoustic 01",
+    "path": "Instruments/ESW Real - GT Acoustic 01.wav"
+  },
+  {
+    "id": 237,
+    "category": "Instruments",
+    "name": "Gibson Acoustic",
+    "path": "Instruments/ESW Real - Gibson Acoustic.wav"
+  },
+  {
+    "id": 238,
+    "category": "Instruments",
+    "name": "Glass Marimba",
+    "path": "Instruments/ESW Real - Glass Marimba.wav"
+  },
+  {
+    "id": 239,
+    "category": "Instruments",
+    "name": "Guitar Acou Harm 01",
+    "path": "Instruments/ESW Real - Guitar Acou Harm 01.wav"
+  },
+  {
+    "id": 240,
+    "category": "Instruments",
+    "name": "Guitar Palm Pluck",
+    "path": "Instruments/ESW Real - Guitar Palm Pluck.wav"
+  },
+  {
+    "id": 241,
+    "category": "Instruments",
+    "name": "Guitar Petit Acoustic",
+    "path": "Instruments/ESW Real - Guitar Petit Acoustic.wav"
+  },
+  {
+    "id": 242,
+    "category": "Instruments",
+    "name": "Harp",
+    "path": "Instruments/ESW Real - Harp.wav"
+  },
+  {
+    "id": 243,
+    "category": "Instruments",
+    "name": "Horn 01",
+    "path": "Instruments/ESW Real - Horn 01.wav"
+  },
+  {
+    "id": 244,
+    "category": "Instruments",
+    "name": "KY Rhodes Classic",
+    "path": "Instruments/ESW Real - KY Rhodes Classic.wav"
+  },
+  {
+    "id": 245,
+    "category": "Instruments",
+    "name": "Key Music Box",
+    "path": "Instruments/ESW Real - Key Music Box.wav"
+  },
+  {
+    "id": 246,
+    "category": "Instruments",
+    "name": "Key Piano Like",
+    "path": "Instruments/ESW Real - Key Piano Like.wav"
+  },
+  {
+    "id": 247,
+    "category": "Instruments",
+    "name": "Keys Digital",
+    "path": "Instruments/ESW Real - Keys Digital.wav"
+  },
+  {
+    "id": 248,
+    "category": "Instruments",
+    "name": "Mallet Senza",
+    "path": "Instruments/ESW Real - Mallet Senza.wav"
+  },
+  {
+    "id": 249,
+    "category": "Instruments",
+    "name": "Mallet Toy Bell",
+    "path": "Instruments/ESW Real - Mallet Toy Bell.wav"
+  },
+  {
+    "id": 250,
+    "category": "Instruments",
+    "name": "Mallet Vibra",
+    "path": "Instruments/ESW Real - Mallet Vibra.wav"
+  },
+  {
+    "id": 251,
+    "category": "Instruments",
+    "name": "Marimba",
+    "path": "Instruments/ESW Real - Marimba.wav"
+  },
+  {
+    "id": 252,
+    "category": "Instruments",
+    "name": "Nylon Guitar",
+    "path": "Instruments/ESW Real - Nylon Guitar.wav"
+  },
+  {
+    "id": 253,
+    "category": "Instruments",
+    "name": "Organ 01",
+    "path": "Instruments/ESW Real - Organ 01.wav"
+  },
+  {
+    "id": 254,
+    "category": "Instruments",
+    "name": "Organ 02",
+    "path": "Instruments/ESW Real - Organ 02.wav"
+  },
+  {
+    "id": 255,
+    "category": "Instruments",
+    "name": "Pan Flue",
+    "path": "Instruments/ESW Real - Pan Flue.wav"
+  },
+  {
+    "id": 256,
+    "category": "Instruments",
+    "name": "Pizzo String",
+    "path": "Instruments/ESW Real - Pizzo String.wav"
+  },
+  {
+    "id": 257,
+    "category": "Instruments",
+    "name": "Rhodes Hybrid",
+    "path": "Instruments/ESW Real - Rhodes Hybrid.wav"
+  },
+  {
+    "id": 258,
+    "category": "Instruments",
+    "name": "Rhodes Wurli",
+    "path": "Instruments/ESW Real - Rhodes Wurli.wav"
+  },
+  {
+    "id": 259,
+    "category": "Instruments",
+    "name": "ST Cello Solo",
+    "path": "Instruments/ESW Real - ST Cello Solo.wav"
+  },
+  {
+    "id": 260,
+    "category": "Instruments",
+    "name": "ST Violin Stac",
+    "path": "Instruments/ESW Real - ST Violin Stac.wav"
+  },
+  {
+    "id": 261,
+    "category": "Instruments",
+    "name": "Saxaphone",
+    "path": "Instruments/ESW Real - Saxaphone.wav"
+  },
+  {
+    "id": 262,
+    "category": "Instruments",
+    "name": "Simple Brass",
+    "path": "Instruments/ESW Real - Simple Brass.wav"
+  },
+  {
+    "id": 263,
+    "category": "Instruments",
+    "name": "String Electric Stac",
+    "path": "Instruments/ESW Real - String Electric Stac.wav"
+  },
+  {
+    "id": 264,
+    "category": "Instruments",
+    "name": "String Quartet",
+    "path": "Instruments/ESW Real - String Quartet.wav"
+  },
+  {
+    "id": 265,
+    "category": "Instruments",
+    "name": "String Violins",
+    "path": "Instruments/ESW Real - String Violins.wav"
+  },
+  {
+    "id": 266,
+    "category": "Instruments",
+    "name": "String World Vio",
+    "path": "Instruments/ESW Real - String World Vio.wav"
+  },
+  {
+    "id": 267,
+    "category": "Instruments",
+    "name": "Trumpeter 01",
+    "path": "Instruments/ESW Real - Trumpeter 01.wav"
+  },
+  {
+    "id": 268,
+    "category": "Instruments",
+    "name": "Vibraphone",
+    "path": "Instruments/ESW Real - Vibraphone.wav"
+  },
+  {
+    "id": 269,
+    "category": "Instruments",
+    "name": "Violin",
+    "path": "Instruments/ESW Real - Violin.wav"
+  },
+  {
+    "id": 270,
+    "category": "Instruments",
+    "name": "WW Chill Sax",
+    "path": "Instruments/ESW Real - WW Chill Sax .wav"
+  },
+  {
+    "id": 271,
+    "category": "Instruments",
+    "name": "WW Flutey",
+    "path": "Instruments/ESW Real - WW Flutey.wav"
+  },
+  {
+    "id": 272,
+    "category": "Instruments",
+    "name": "World Digidoo",
+    "path": "Instruments/ESW Real - World Digidoo.wav"
+  },
+  {
+    "id": 273,
+    "category": "Instruments",
+    "name": "World Japanese Guitar",
+    "path": "Instruments/ESW Real - World Japanese Guitar.wav"
+  },
+  {
+    "id": 274,
+    "category": "Instruments",
+    "name": "World Mibira",
+    "path": "Instruments/ESW Real - World Mibira.wav"
+  },
+  {
+    "id": 275,
+    "category": "Instruments",
+    "name": "World Tambura",
+    "path": "Instruments/ESW Real - World Tambura.wav"
+  },
+  {
+    "id": 276,
+    "category": "Metallic",
+    "name": "Zipper",
+    "path": "Metallic/ESW Metalic - Zipper.wav"
+  },
+  {
+    "id": 277,
+    "category": "Metallic",
+    "name": "Bell 01",
+    "path": "Metallic/ESW Metallic - Bell 01.wav"
+  },
+  {
+    "id": 278,
+    "category": "Metallic",
+    "name": "Bell 02",
+    "path": "Metallic/ESW Metallic - Bell 02.wav"
+  },
+  {
+    "id": 279,
+    "category": "Metallic",
+    "name": "Bell 03",
+    "path": "Metallic/ESW Metallic - Bell 03.wav"
+  },
+  {
+    "id": 280,
+    "category": "Metallic",
+    "name": "Bell 04",
+    "path": "Metallic/ESW Metallic - Bell 04.wav"
+  },
+  {
+    "id": 281,
+    "category": "Metallic",
+    "name": "Bell 05",
+    "path": "Metallic/ESW Metallic - Bell 05.wav"
+  },
+  {
+    "id": 282,
+    "category": "Metallic",
+    "name": "Chime 01",
+    "path": "Metallic/ESW Metallic - Chime 01.wav"
+  },
+  {
+    "id": 283,
+    "category": "Metallic",
+    "name": "Fuzzy Bells",
+    "path": "Metallic/ESW Metallic - Fuzzy Bells.wav"
+  },
+  {
+    "id": 284,
+    "category": "Metallic",
+    "name": "Ogran Bell",
+    "path": "Metallic/ESW Metallic - Ogran Bell.wav"
+  },
+  {
+    "id": 285,
+    "category": "Metallic",
+    "name": "Ring Tone",
+    "path": "Metallic/ESW Metallic - Ring Tone.wav"
+  },
+  {
+    "id": 286,
+    "category": "Metallic",
+    "name": "Vocal Bell",
+    "path": "Metallic/ESW Metallic - Vocal Bell.wav"
+  },
+  {
+    "id": 287,
+    "category": "Metallic",
+    "name": "Waves",
+    "path": "Metallic/ESW Metallic - Waves.wav"
+  },
+  {
+    "id": 288,
+    "category": "Spectral",
+    "name": "Bearish",
+    "path": "Spectral/ESW Spectral - Bearish.wav"
+  },
+  {
+    "id": 289,
+    "category": "Spectral",
+    "name": "Burpie",
+    "path": "Spectral/ESW Spectral - Burpie.wav"
+  },
+  {
+    "id": 290,
+    "category": "Spectral",
+    "name": "Conix",
+    "path": "Spectral/ESW Spectral - Conix.wav"
+  },
+  {
+    "id": 291,
+    "category": "Spectral",
+    "name": "Groans",
+    "path": "Spectral/ESW Spectral - Groans.wav"
+  },
+  {
+    "id": 292,
+    "category": "Spectral",
+    "name": "Gyro",
+    "path": "Spectral/ESW Spectral - Gyro.wav"
+  },
+  {
+    "id": 293,
+    "category": "Spectral",
+    "name": "Kronk",
+    "path": "Spectral/ESW Spectral - Kronk.wav"
+  },
+  {
+    "id": 294,
+    "category": "Spectral",
+    "name": "Over Tones",
+    "path": "Spectral/ESW Spectral - Over Tones.wav"
+  },
+  {
+    "id": 295,
+    "category": "Spectral",
+    "name": "Quesis",
+    "path": "Spectral/ESW Spectral - Quesis.wav"
+  },
+  {
+    "id": 296,
+    "category": "Spectral",
+    "name": "Ring Mod",
+    "path": "Spectral/ESW Spectral - Ring Mod.wav"
+  },
+  {
+    "id": 297,
+    "category": "Spectral",
+    "name": "Robo Cop",
+    "path": "Spectral/ESW Spectral - Robo Cop.wav"
+  },
+  {
+    "id": 298,
+    "category": "Spectral",
+    "name": "Stubble",
+    "path": "Spectral/ESW Spectral - Stubble.wav"
+  },
+  {
+    "id": 299,
+    "category": "Spectral",
+    "name": "Throaty",
+    "path": "Spectral/ESW Spectral - Throaty.wav"
+  },
+  {
+    "id": 300,
+    "category": "Spectral",
+    "name": "Tribal",
+    "path": "Spectral/ESW Spectral - Tribal.wav"
+  },
+  {
+    "id": 301,
+    "category": "Spectral",
+    "name": "Vectors",
+    "path": "Spectral/ESW Spectral - Vectors.wav"
+  },
+  {
+    "id": 302,
+    "category": "Spectral",
+    "name": "Yayiiii",
+    "path": "Spectral/ESW Spectral - Yayiiii.wav"
+  },
+  {
+    "id": 303,
+    "category": "Synth One Shots",
+    "name": "BS Basix",
+    "path": "Synth One Shots/ESW One Shot - BS Basix.wav"
+  },
+  {
+    "id": 304,
+    "category": "Synth One Shots",
+    "name": "BS Deep House",
+    "path": "Synth One Shots/ESW One Shot - BS Deep House.wav"
+  },
+  {
+    "id": 305,
+    "category": "Synth One Shots",
+    "name": "BS Elephant",
+    "path": "Synth One Shots/ESW One Shot - BS Elephant.wav"
+  },
+  {
+    "id": 306,
+    "category": "Synth One Shots",
+    "name": "BS Grimey",
+    "path": "Synth One Shots/ESW One Shot - BS Grimey.wav"
+  },
+  {
+    "id": 307,
+    "category": "Synth One Shots",
+    "name": "BS Party",
+    "path": "Synth One Shots/ESW One Shot - BS Party.wav"
+  },
+  {
+    "id": 308,
+    "category": "Synth One Shots",
+    "name": "BS Silver",
+    "path": "Synth One Shots/ESW One Shot - BS Silver.wav"
+  },
+  {
+    "id": 309,
+    "category": "Synth One Shots",
+    "name": "BS Snappy",
+    "path": "Synth One Shots/ESW One Shot - BS Snappy.wav"
+  },
+  {
+    "id": 310,
+    "category": "Synth One Shots",
+    "name": "BS Strep Throat",
+    "path": "Synth One Shots/ESW One Shot - BS Strep Throat.wav"
+  },
+  {
+    "id": 311,
+    "category": "Synth One Shots",
+    "name": "BS Talking Digits",
+    "path": "Synth One Shots/ESW One Shot - BS Talking Digits.wav"
+  },
+  {
+    "id": 312,
+    "category": "Synth One Shots",
+    "name": "BS Throaty",
+    "path": "Synth One Shots/ESW One Shot - BS Throaty.wav"
+  },
+  {
+    "id": 313,
+    "category": "Synth One Shots",
+    "name": "BS Yai",
+    "path": "Synth One Shots/ESW One Shot - BS Yai.wav"
+  },
+  {
+    "id": 314,
+    "category": "Synth One Shots",
+    "name": "LD Brass Poly",
+    "path": "Synth One Shots/ESW One Shot - LD Brass Poly.wav"
+  },
+  {
+    "id": 315,
+    "category": "Synth One Shots",
+    "name": "LD Brassy",
+    "path": "Synth One Shots/ESW One Shot - LD Brassy.wav"
+  },
+  {
+    "id": 316,
+    "category": "Synth One Shots",
+    "name": "LD Busy",
+    "path": "Synth One Shots/ESW One Shot - LD Busy.wav"
+  },
+  {
+    "id": 317,
+    "category": "Synth One Shots",
+    "name": "LD Clouds",
+    "path": "Synth One Shots/ESW One Shot - LD Clouds.wav"
+  },
+  {
+    "id": 318,
+    "category": "Synth One Shots",
+    "name": "LD Hawking",
+    "path": "Synth One Shots/ESW One Shot - LD Hawking.wav"
+  },
+  {
+    "id": 319,
+    "category": "Synth One Shots",
+    "name": "LD Tropics",
+    "path": "Synth One Shots/ESW One Shot - LD Tropics.wav"
+  },
+  {
+    "id": 320,
+    "category": "Vocal",
+    "name": "AhWoYeYo",
+    "path": "Vocal/ESW Vocal -  AhWoYeYo.wav"
+  },
+  {
+    "id": 321,
+    "category": "Vocal",
+    "name": "80's 01",
+    "path": "Vocal/ESW Vocal - 80's 01.wav"
+  },
+  {
+    "id": 322,
+    "category": "Vocal",
+    "name": "Ah 02",
+    "path": "Vocal/ESW Vocal - Ah 02.wav"
+  },
+  {
+    "id": 323,
+    "category": "Vocal",
+    "name": "Ahhh 01",
+    "path": "Vocal/ESW Vocal - Ahhh 01.wav"
+  },
+  {
+    "id": 324,
+    "category": "Vocal",
+    "name": "Ahhh 02",
+    "path": "Vocal/ESW Vocal - Ahhh 02.wav"
+  },
+  {
+    "id": 325,
+    "category": "Vocal",
+    "name": "Ahhh 03",
+    "path": "Vocal/ESW Vocal - Ahhh 03.wav"
+  },
+  {
+    "id": 326,
+    "category": "Vocal",
+    "name": "Animal Ahh",
+    "path": "Vocal/ESW Vocal - Animal Ahh.wav"
+  },
+  {
+    "id": 327,
+    "category": "Vocal",
+    "name": "Ayee Ahh 02",
+    "path": "Vocal/ESW Vocal - Ayee Ahh 02.wav"
+  },
+  {
+    "id": 328,
+    "category": "Vocal",
+    "name": "Ayee Ahh",
+    "path": "Vocal/ESW Vocal - Ayee Ahh.wav"
+  },
+  {
+    "id": 329,
+    "category": "Vocal",
+    "name": "Blowing It",
+    "path": "Vocal/ESW Vocal - Blowing It.wav"
+  },
+  {
+    "id": 330,
+    "category": "Vocal",
+    "name": "Bright Vowel",
+    "path": "Vocal/ESW Vocal - Bright Vowel.wav"
+  },
+  {
+    "id": 331,
+    "category": "Vocal",
+    "name": "Cheap Choir 01",
+    "path": "Vocal/ESW Vocal - Cheap Choir 01.wav"
+  },
+  {
+    "id": 332,
+    "category": "Vocal",
+    "name": "Chops for Days",
+    "path": "Vocal/ESW Vocal - Chops for Days.wav"
+  },
+  {
+    "id": 333,
+    "category": "Vocal",
+    "name": "Digital Choir 01",
+    "path": "Vocal/ESW Vocal - Digital Choir 01.wav"
+  },
+  {
+    "id": 334,
+    "category": "Vocal",
+    "name": "Digital Choir 02",
+    "path": "Vocal/ESW Vocal - Digital Choir 02.wav"
+  },
+  {
+    "id": 335,
+    "category": "Vocal",
+    "name": "Digital Choir 03",
+    "path": "Vocal/ESW Vocal - Digital Choir 03.wav"
+  },
+  {
+    "id": 336,
+    "category": "Vocal",
+    "name": "Digital Choir",
+    "path": "Vocal/ESW Vocal - Digital Choir.wav"
+  },
+  {
+    "id": 337,
+    "category": "Vocal",
+    "name": "Digital Mouth",
+    "path": "Vocal/ESW Vocal - Digital Mouth.wav"
+  },
+  {
+    "id": 338,
+    "category": "Vocal",
+    "name": "Digital Throat",
+    "path": "Vocal/ESW Vocal - Digital Throat.wav"
+  },
+  {
+    "id": 339,
+    "category": "Vocal",
+    "name": "Digital Vowel",
+    "path": "Vocal/ESW Vocal - Digital Vowel.wav"
+  },
+  {
+    "id": 340,
+    "category": "Vocal",
+    "name": "Digital Vowels",
+    "path": "Vocal/ESW Vocal - Digital Vowels.wav"
+  },
+  {
+    "id": 341,
+    "category": "Vocal",
+    "name": "Fairlight 01",
+    "path": "Vocal/ESW Vocal - Fairlight 01.wav"
+  },
+  {
+    "id": 342,
+    "category": "Vocal",
+    "name": "Felicity",
+    "path": "Vocal/ESW Vocal - Felicity.wav"
+  },
+  {
+    "id": 343,
+    "category": "Vocal",
+    "name": "Flight Ahh",
+    "path": "Vocal/ESW Vocal - Flight Ahh.wav"
+  },
+  {
+    "id": 344,
+    "category": "Vocal",
+    "name": "Flute Vox",
+    "path": "Vocal/ESW Vocal - Flute Vox.wav"
+  },
+  {
+    "id": 345,
+    "category": "Vocal",
+    "name": "Formant Bot 01",
+    "path": "Vocal/ESW Vocal - Formant Bot 01.wav"
+  },
+  {
+    "id": 346,
+    "category": "Vocal",
+    "name": "Formant Bot 02",
+    "path": "Vocal/ESW Vocal - Formant Bot 02.wav"
+  },
+  {
+    "id": 347,
+    "category": "Vocal",
+    "name": "Formant Bot 03",
+    "path": "Vocal/ESW Vocal - Formant Bot 03.wav"
+  },
+  {
+    "id": 348,
+    "category": "Vocal",
+    "name": "Formant Bot 04",
+    "path": "Vocal/ESW Vocal - Formant Bot 04.wav"
+  },
+  {
+    "id": 349,
+    "category": "Vocal",
+    "name": "Formant Bot 05",
+    "path": "Vocal/ESW Vocal - Formant Bot 05.wav"
+  },
+  {
+    "id": 350,
+    "category": "Vocal",
+    "name": "Fuzzy Vox",
+    "path": "Vocal/ESW Vocal - Fuzzy Vox.wav"
+  },
+  {
+    "id": 351,
+    "category": "Vocal",
+    "name": "Guttural",
+    "path": "Vocal/ESW Vocal - Guttural.wav"
+  },
+  {
+    "id": 352,
+    "category": "Vocal",
+    "name": "Hummer",
+    "path": "Vocal/ESW Vocal - Hummer.wav"
+  },
+  {
+    "id": 353,
+    "category": "Vocal",
+    "name": "Monks",
+    "path": "Vocal/ESW Vocal - Monks.wav"
+  },
+  {
+    "id": 354,
+    "category": "Vocal",
+    "name": "Multi Vowel",
+    "path": "Vocal/ESW Vocal - Multi Vowel.wav"
+  },
+  {
+    "id": 355,
+    "category": "Vocal",
+    "name": "Mumbles",
+    "path": "Vocal/ESW Vocal - Mumbles.wav"
+  },
+  {
+    "id": 356,
+    "category": "Vocal",
+    "name": "Nasal 01",
+    "path": "Vocal/ESW Vocal - Nasal 01.wav"
+  },
+  {
+    "id": 357,
+    "category": "Vocal",
+    "name": "Now",
+    "path": "Vocal/ESW Vocal - Now.wav"
+  },
+  {
+    "id": 358,
+    "category": "Vocal",
+    "name": "Origami",
+    "path": "Vocal/ESW Vocal - Origami.wav"
+  },
+  {
+    "id": 359,
+    "category": "Vocal",
+    "name": "Phrase 01",
+    "path": "Vocal/ESW Vocal - Phrase 01.wav"
+  },
+  {
+    "id": 360,
+    "category": "Vocal",
+    "name": "Roniit",
+    "path": "Vocal/ESW Vocal - Roniit.wav"
+  },
+  {
+    "id": 361,
+    "category": "Vocal",
+    "name": "Serum Voice 01",
+    "path": "Vocal/ESW Vocal - Serum Voice 01.wav"
+  },
+  {
+    "id": 362,
+    "category": "Vocal",
+    "name": "Serum Voice 02",
+    "path": "Vocal/ESW Vocal - Serum Voice 02.wav"
+  },
+  {
+    "id": 363,
+    "category": "Vocal",
+    "name": "Serum Voice 03",
+    "path": "Vocal/ESW Vocal - Serum Voice 03.wav"
+  },
+  {
+    "id": 364,
+    "category": "Vocal",
+    "name": "Serum Voice 04",
+    "path": "Vocal/ESW Vocal - Serum Voice 04.wav"
+  },
+  {
+    "id": 365,
+    "category": "Vocal",
+    "name": "Serum Voice 05",
+    "path": "Vocal/ESW Vocal - Serum Voice 05.wav"
+  },
+  {
+    "id": 366,
+    "category": "Vocal",
+    "name": "Serum Voice 06",
+    "path": "Vocal/ESW Vocal - Serum Voice 06.wav"
+  },
+  {
+    "id": 367,
+    "category": "Vocal",
+    "name": "Simple Hum",
+    "path": "Vocal/ESW Vocal - Simple Hum.wav"
+  },
+  {
+    "id": 368,
+    "category": "Vocal",
+    "name": "Sine Throat",
+    "path": "Vocal/ESW Vocal - Sine Throat.wav"
+  },
+  {
+    "id": 369,
+    "category": "Vocal",
+    "name": "Slow Ah",
+    "path": "Vocal/ESW Vocal - Slow Ah.wav"
+  },
+  {
+    "id": 370,
+    "category": "Vocal",
+    "name": "Summer",
+    "path": "Vocal/ESW Vocal - Summer.wav"
+  },
+  {
+    "id": 371,
+    "category": "Vocal",
+    "name": "Swarm",
+    "path": "Vocal/ESW Vocal - Swarm.wav"
+  },
+  {
+    "id": 372,
+    "category": "Vocal",
+    "name": "Talking 01",
+    "path": "Vocal/ESW Vocal - Talking 01.wav"
+  },
+  {
+    "id": 373,
+    "category": "Vocal",
+    "name": "Throaty 01",
+    "path": "Vocal/ESW Vocal - Throaty 01.wav"
+  },
+  {
+    "id": 374,
+    "category": "Vocal",
+    "name": "Vocoder 01",
+    "path": "Vocal/ESW Vocal - Vocoder 01.wav"
+  },
+  {
+    "id": 375,
+    "category": "Vocal",
+    "name": "Vowel Sweep",
+    "path": "Vocal/ESW Vocal - Vowel Sweep.wav"
+  },
+  {
+    "id": 376,
+    "category": "Vocal",
+    "name": "Voxus",
+    "path": "Vocal/ESW Vocal - Voxus.wav"
+  },
+  {
+    "id": 377,
+    "category": "Vocal",
+    "name": "Yelling",
+    "path": "Vocal/ESW Vocal - Yelling.wav"
+  },
+  {
+    "id": 378,
+    "category": "Vocal",
+    "name": "ESW Vocal Table 03",
+    "path": "Vocal/ESW Vocal Table 03.wav"
+  }
+]

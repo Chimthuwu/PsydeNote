@@ -1,0 +1,35 @@
+{
+  "name": "faze-elementary-spike",
+  "private": true,
+  "type": "module",
+  "description": "Spike: Faze's OSC1+ADSR ported to Elementary, runnable in the browser; plugin harness staged in plugin/",
+  "scripts": {
+    "dev": "vite",
+    "dev:ui": "vite --config vite.config.ui.mjs",
+    "build": "vite build",
+    "build:ui": "vite build --config vite.config.ui.mjs",
+    "build:plugin-assets": "node scripts/build-plugin-assets.mjs",
+    "preview": "vite preview",
+    "test": "node test/engine.test.mjs",
+    "test:wire": "node test/wire.test.mjs",
+    "test:wtbin": "node test/wavetable-bin.test.mjs",
+    "test:ui-select": "node test/ui-selection.test.mjs",
+    "build:wavetables": "node scripts/build-wavetables.mjs"
+  },
+  "dependencies": {
+    "@elemaudio/core": "^4.0.1",
+    "@elemaudio/web-renderer": "^4.0.3"
+  },
+  "devDependencies": {
+    "@elemaudio/offline-renderer": "^4.0.3",
+    "@types/react": "^18.2.79",
+    "@types/react-dom": "^18.2.25",
+    "@vitejs/plugin-react": "^4.2.1",
+    "esbuild": "^0.28.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "vite": "^5.4.0",
+    "vite-plugin-singlefile": "^2.0.3"
+  }
+}
+

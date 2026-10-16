@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Elementary spike — OSC 1 + ADSR</title>
+    <style>
+      :root {
+        --bg: #0d1020;
+        --panel: #161a2e;
+        --line: #2a3050;
+        --accent: #37e0d8;
+        --accent-2: #e05fb0;
+        --text: #d7dcf0;
+        --muted: #8890b4;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font: 14px/1.5 -apple-system, "Segoe UI", system-ui, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        -webkit-user-select: none;
+        user-select: none;
+      }
+      .wrap { max-width: 980px; margin: 0 auto; padding: 28px 20px 40px; }
+      .opgrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+      .panel.op h2 { color: inherit; }
+      .modmatrix { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--line); }
+      .modrow { gap: 6px; margin-bottom: 6px; font-size: 11px; }
+      .modrow label { width: 66px; font-size: 11px; }
+      .modrow input[type="range"] { flex: 1; height: 3px; }
+      .modrow .ml { color: var(--muted); font-size: 10px; }
+      .slopebtn { background:#10142a; color:var(--text); border:1px solid var(--line); border-radius:6px; padding:5px 12px; cursor:pointer; font-size:12px; }
+      .slopebtn[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+      .modslot { display: grid; grid-template-columns: 108px 128px 1fr 52px; align-items: center; gap: 10px; margin-bottom: 8px; }
+      .modslot select { background:#10142a; color:var(--text); border:1px solid var(--line); border-radius:6px; padding:5px 6px; font-size:12px; }
+      .modslot input[type="range"] { accent-color: var(--accent-2); }
+      .modslot .val { text-align: right; font-variant-numeric: tabular-nums; font-size: 12px; }
+      .modslot.active select { border-color: var(--accent-2); color: var(--accent-2); }
+      h1 { font-size: 16px; font-weight: 600; letter-spacing: 0.04em; margin: 0 0 4px; }
+      .sub { color: var(--muted); margin: 0 0 22px; font-size: 12.5px; }
+      .start {
+        display: inline-flex; align-items: center; gap: 8px;
+        background: var(--accent); color: #06221f; border: 0; border-radius: 8px;
+        padding: 10px 18px; font-weight: 600; font-size: 13px; cursor: pointer;
+      }
+      .panel {
+        background: var(--panel); border: 1px solid var(--line);
+        border-radius: 12px; padding: 18px; margin-bottom: 16px;
+      }
+      .panel h2 {
+        font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em;
+        color: var(--muted); margin: 0 0 14px;
+      }
+      .row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+      .row:last-child { margin-bottom: 0; }
+      .row label { width: 108px; color: var(--muted); flex: none; font-size: 12.5px; }
+      .row input[type="range"] { flex: 1; accent-color: var(--accent); }
+      .row .val { width: 64px; text-align: right; font-variant-numeric: tabular-nums; color: var(--text); }
+      .waves { display: flex; gap: 8px; flex-wrap: wrap; }
+      .waves button {
+        background: #10142a; color: var(--text); border: 1px solid var(--line);
+        border-radius: 7px; padding: 7px 14px; cursor: pointer; font-size: 12.5px;
+        text-transform: capitalize;
+      }
+      .waves button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); background: #0b2a29; }
+      .keyboard {
+        position: relative; height: 150px; display: flex;
+        background: #05070f; border: 1px solid var(--line); border-radius: 10px;
+        overflow: hidden; touch-action: none;
+      }
+      .wkey { flex: 1; border-right: 1px solid #1c2138; background: linear-gradient(#f4f6ff, #c9cfe6); }
+      .wkey:last-child { border-right: 0; }
+      .wkey.down { background: linear-gradient(var(--accent), #1aa8a0); }
+      .bkey {
+        position: absolute; top: 0; width: 26px; height: 92px; margin-left: -13px;
+        background: linear-gradient(#2b3050, #10131f); border: 1px solid #05070f;
+        border-radius: 0 0 4px 4px; z-index: 2;
+      }
+      .bkey.down { background: linear-gradient(var(--accent-2), #8f2d6d); }
+      .hint { color: var(--muted); font-size: 12px; margin-top: 10px; }
+      .meter { color: var(--accent); font-variant-numeric: tabular-nums; }
+      kbd {
+        background: #10142a; border: 1px solid var(--line); border-bottom-width: 2px;
+        border-radius: 4px; padding: 1px 5px; font-size: 11px; color: var(--text);
+      }
+      .gate { opacity: 0.45; pointer-events: none; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <h1>PsydeNote — ELEMENTARY PORT (P5: MOD MATRIX)</h1>
+      <p class="sub">
+        Faze's engine ported to Elementary's declarative graph. Same
+        <code>dsp/synth.js</code> the VST3 harness runs. Through P5: 4
+        operators + FM/PM, dual filter, ENV 2, LFO 1/2, S&amp;H, and an
+        8-slot source&nbsp;&rarr;&nbsp;target modulation matrix.
+      </p>
+
+      <button class="start" id="start">▶ Start audio</button>
+
+      <div id="app" class="gate">
+        <div class="opgrid" id="operators"></div>
+
+        <div class="opgrid" id="filters"></div>
+
+        <div class="panel">
+          <h2>Amp envelope (ADSR)</h2>
+          <div class="row"><label>Attack</label><input type="range" id="attackSec" min="0" max="2" step="0.001" /><span class="val" id="attackSec-v"></span></div>
+          <div class="row"><label>Decay</label><input type="range" id="decaySec" min="0" max="2" step="0.001" /><span class="val" id="decaySec-v"></span></div>
+          <div class="row"><label>Sustain</label><input type="range" id="sustainLevel" min="0" max="1" step="0.01" /><span class="val" id="sustainLevel-v"></span></div>
+          <div class="row"><label>Release</label><input type="range" id="releaseSec" min="0" max="3" step="0.001" /><span class="val" id="releaseSec-v"></span></div>
+        </div>
+
+        <div class="panel">
+          <h2>Global</h2>
+          <div class="row"><label>Octave</label><input type="range" id="octave" min="-3" max="3" step="1" /><span class="val" id="octave-v"></span></div>
+          <div class="row"><label>Semitone</label><input type="range" id="semitone" min="-12" max="12" step="1" /><span class="val" id="semitone-v"></span></div>
+          <div class="row"><label>Fine (¢)</label><input type="range" id="fineCents" min="-100" max="100" step="1" /><span class="val" id="fineCents-v"></span></div>
+          <div class="row"><label>Master</label><input type="range" id="master" min="0" max="1" step="0.01" /><span class="val" id="master-v"></span></div>
+        </div>
+
+        <div class="opgrid">
+          <div class="panel">
+            <h2>ENV 2 — free mod envelope</h2>
+            <div class="row"><label>Attack</label><input type="range" id="env2_a" min="0" max="2" step="0.001" /><span class="val" id="env2_a-v"></span></div>
+            <div class="row"><label>Decay</label><input type="range" id="env2_d" min="0" max="2" step="0.001" /><span class="val" id="env2_d-v"></span></div>
+            <div class="row"><label>Sustain</label><input type="range" id="env2_s" min="0" max="1" step="0.01" /><span class="val" id="env2_s-v"></span></div>
+            <div class="row"><label>Release</label><input type="range" id="env2_r" min="0" max="3" step="0.001" /><span class="val" id="env2_r-v"></span></div>
+          </div>
+          <div class="panel" id="lfopanel"></div>
+        </div>
+
+        <div class="panel" id="modpanel"></div>
+
+        <div class="panel">
+          <h2>Keyboard</h2>
+          <div class="keyboard" id="keyboard"></div>
+          <p class="hint">
+            Play with the mouse or the QWERTY row
+            <kbd>A</kbd> <kbd>W</kbd> <kbd>S</kbd> <kbd>E</kbd> <kbd>D</kbd> <kbd>F</kbd> <kbd>T</kbd> <kbd>G</kbd> <kbd>Y</kbd> <kbd>H</kbd> <kbd>U</kbd> <kbd>J</kbd> <kbd>K</kbd>
+            &nbsp;·&nbsp; <kbd>Z</kbd>/<kbd>X</kbd> shift octave &nbsp;·&nbsp;
+            voices: <span class="meter" id="voices">0</span>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="/web/main.js"></script>
+  </body>
+</html>

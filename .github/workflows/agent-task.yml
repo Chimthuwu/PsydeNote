@@ -1,0 +1,65 @@
+name: free-model task agent
+
+on:
+  workflow_dispatch:
+    inputs:
+      model:
+        description: "OpenRouter free model id"
+        required: false
+        default: "openrouter/nvidia/nemotron-3-super-120b-a12b:free"
+      task:
+        description: "What to do (optional). Empty = take the first open '- [ ]' task in TODO.md"
+        required: false
+        default: ""
+
+permissions:
+  contents: write          # push agent/* branches only; main is protected by the script below
+
+concurrency:
+  group: free-model-agent
+  cancel-in-progress: false
+
+jobs:
+  work:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+      MODEL: ${{ inputs.model || 'openrouter/nvidia/nemotron-3-super-120b-a12b:free' }}
+      TASK: ${{ inputs.task }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install OpenCode CLI (pinned)
+        run: npm install -g @opencode/cli@2.0.24
+
+      - name: Pick the first open task and work it on a branch
+        run: |
+          set -euo pipefail
+          test -n "$OPENROUTER_API_KEY" || { echo "OPENROUTER_API_KEY secret missing"; exit 1; }
+          if ! grep -q '^- \[ \]' TODO.md 2>/dev/null && ! grep -q '^- \[ \]' todo.md 2>/dev/null; then
+            echo "No open '- [ ]' tasks; nothing to do."; exit 0
+          fi
+          BRANCH="agent/$(date -u +%Y%m%d-%H%M)"
+          git config user.name "free-model-agent"
+          git config user.email "free-model-agent@users.noreply.github.com"
+          git checkout -b "$BRANCH"
+          if [ -n "$TASK" ]; then
+            PROMPT="Do this task in this repo, then tick it in TODO.md if one matches: $TASK. Make the change, run the tests if a test command exists. Do not ask questions; if it needs a decision or credentials, stop and explain in TODO.md under a new 'Agent notes' line."
+          else
+          PROMPT='Read TODO.md (or todo.md). Take the FIRST open task marked "- [ ]" that you can finish safely in one change. Make the change, run the project tests if a test command exists, then tick that task "- [x]" in the todo file. Do not touch anything else. Do not ask questions; if a task needs a decision or credentials, skip it and pick the next one.'
+          fi
+          opencode run --model "$MODEL" "$PROMPT" || echo "opencode exited non-zero; checking for changes anyway"
+          if git diff --quiet && git diff --cached --quiet && [ -z "$(git status --porcelain)" ]; then
+            echo "Agent made no changes; not pushing."; exit 0
+          fi
+          git add -A
+          git commit -m "agent: work on open task ($MODEL)"
+          git push origin "$BRANCH"
+          echo "Pushed $BRANCH. Review and merge it yourself; nothing was pushed to main."

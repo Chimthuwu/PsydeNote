@@ -1,0 +1,62 @@
+/* ---------------------------------------------------------------------------
+   Modulator strip: collapse toggle + collapsed "tops only" layout, and the
+   WT Pos modulation glow / range marker. Imported by ui/main.tsx.
+   --------------------------------------------------------------------------- */
+
+/* ---- Collapse toggle: a slim bar above the cards, so it can never overlap one. ---- */
+.mod-strip-bar { display: flex; align-items: center; justify-content: flex-end; height: 12px; flex: none; margin: -1px 0 -2px; }
+.mod-collapse-btn {
+  appearance: none; display: inline-flex; align-items: center; gap: 4px; height: 12px; padding: 0 6px;
+  font: 600 8px var(--font-mono, monospace); letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--text-muted, rgba(255, 255, 255, 0.5)); background: transparent;
+  border: 0; border-radius: 4px; cursor: pointer;
+}
+.mod-collapse-btn:hover { color: var(--accent); background: rgba(255, 255, 255, 0.06); }
+.mod-collapse-btn svg { transition: transform 0.15s ease; }
+.env-panel.is-collapsed .mod-collapse-btn svg { transform: rotate(-90deg); }
+@media (prefers-reduced-motion: reduce) { .mod-collapse-btn svg { transition: none; } }
+
+/* ---- Collapsed: every card shows only its header, packed into compact rows. ---- */
+.env-panel.is-collapsed .env-grid { grid-template-rows: auto 92px; }
+.env-panel.is-collapsed .env-grid > .env-cards {
+  grid-row: 1;
+  grid-auto-rows: 26px;
+  overflow: visible;              /* wraps to more header rows instead of scrolling */
+  scroll-snap-type: none;
+}
+.env-panel.is-collapsed .env-grid > .env-row-bottom { grid-row: 2; }
+.env-panel.is-collapsed .env-cards .mod-card { justify-content: center; padding-top: 2px; padding-bottom: 2px; }
+.env-panel.is-collapsed .env-cards .mod-card > :not(.env-head) { display: none; }
+.env-panel.is-collapsed .env-cards .env-head { min-height: 18px; }
+.env-panel.is-collapsed .env-cards .lfo-head-mods { min-width: 0; }
+/* The "+" tile shrinks to a header-sized tile. */
+.env-panel.is-collapsed .mod-add-btn { font-size: 18px; border-radius: 8px; border-width: 1px; line-height: 1; padding: 0; }
+
+/* ---- WT Pos: modulation glow + modulated range on the slider ---- */
+.op-wtpos-row.is-modded {
+  border-radius: 6px;
+  box-shadow: 0 0 calc(var(--mod-glow-amt, 0) * 10px) color-mix(in srgb, var(--mod-glow, transparent) 80%, transparent),
+    inset 0 0 0 1px color-mix(in srgb, var(--mod-glow, transparent) calc(35% + var(--mod-glow-amt, 0) * 45%), transparent);
+}
+.op-wtpos-track { position: relative; flex: 1 1 auto; min-width: 0; display: flex; align-items: center; }
+.op-wtpos-track .op-wtpos-slider { flex: 1 1 auto; width: 100%; position: relative; z-index: 1; background: transparent; }
+.op-wtpos-range {
+  position: absolute; top: 50%; height: 6px; margin-top: -3px; border-radius: 3px; pointer-events: none; z-index: 0;
+  background: color-mix(in srgb, var(--mod-glow, var(--accent)) 45%, transparent);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--mod-glow, var(--accent)) 60%, transparent);
+}
+
+/* Mod popout: a minimised modulator card, opened full-size by double-clicking its header. */
+.mod-popout {
+  position: fixed; /* left / top / z-index are set per window (drag moves it) */
+  width: min(440px, 92vw); max-height: 80vh; display: flex; flex-direction: column;
+  background: var(--bg-surface-elevated, #1a1d24); border: 1px solid var(--border, #333);
+  border-radius: 10px; box-shadow: 0 18px 48px rgba(0, 0, 0, 0.6);
+}
+.mod-popout-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 6px 10px; border-bottom: 1px solid var(--border, #333);
+  font-size: 11px; font-weight: 700; letter-spacing: 0.05em;
+}
+.mod-popout-head button { background: none; border: 0; color: inherit; font-size: 16px; cursor: pointer; line-height: 1; }
+.mod-popout-body { padding: 8px; overflow: auto; }

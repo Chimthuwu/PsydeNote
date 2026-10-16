@@ -1,0 +1,565 @@
+import { useCallback, useRef, useState } from 'react';
+import type { ArpSettings, LaneId, RateDiv, SeqDirection, SeqLane } from '../../shared/types';
+import { LANE_IDS, SEQ_STEPS } from '../../shared/types';
+import { SCALES, NOTE_NAMES } from '../../shared/scales';
+import { ARP_PATTERNS, PatternIcon } from './ArpPanel';
+import { useArpOverlay, useArpPlayhead } from '../lib/arpStore';
+
+/**
+ * Docked step-sequencer editor (Pigments-style): header with global playback
+ * controls, then 7 lanes x 16 steps. Lanes are painted with pointer drags
+ * (Shift = proportional edit of the whole lane). The dice overlay computed by
+ * the engine is drawn as a ghost marker; effective value = overlay ?? base.
+ *
+ * Contract: docs/ARP-SEQ-CONTRACT.md §1, §5. All styles live in seq-ui.css (seqv-*).
+ */
+
+interface Props {
+  arp: ArpSettings;
+  onChange: (patch: Partial<ArpSettings>) => void;
+  onClose: () => void;
+}
+
+interface LaneCfg {
+  id: LaneId;
+  label: string;
+  hint: string;
+  min: number;
+  max: number;
+  step: number;
+  def: number;
+  /** >1 gives finer resolution near the minimum (gate, slide). */
+  curve: number;
+  /** true = bars grow from the middle (pitch, octave). */
+  bipolar: boolean;
+  /** true = on/off toggle cells. */
+  toggle?: boolean;
+  fmt: (v: number) => string;
+}
+
+const signed = (v: number) => (v > 0 ? `+${v}` : `${v}`);
+
+const LANES: LaneCfg[] = [
+  { id: 'on', label: 'On', hint: 'Step on / off (rest)', min: 0, max: 1, step: 1, def: 1, curve: 1, bipolar: false, toggle: true, fmt: (v) => (v >= 0.5 ? 'on' : '-') },
+  { id: 'prob', label: 'Prob', hint: 'Probability that the step plays', min: 0, max: 1, step: 0.01, def: 1, curve: 1, bipolar: false, fmt: (v) => `${Math.round(v * 100)}` },
+  { id: 'pitch', label: 'Pitch', hint: 'Semitones relative to each held note (-12..+12)', min: -12, max: 12, step: 1, def: 0, curve: 1, bipolar: true, fmt: (v) => signed(Math.round(v)) },
+  { id: 'octave', label: 'Oct', hint: 'Octave offset (-2..+2)', min: -2, max: 2, step: 1, def: 0, curve: 1, bipolar: true, fmt: (v) => signed(Math.round(v)) },
+  { id: 'vel', label: 'Vel', hint: 'Step velocity', min: 0, max: 1, step: 0.01, def: 0.8, curve: 1, bipolar: false, fmt: (v) => `${Math.round(v * 127)}` },
+  { id: 'gate', label: 'Gate', hint: 'Note length as a fraction of one step (5%..400%)', min: 0.05, max: 4, step: 0.05, def: 0.6, curve: 2, bipolar: false, fmt: (v) => `${Math.round(v * 100)}` },
+  { id: 'slide', label: 'Slide', hint: 'Glide time into the step (0..1000 ms)', min: 0, max: 1000, step: 5, def: 0, curve: 2, bipolar: false, fmt: (v) => `${Math.round(v)}` },
+];
+
+const DIRECTIONS: { id: SeqDirection; label: string }[] = [
+  { id: 'fwd', label: '→  Forward' },
+  { id: 'bwd', label: '←  Backward' },
+  { id: 'bounce', label: '↔  Bounce (ends repeat)' },
+  { id: 'bounceExcl', label: '⇄  Bounce (no repeat)' },
+  { id: 'random', label: '?  Random' },
+  { id: 'randomNoRepeat', label: '?≠  Random (no repeat)' },
+  { id: 'drunk', label: '∿  Drunk walk' },
+  { id: 'converge', label: '⇥⇤  Converge (out to in)' },
+  { id: 'diverge', label: '⇤⇥  Diverge (in to out)' },
+];
+
+const RATE_DIVS: RateDiv[] = ['1/1', '1/2', '1/4', '1/8', '1/16', '1/32'];
+const LANE_DIVS: SeqLane['div'][] = [1, 2, 3, 4, 6, 8, 16];
+const REGEN_OPTS: { v: number; label: string }[] = [
+  { v: 0, label: 'Off' }, { v: 0.0625, label: '1/16 bar' }, { v: 0.125, label: '1/8 bar' },
+  { v: 0.25, label: '1/4 bar' }, { v: 0.5, label: '1/2 bar' }, { v: 1, label: '1 bar' },
+  { v: 2, label: '2 bars' }, { v: 4, label: '4 bars' }, { v: 8, label: '8 bars' },
+];
+const DEGREE_NAMES = ['Root', 'm2', 'M2', 'm3', 'M3', 'P4', 'TT', 'P5', 'm6', 'M6', 'm7', 'M7'];
+
+const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
+
+function toNorm(c: LaneCfg, v: number): number {
+  const t = clamp((v - c.min) / (c.max - c.min), 0, 1);
+  return c.curve === 1 ? t : Math.pow(t, 1 / c.curve);
+}
+function fromNorm(c: LaneCfg, t: number): number {
+  const u = c.curve === 1 ? clamp(t, 0, 1) : Math.pow(clamp(t, 0, 1), c.curve);
+  const raw = c.min + u * (c.max - c.min);
+  const q = Math.round(raw / c.step) * c.step;
+  return clamp(Number(q.toFixed(4)), c.min, c.max);
+}
+
+const Dice = () => (
+  <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+    <rect x="1.5" y="1.5" width="13" height="13" rx="3" fill="none" stroke="currentColor" strokeWidth="1.4" />
+    <circle cx="5" cy="5" r="1.15" fill="currentColor" /><circle cx="11" cy="5" r="1.15" fill="currentColor" />
+    <circle cx="8" cy="8" r="1.15" fill="currentColor" />
+    <circle cx="5" cy="11" r="1.15" fill="currentColor" /><circle cx="11" cy="11" r="1.15" fill="currentColor" />
+  </svg>
+);
+const Lock = ({ on }: { on: boolean }) => (
+  <svg viewBox="0 0 12 12" width="9" height="9" aria-hidden="true">
+    <rect x="2" y="5.5" width="8" height="5.5" rx="1" fill={on ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="1.2" />
+    <path d={on ? 'M3.8 5.5V4a2.2 2.2 0 0 1 4.4 0v1.5' : 'M3.8 5.5V4a2.2 2.2 0 0 1 4.2-0.9'} fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+  </svg>
+);
+
+export function SeqEditor({ arp, onChange, onClose }: Props) {
+  const { seq, generation, rate, scale } = arp;
+  const playhead = useArpPlayhead();
+  const overlay = useArpOverlay();
+  const [weightsOpen, setWeightsOpen] = useState(false);
+
+  // Latest settings for drag handlers (pointer events fire faster than renders).
+  const arpRef = useRef(arp);
+  arpRef.current = arp;
+  const onChangeRef = useRef(onChange);
+  onChangeRef.current = onChange;
+
+  const patchSeq = useCallback((p: Partial<ArpSettings['seq']>) => {
+    const a = arpRef.current;
+    const next = { ...a, seq: { ...a.seq, ...p } };
+    arpRef.current = next;
+    onChangeRef.current({ seq: next.seq });
+  }, []);
+  const patchLane = useCallback((id: LaneId, p: Partial<SeqLane>) => {
+    const a = arpRef.current;
+    patchSeq({ lanes: { ...a.seq.lanes, [id]: { ...a.seq.lanes[id], ...p } } });
+  }, [patchSeq]);
+  const patchGen = (p: Partial<ArpSettings['generation']>) => onChange({ generation: { ...generation, ...p } });
+  const patchRate = (p: Partial<ArpSettings['rate']>) => onChange({ rate: { ...rate, ...p } });
+
+  const regen = () => patchGen({ regenToken: generation.regenToken + 1 });
+  const clearOverlay = () => patchGen({ clearToken: generation.clearToken + 1 });
+  const apply = () => {
+    const lanes = { ...seq.lanes };
+    for (const id of LANE_IDS) {
+      const ov = overlay[id];
+      if (!ov) continue;
+      const base = lanes[id].base.map((b, i) => (typeof ov[i] === 'number' ? (ov[i] as number) : b));
+      lanes[id] = { ...lanes[id], base };
+    }
+    onChange({ seq: { ...seq, lanes }, generation: { ...generation, clearToken: generation.clearToken + 1 } });
+  };
+  const hasOverlay = LANE_IDS.some((id) => overlay[id]?.some((v) => typeof v === 'number'));
+
+  const setWeight = (i: number, w: number) => {
+    const weights = scale.weights.slice();
+    weights[i] = clamp(w, 0, 1);
+    onChange({ scale: { ...scale, weights } });
+  };
+
+  return (
+    <section className="seqv" aria-label="Sequencer editor" onContextMenu={(e) => e.preventDefault()}>
+      <header className="seqv-head">
+        <div className="seqv-title">
+          <strong>Sequencer</strong>
+          <span className="seqv-sub">{seq.enabled ? 'Seq mode' : 'Arp mode active - switch the strip to Seq to hear this'}</span>
+        </div>
+
+        <label className="seqv-field" title="Playback direction through the steps">
+          <span>Direction</span>
+          <select value={seq.direction} onChange={(e) => patchSeq({ direction: e.target.value as SeqDirection })}>
+            {DIRECTIONS.map((d) => <option key={d.id} value={d.id}>{d.label}</option>)}
+          </select>
+        </label>
+
+        <label className="seqv-field seqv-field-num" title="Pattern length (steps)">
+          <span>Length</span>
+          <input type="number" min={1} max={SEQ_STEPS} value={seq.length}
+            onChange={(e) => patchSeq({ length: clamp(Math.round(Number(e.target.value) || 1), 1, SEQ_STEPS) })} />
+        </label>
+
+        <button type="button" className={`seqv-btn ${seq.polymetry ? 'is-on' : ''}`} aria-pressed={seq.polymetry}
+          title="Polymetry: every lane runs with its own length" onClick={() => patchSeq({ polymetry: !seq.polymetry })}>
+          Polymetry
+        </button>
+
+        <label className="seqv-field seqv-field-num" title="Realign all lanes to step 1 every N global steps (0 = off)">
+          <span>Reset after</span>
+          <select value={seq.resetAfter} onChange={(e) => patchSeq({ resetAfter: Number(e.target.value) })}>
+            <option value={0}>Off</option>
+            {Array.from({ length: 32 }, (_, i) => i + 1).map((n) => <option key={n} value={n}>{n} steps</option>)}
+          </select>
+        </label>
+
+        <label className="seqv-field seqv-field-num" title="Swing 50..75 %">
+          <span>Swing</span>
+          <input type="number" min={50} max={75} step={1} value={Math.round(arp.swing)}
+            onChange={(e) => onChange({ swing: clamp(Number(e.target.value) || 50, 50, 75) })} />
+        </label>
+
+        <div className="seqv-group" title="Tempo-synced rate or free Hz">
+          <button type="button" className={`seqv-btn ${rate.sync ? 'is-on' : ''}`} aria-pressed={rate.sync}
+            onClick={() => patchRate({ sync: !rate.sync })}>Sync</button>
+          {rate.sync ? (
+            <>
+              <select aria-label="Rate division" value={rate.div} onChange={(e) => patchRate({ div: e.target.value as RateDiv })}>
+                {RATE_DIVS.map((d) => <option key={d} value={d}>{d}</option>)}
+              </select>
+              <select aria-label="Rate feel" value={rate.feel} onChange={(e) => patchRate({ feel: e.target.value as typeof rate.feel })}>
+                <option value="straight">Straight</option>
+                <option value="triplet">Triplet</option>
+                <option value="dotted">Dotted</option>
+              </select>
+            </>
+          ) : (
+            <label className="seqv-inline">
+              <input type="number" min={0.5} max={20} step={0.1} value={rate.hz}
+                onChange={(e) => patchRate({ hz: clamp(Number(e.target.value) || 8, 0.5, 20) })} />
+              <span>Hz</span>
+            </label>
+          )}
+        </div>
+
+        <label className="seqv-field seqv-field-num" title="Transpose the whole pattern (before scale snapping)">
+          <span>Transpose</span>
+          <input type="number" min={-24} max={24} step={1} value={seq.pitchTranspose}
+            onChange={(e) => patchSeq({ pitchTranspose: clamp(Math.round(Number(e.target.value) || 0), -24, 24) })} />
+        </label>
+
+        <label className="seqv-field seqv-field-num" title="0 = incoming MIDI velocity only, 100 = step velocity only">
+          <span>Velocity %</span>
+          <input type="number" min={0} max={100} step={5} value={Math.round(arp.velocityPct * 100)}
+            onChange={(e) => onChange({ velocityPct: clamp((Number(e.target.value) || 0) / 100, 0, 1) })} />
+        </label>
+
+        <div className="seqv-spacer" />
+
+        <label className="seqv-field" title="Re-roll all dice lanes automatically, aligned to the bar">
+          <span>Auto-Regen</span>
+          <select value={generation.autoRegen} onChange={(e) => patchGen({ autoRegen: Number(e.target.value) })}>
+            {REGEN_OPTS.map((o) => <option key={o.v} value={o.v}>{o.label}</option>)}
+          </select>
+        </label>
+
+        <div className="seqv-switch" role="group" aria-label="Chaos mode"
+          title="Frozen: the rolled overlay repeats. Live: a fresh draw every time a step plays.">
+          <button type="button" className={generation.chaos === 'frozen' ? 'is-on' : ''} onClick={() => patchGen({ chaos: 'frozen' })}>Frozen</button>
+          <button type="button" className={generation.chaos === 'live' ? 'is-on' : ''} onClick={() => patchGen({ chaos: 'live' })}>Live</button>
+        </div>
+
+        <button type="button" className="seqv-regen" title="Regenerate: roll every lane that has a dice amount" onClick={regen}>
+          <Dice /><span>Regen</span>
+        </button>
+        <button type="button" className="seqv-btn seqv-icon" title="Clear the random overlay" onClick={clearOverlay} aria-label="Clear overlay">{'✕'}</button>
+        <button type="button" className={`seqv-btn seqv-icon ${hasOverlay ? 'is-hot' : ''}`} title="Apply: bake the random overlay into the drawn pattern"
+          onClick={apply} aria-label="Apply overlay">{'✓'}</button>
+
+        <div className="seqv-group" title="Key used by Key snap and the scale weights">
+          <select aria-label="Key root" value={arp.keyRoot} onChange={(e) => onChange({ keyRoot: parseInt(e.target.value, 10) })}>
+            {NOTE_NAMES.map((n, i) => <option key={n} value={i}>{n}</option>)}
+          </select>
+          <select aria-label="Key scale" value={arp.keyScale} onChange={(e) => onChange({ keyScale: e.target.value as ArpSettings['keyScale'] })}>
+            {SCALES.map((sc) => <option key={sc.id} value={sc.id}>{sc.label}</option>)}
+          </select>
+          <button type="button" className={`seqv-btn ${arp.keySnap ? 'is-on' : ''}`} aria-pressed={arp.keySnap}
+            onClick={() => onChange({ keySnap: !arp.keySnap })}>Snap</button>
+        </div>
+
+        <button type="button" className="seqv-btn seqv-close" title="Close sequencer view" onClick={onClose} aria-label="Close sequencer">{'×'}</button>
+      </header>
+
+      <div className="seqv-lanes">
+        {LANES.map((cfg) => (
+          <LaneRow
+            key={cfg.id}
+            cfg={cfg}
+            lane={seq.lanes[cfg.id]}
+            overlay={overlay[cfg.id]}
+            globalLength={seq.length}
+            polymetry={seq.polymetry}
+            playStep={playhead.step}
+            patchLane={patchLane}
+          />
+        ))}
+      </div>
+
+      <div className={`seqv-weights ${weightsOpen ? 'is-open' : ''}`}>
+        <button type="button" className="seqv-weights-toggle" aria-expanded={weightsOpen} onClick={() => setWeightsOpen((o) => !o)}>
+          <span className="seqv-chev">{weightsOpen ? '▾' : '▸'}</span> Scale weights
+          <em>how likely each note is when the Pitch dice rolls</em>
+        </button>
+        {weightsOpen && (
+          <div className="seqv-weights-body">
+            <div className="seqv-weights-grid">
+              {scale.weights.map((w, i) => (
+                <label key={i} className={`seqv-weight ${i === 0 ? 'is-root' : ''}`} title={`${NOTE_NAMES[(arp.keyRoot + i) % 12]} (${DEGREE_NAMES[i]})`}>
+                  <output>{Math.round(w * 100)}</output>
+                  <input type="range" min={0} max={1} step={0.01} value={w} disabled={i === 0}
+                    onChange={(e) => setWeight(i, Number(e.target.value))} />
+                  <span>{NOTE_NAMES[(arp.keyRoot + i) % 12]}</span>
+                </label>
+              ))}
+            </div>
+            <div className="seqv-weights-side">
+              <button type="button" className={`seqv-btn ${scale.snap ? 'is-on' : ''}`} aria-pressed={scale.snap}
+                title="Also quantise the final pitch to the key" onClick={() => onChange({ scale: { ...scale, snap: !scale.snap } })}>
+                Quantise
+              </button>
+              <button type="button" className="seqv-btn" title="Weight each note by whether it belongs to the key scale"
+                onClick={() => {
+                  const sc = SCALES.find((s) => s.id === arp.keyScale);
+                  const iv = sc ? sc.intervals : [0, 2, 4, 5, 7, 9, 11];
+                  onChange({ scale: { ...scale, weights: Array.from({ length: 12 }, (_, i) => (iv.includes(i) ? 1 : 0.1)) } });
+                }}>From key</button>
+              <button type="button" className="seqv-btn" onClick={() => onChange({ scale: { ...scale, weights: scale.weights.map(() => 1) } })}>All 100</button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="seqv-pattern-grid" role="radiogroup" aria-label="Arp pattern">
+        {ARP_PATTERNS.map((p) => {
+          const on = arp.mode === p.value;
+          return (
+            <button key={p.value} type="button" role="radio" aria-checked={on}
+              className={`seqv-pat ${on ? 'is-on' : ''}`} title={p.label}
+              onClick={() => onChange({ mode: p.value, on: true })}>
+              <PatternIcon pattern={p} active={on} />
+              <span>{p.label}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      <p className="seqv-hint">
+        Drag across steps to paint. Hold <kbd>Shift</kbd> and drag to raise/lower the whole lane. Click a dice to re-roll that lane,
+        drag it up/down to set its amount. Ghost markers show the random overlay; <b>Apply</b> bakes it into the pattern.
+      </p>
+    </section>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+
+interface RowProps {
+  cfg: LaneCfg;
+  lane: SeqLane;
+  overlay: (number | null)[] | undefined;
+  globalLength: number;
+  polymetry: boolean;
+  playStep: number;
+  patchLane: (id: LaneId, p: Partial<SeqLane>) => void;
+}
+
+function LaneRow({ cfg, lane, overlay, globalLength, polymetry, playStep, patchLane }: RowProps) {
+  const len = polymetry ? lane.length : globalLength;
+  const barsRef = useRef<HTMLDivElement>(null);
+  const laneRef = useRef(lane);
+  laneRef.current = lane;
+
+  // Which step of THIS lane is currently sounding (approximation: ignores rotation/direction).
+  const playIdx = playStep >= 0 && len > 0 ? Math.floor(playStep / lane.div) % len : -1;
+
+  /* ---- bar painting ---- */
+  const drag = useRef<null | {
+    shift: boolean; startY: number; orig: number[]; lastCol: number; toggleTo: number; h: number;
+  }>(null);
+
+  const posOf = (e: React.PointerEvent) => {
+    const r = barsRef.current!.getBoundingClientRect();
+    const col = clamp(Math.floor(((e.clientX - r.left) / r.width) * SEQ_STEPS), 0, SEQ_STEPS - 1);
+    const t = clamp(1 - (e.clientY - r.top) / r.height, 0, 1);
+    return { col, t, h: r.height };
+  };
+
+  const onDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.button !== 0 && e.button !== 2) return;
+    e.currentTarget.setPointerCapture(e.pointerId);
+    const { col, t, h } = posOf(e);
+    const base = laneRef.current.base.slice();
+    // Right button = erase the step back to default.
+    if (e.button === 2) {
+      base[col] = cfg.def;
+      patchLane(cfg.id, { base });
+      drag.current = { shift: false, startY: e.clientY, orig: base, lastCol: col, toggleTo: cfg.def, h };
+      return;
+    }
+    if (e.shiftKey && !cfg.toggle) {
+      drag.current = { shift: true, startY: e.clientY, orig: base, lastCol: col, toggleTo: 0, h };
+      return;
+    }
+    let v: number;
+    let toggleTo = 0;
+    if (cfg.toggle) {
+      toggleTo = base[col] >= 0.5 ? 0 : 1;
+      v = toggleTo;
+    } else {
+      v = fromNorm(cfg, t);
+    }
+    base[col] = v;
+    patchLane(cfg.id, { base });
+    drag.current = { shift: false, startY: e.clientY, orig: base, lastCol: col, toggleTo, h };
+  };
+
+  const onMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    const d = drag.current;
+    if (!d) return;
+    if (d.shift) {
+      // Proportional: move every step by the same normalised delta.
+      const dn = (d.startY - e.clientY) / Math.max(40, d.h);
+      const base = d.orig.map((v) => fromNorm(cfg, toNorm(cfg, v) + dn));
+      patchLane(cfg.id, { base });
+      return;
+    }
+    const { col, t } = posOf(e);
+    const v = cfg.toggle ? d.toggleTo : fromNorm(cfg, t);
+    const base = laneRef.current.base.slice();
+    const a = Math.min(col, d.lastCol);
+    const b = Math.max(col, d.lastCol);
+    for (let i = a; i <= b; i++) base[i] = e.buttons & 2 ? cfg.def : v;
+    d.lastCol = col;
+    patchLane(cfg.id, { base });
+  };
+
+  const onUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    drag.current = null;
+    try { e.currentTarget.releasePointerCapture(e.pointerId); } catch { /* already released */ }
+  };
+
+  /* ---- dice: click = roll, vertical drag = amount ---- */
+  const diceDrag = useRef<null | { y: number; amt: number; moved: boolean }>(null);
+  const onDiceDown = (e: React.PointerEvent<HTMLButtonElement>) => {
+    e.currentTarget.setPointerCapture(e.pointerId);
+    diceDrag.current = { y: e.clientY, amt: laneRef.current.amount, moved: false };
+  };
+  const onDiceMove = (e: React.PointerEvent<HTMLButtonElement>) => {
+    const d = diceDrag.current;
+    if (!d) return;
+    const dy = d.y - e.clientY;
+    if (!d.moved && Math.abs(dy) < 3) return;
+    d.moved = true;
+    patchLane(cfg.id, { amount: clamp(Math.round((d.amt + dy / 100) * 100) / 100, 0, 1) });
+  };
+  const onDiceUp = (e: React.PointerEvent<HTMLButtonElement>) => {
+    const d = diceDrag.current;
+    diceDrag.current = null;
+    try { e.currentTarget.releasePointerCapture(e.pointerId); } catch { /* already released */ }
+    if (d && !d.moved) patchLane(cfg.id, { rollToken: laneRef.current.rollToken + 1 });
+  };
+
+  const rotate = (n: number) => {
+    const l = Math.max(1, len);
+    patchLane(cfg.id, { rotation: (((lane.rotation + n) % l) + l) % l });
+  };
+
+  const toggleLock = (i: number) => {
+    const locked = lane.locked.slice();
+    locked[i] = !locked[i];
+    patchLane(cfg.id, { locked });
+  };
+
+  const pct = Math.round(lane.amount * 100);
+  const sameAsDef = lane.base.every((v) => v === cfg.def);
+
+  return (
+    <div className={`seqv-lane seqv-lane-${cfg.id}`} data-lane={cfg.id}>
+      <div className="seqv-lane-ctl">
+        <div className="seqv-lane-name" title={cfg.hint}>{cfg.label}</div>
+        <div className="seqv-lane-tools">
+          <button
+            type="button"
+            className={`seqv-dice ${lane.amount > 0 ? 'is-armed' : ''}`}
+            title={`Dice: click = re-roll this lane, drag up/down = random amount (${pct}%)`}
+            onPointerDown={onDiceDown} onPointerMove={onDiceMove} onPointerUp={onDiceUp} onPointerCancel={onDiceUp}
+          >
+            <Dice /><b>{pct}%</b>
+          </button>
+          <button type="button" className="seqv-mini" title="Reset this lane to its default" disabled={sameAsDef}
+            onClick={() => patchLane(cfg.id, { base: lane.base.map(() => cfg.def), rotation: 0 })}>
+            {'⌫'}
+          </button>
+        </div>
+        <div className="seqv-lane-tools">
+          <label className="seqv-lane-sel" title="Lane rate divider: advances once per N global steps">
+            <span>{'÷'}</span>
+            <select value={lane.div} onChange={(e) => patchLane(cfg.id, { div: Number(e.target.value) as SeqLane['div'] })}>
+              {LANE_DIVS.map((d) => <option key={d} value={d}>{d}</option>)}
+            </select>
+          </label>
+          <div className="seqv-rot" title={`Rotation ${lane.rotation}`}>
+            <button type="button" onClick={() => rotate(-1)} aria-label="Rotate left">{'◀'}</button>
+            <button type="button" onClick={() => rotate(1)} aria-label="Rotate right">{'▶'}</button>
+          </div>
+        </div>
+      </div>
+
+      <div className="seqv-lane-main">
+        <div
+          ref={barsRef}
+          className={`seqv-bars ${cfg.bipolar ? 'is-bipolar' : ''} ${cfg.toggle ? 'is-toggle' : ''}`}
+          onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp}
+          onContextMenu={(e) => e.preventDefault()}
+        >
+          {Array.from({ length: SEQ_STEPS }, (_, i) => {
+            const ov = overlay?.[i];
+            const hasOv = typeof ov === 'number' && !lane.locked[i];
+            const eff = hasOv ? (ov as number) : lane.base[i];
+            const baseN = toNorm(cfg, lane.base[i]);
+            const effN = toNorm(cfg, eff);
+            const mid = toNorm(cfg, 0);
+            const lo = cfg.bipolar ? Math.min(baseN, mid) : 0;
+            const hi = cfg.bipolar ? Math.max(baseN, mid) : baseN;
+            const off = i >= len;
+            const cls = [
+              'seqv-col',
+              off ? 'is-off' : '',
+              playIdx === i ? 'is-play' : '',
+              i % 4 === 0 ? 'is-beat' : '',
+              cfg.toggle && lane.base[i] < 0.5 ? 'is-rest' : '',
+              lane.locked[i] ? 'is-locked' : '',
+              hasOv ? 'has-ov' : '',
+            ].filter(Boolean).join(' ');
+            return (
+              <div key={i} className={cls}>
+                <div className="seqv-fill" style={{ bottom: `${lo * 100}%`, height: `${Math.max(cfg.toggle ? 0 : 0.8, (hi - lo) * 100)}%` }} />
+                {hasOv && <div className="seqv-ghost" style={{ bottom: `${effN * 100}%` }} />}
+              </div>
+            );
+          })}
+          {polymetry && (
+            <div
+              className="seqv-lenhandle"
+              style={{ left: `${(len / SEQ_STEPS) * 100}%` }}
+              title="Drag to set this lane's length"
+              onPointerDown={(e) => {
+                e.stopPropagation();
+                e.currentTarget.setPointerCapture(e.pointerId);
+              }}
+              onPointerMove={(e) => {
+                if (!(e.buttons & 1)) return;
+                const r = barsRef.current!.getBoundingClientRect();
+                const n = clamp(Math.round(((e.clientX - r.left) / r.width) * SEQ_STEPS), 1, SEQ_STEPS);
+                if (n !== laneRef.current.length) patchLane(cfg.id, { length: n });
+              }}
+              onPointerUp={(e) => { try { e.currentTarget.releasePointerCapture(e.pointerId); } catch { /* released */ } }}
+            />
+          )}
+        </div>
+
+        <div className="seqv-vals">
+          {Array.from({ length: SEQ_STEPS }, (_, i) => {
+            const ov = overlay?.[i];
+            const hasOv = typeof ov === 'number' && !lane.locked[i];
+            return (
+              <span key={i} className={`${i >= len ? 'is-off' : ''} ${hasOv ? 'has-ov' : ''}`}>
+                {cfg.fmt(hasOv ? (ov as number) : lane.base[i])}
+              </span>
+            );
+          })}
+        </div>
+
+        <div className="seqv-locks">
+          {Array.from({ length: SEQ_STEPS }, (_, i) => (
+            <button
+              key={i}
+              type="button"
+              className={`${lane.locked[i] ? 'is-locked' : ''} ${i >= len ? 'is-off' : ''} ${playIdx === i ? 'is-play' : ''}`}
+              aria-pressed={lane.locked[i]}
+              title={lane.locked[i] ? `Step ${i + 1}: locked (dice ignores it)` : `Step ${i + 1}: click to lock against the dice`}
+              onClick={() => toggleLock(i)}
+            >
+              <span>{i + 1}</span>
+              {lane.locked[i] && <Lock on />}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}

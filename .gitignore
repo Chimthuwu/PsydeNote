@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+.npm/
+
+# Build outputs
+dist/
+build/
+bin/
+obj/
+*.lib
+*.obj
+*.exe
+*.vst3
+*.dll
+*.so
+*.dylib
+*.pdb
+*.ilk
+*.exp
+
+# IDE and OS
+.vs/
+.vscode/
+.idea/
+*.suo
+*.user
+.DS_Store
+Thumbs.db
+
+# Temporary
+tmp/
+scratch/
+
+spike/elementary/plugin/wavetables.bin
+desktop.ini

@@ -1,0 +1,31 @@
+/* Top bar (plugin header): bigger Oct/Semi/Fine/Glide/Master + macro knobs.
+   Height budget: the header grows ~+15px (knob 40 -> 52, + hit padding); the
+   window is +32px taller and the OSC panel is flex:1, so it absorbs the rest.
+   Width budget (1272): 5 globals + voice button + 8 macros must still leave
+   room for Key + preset bar + window controls, so knobs top out at 52px and the
+   macro source dot is overlaid on the knob instead of sitting beside it. */
+.plugin-header { gap: 10px; }
+
+.plugin-globals { gap: 6px; align-items: center; }
+.plugin-globals .knob,
+.plugin-macro .knob {
+  --knob-size: 52px;
+  padding: 2px;            /* extra grab area (the whole .knob handles drag) */
+}
+.plugin-globals .knob-label { font-size: 10px; }
+.plugin-globals .knob-value,
+.plugin-macro .knob-value,
+.plugin-globals .knob-input,
+.plugin-macro .knob-input { font-size: 11px; }
+
+.plugin-macros { gap: 2px; margin-left: 4px; }
+.plugin-macro { position: relative; display: block; gap: 0; }
+.plugin-macro .env-source-dot {
+  position: absolute; top: 1px; left: 1px; z-index: 3;
+  width: 9px; height: 9px;
+}
+
+/* Preset selector a little narrower in the header so the bigger knobs fit. */
+.plugin-header .preset-selector { width: 170px; min-width: 150px; }
+.plugin-header .key-sync-btn { margin-right: 4px; }
+.plugin-winctl { margin-left: 4px; }

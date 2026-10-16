@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "forceConsistentCasingInFileNames": true,
+    "useDefineForClassFields": true,
+    "allowImportingTsExtensions": false,
+    "types": ["vite/client"]
+  },
+  "//": "The Electron app is retired (VST is the project — todo.md §84/§88). `src/renderer/*` (the old Web-Audio engine, recorder pipeline, Electron chrome) no longer tracks src/shared and is not maintained. This config now only checks the shared schema; `spike/elementary/ui/tsconfig.json` is the real gate for the React components the plugin reuses (it typechecks them transitively).",
+  "include": ["src/shared/**/*.ts"]
+}

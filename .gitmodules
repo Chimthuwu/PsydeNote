@@ -1,0 +1,6 @@
+[submodule "spike/elementary/plugin/elementary"]
+	path = spike/elementary/plugin/elementary
+	url = https://github.com/elemaudio/elementary.git
+[submodule "spike/elementary/plugin/juce"]
+	path = spike/elementary/plugin/juce
+	url = https://github.com/juce-framework/JUCE.git

@@ -1,0 +1,59 @@
+
+function drawHistory(
+  ctx: CanvasRenderingContext2D,
+  peakBuffer: PeakBuffer | null | undefined,
+  width: number,
+  height: number,
+  theme: Theme,
+) {
+  if (!peakBuffer) {
+    const p = palette(theme);
+    ctx.fillStyle = p.gridStrong;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.font = '12px ui-monospace, Consolas, monospace';
+    ctx.fillText('History not available in pop-out', width / 2, height / 2);
+    return;
+  }
+
+  const arr = peakBuffer.getFloat32Array();
+  const numPairs = arr.length / 2;
+  if (numPairs === 0) return;
+
+  const p = palette(theme);
+  const midY = height / 2;
+
+  ctx.beginPath();
+  // Top envelope (maxes)
+  for (let i = 0; i < numPairs; i++) {
+    const x = (i / numPairs) * width;
+    const max = arr[i * 2 + 1];
+    ctx.lineTo(x, midY - (max * midY * 0.9)); // 0.9 padding
+  }
+  // Bottom envelope (mins)
+  for (let i = numPairs - 1; i >= 0; i--) {
+    const x = (i / numPairs) * width;
+    const min = arr[i * 2];
+    ctx.lineTo(x, midY - (min * midY * 0.9));
+  }
+  ctx.closePath();
+
+  ctx.fillStyle = p.wave;
+  ctx.globalAlpha = 0.5;
+  ctx.fill();
+  
+  ctx.strokeStyle = p.wave;
+  ctx.globalAlpha = 0.8;
+  ctx.stroke();
+
+  ctx.globalAlpha = 1.0;
+
+  // "Now" edge on the right
+  ctx.strokeStyle = p.accent;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(width - 1, 0);
+  ctx.lineTo(width - 1, height);
+  ctx.stroke();
+  ctx.lineWidth = 1;
+}

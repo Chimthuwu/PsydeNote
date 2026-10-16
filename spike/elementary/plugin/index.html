@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Faze Spike</title>
+    <style>
+      body { margin: 0; font: 13px system-ui, sans-serif; background: #0d1020; color: #d7dcf0; }
+      .wrap { padding: 24px; }
+      h1 { font-size: 14px; letter-spacing: .06em; margin: 0 0 8px; }
+      p { color: #8890b4; line-height: 1.6; max-width: 42ch; }
+      code { color: #37e0d8; }
+      #state { margin-top: 14px; font-variant-numeric: tabular-nums; white-space: pre; color: #6b7398; font-size: 11px; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <h1>FAZE SPIKE</h1>
+      <p>
+        DSP is running in the plugin's native Elementary engine. Send MIDI notes
+        from your host — you should hear <code>OSC 1 + ADSR</code>.
+      </p>
+      <p>
+        This placeholder UI is intentional: the React interface is a later
+        phase. Automation still works from the host's parameter list.
+      </p>
+      <div id="state"></div>
+    </div>
+
+    <script>
+      // choc injects window.__postNativeMessage__. Tell native we're ready so
+      // it sends the first state dispatch.
+      function ready() {
+        if (window.__postNativeMessage__) window.__postNativeMessage__(['ready']);
+        else setTimeout(ready, 50);
+      }
+      ready();
+
+      // Native calls this with the current parameter + voice state.
+      window.__receiveStateChange__ = (json) => {
+        try {
+          const s = JSON.parse(json);
+          const active = Object.keys(s).filter((k) => /^v\d+_gate$/.test(k) && s[k] > 0.5).length;
+          const lv = (k) => (s[`op${k}_level`] ?? 0).toFixed(2);
+          document.getElementById('state').textContent =
+            `voices: ${active}   op levels: ${lv(0)} ${lv(1)} ${lv(2)} ${lv(3)}   master: ${(s.master ?? 0).toFixed(2)}`;
+        } catch (e) {}
+      };
+      window.__receiveError__ = (e) => {
+        document.getElementById('state').textContent = `[${e.name}] ${e.message}`;
+      };
+    </script>
+  </body>
+</html>

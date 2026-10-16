@@ -1,0 +1,952 @@
+/* Arp strip / panel + docked detailed ARPEGGIATOR view.
+   Owned by the arp-UI agent. Old `.arp-*` rules in plugin-ui.css / styles.css are
+   overridden with the extra `.arp-metal` class for specificity. */
+
+/* ---------- brushed-metal panel ---------- */
+.arp-metal {
+  --arp-metal-base: color-mix(in srgb, var(--bg-surface-elevated, #262a30) 78%, #9aa4b2);
+  --arp-green: #4fd69c;
+  position: relative;
+  background:
+    repeating-linear-gradient(90deg, rgba(255,255,255,0.045) 0 1px, rgba(0,0,0,0.05) 1px 2px, transparent 2px 4px),
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--arp-metal-base) 100%, #fff 14%) 0%,
+      var(--arp-metal-base) 38%,
+      color-mix(in srgb, var(--arp-metal-base) 100%, #000 26%) 100%);
+  border: 1px solid color-mix(in srgb, var(--border, #444) 70%, #fff 18%);
+  border-radius: var(--radius-lg, 8px);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.22), inset 0 -1px 0 rgba(0,0,0,0.45), 0 1px 3px rgba(0,0,0,0.4);
+  color: var(--text-primary, #e6e9ee);
+}
+
+/* ---------- strip / panel layout ---------- */
+.arp-strip.arp-metal {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 14px;
+  padding: 6px 10px;
+  overflow: visible;
+}
+.arp-strip.arp-metal .arp-row { flex-wrap: wrap; gap: 6px; row-gap: 5px; }
+.arp-strip.arp-metal .arp-strip-knobs { display: flex; align-items: flex-end; gap: 10px; margin-left: auto; }
+.arp-panel.arp-metal { display: flex; flex-direction: column; gap: 10px; padding: 10px 12px; }
+.arp-panel.arp-metal .arp-knobs { display: flex; align-items: flex-end; gap: 22px; flex-wrap: wrap; }
+.arp-panel.arp-metal .arp-hint { color: color-mix(in srgb, var(--text-primary, #ddd) 70%, transparent); }
+
+/* ---------- buttons ---------- */
+.arp-metal .arp-mode-btn,
+.arp-metal .arp-hold,
+.arp-metal .arp-seq-btn {
+  appearance: none;
+  height: 22px;
+  padding: 0 9px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: color-mix(in srgb, var(--text-primary, #ddd) 78%, transparent);
+  background: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(0,0,0,0.22));
+  border: 1px solid rgba(0,0,0,0.5);
+  border-radius: 4px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.18);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.arp-metal .arp-mode-btn:hover,
+.arp-metal .arp-hold:hover,
+.arp-metal .arp-seq-btn:hover { color: var(--text-primary, #fff); border-color: var(--border-active, var(--accent)); }
+.arp-metal .arp-mode-btn.is-on,
+.arp-metal .arp-hold.is-on,
+.arp-metal .arp-seq-btn.is-on {
+  color: var(--bg-app, #111);
+  font-weight: 700;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 100%, #fff 25%), var(--accent));
+  border-color: var(--accent);
+  box-shadow: 0 0 calc(var(--glow, 1) * 8px) color-mix(in srgb, var(--accent) 60%, transparent), inset 0 1px 0 rgba(255,255,255,0.35);
+}
+.arp-metal .arp-modes { display: inline-flex; flex-wrap: wrap; gap: 3px; }
+.arp-metal .arp-mode-more.is-open { border-color: var(--accent); }
+.arp-metal .arp-key { display: inline-flex; align-items: center; gap: 4px; }
+.arp-metal .arp-key-sel {
+  height: 22px;
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--text-primary, #ddd);
+  background: rgba(0,0,0,0.35);
+  border: 1px solid rgba(0,0,0,0.55);
+  border-radius: 4px;
+  padding: 0 2px;
+}
+.arp-metal .arp-key-sel:disabled { opacity: 0.45; }
+
+/* quaver detail button — deliberately loud */
+.arp-metal .arp-detail-btn {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 26px;
+  padding: 0;
+  color: #fff;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--accent-bright, var(--accent)) 100%, #fff 20%), var(--accent));
+  border: 1px solid color-mix(in srgb, var(--accent) 70%, #000);
+  border-radius: 6px;
+  box-shadow: 0 0 calc(var(--glow, 1) * 10px) color-mix(in srgb, var(--accent) 70%, transparent), inset 0 1px 0 rgba(255,255,255,0.45);
+  cursor: pointer;
+  transition: transform 0.08s ease, filter 0.12s ease;
+}
+.arp-metal .arp-detail-btn .arp-quaver { filter: drop-shadow(0 1px 0 rgba(0,0,0,0.35)); }
+.arp-metal .arp-detail-btn:hover { filter: brightness(1.15); transform: translateY(-1px); }
+.arp-metal .arp-detail-btn:active { transform: translateY(0); }
+.arp-metal .arp-detail-btn:disabled { opacity: 0.4; cursor: default; }
+
+/* ---------- knobs: readable name / value above ---------- */
+.arp-metal .arp-knob-field { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 52px; }
+.arp-metal .arp-knob-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.1;
+  min-height: 26px;
+  text-align: center;
+}
+.arp-metal .arp-knob-name {
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--text-primary, #ddd) 65%, transparent);
+}
+.arp-metal .arp-knob-val {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  color: var(--accent-bright, var(--accent));
+  text-shadow: 0 1px 0 rgba(0,0,0,0.5);
+}
+.arp-metal .arp-knob-label .mod-dots { margin-top: 1px; }
+.arp-metal .arp-knob-field .knob-label { display: none; } /* name is already above */
+/* Bigger strip knobs (user: "the knobs in the small arp panel (not detailed
+   view) are quite small theyu could be a lil bigger"). Measured: the strip's
+   `.knob-ring` renders at 48 px against the detail view's 64 px, and its value
+   text at 8.5 px. Bumped to 56 px / 10.5 px — enough to actually read at a
+   glance without the strip outgrowing its row.
+
+   Scoped to `.arp-metal` (the compact strip) so the detail view's 64 px and
+   every other knob in the app are untouched. */
+.arp-metal .knob-md { --knob-size: 56px; }
+/* MEASUREMENT TRAP: `getBoundingClientRect()` on this UI does NOT report CSS
+   pixels. `main.tsx` sets `--ui-scale` and `body { zoom }` to fit the window
+   (todo.md §100/§101), and in a 1272px headless viewport that lands at
+   `zoom: 0.5736`. So a knob with a computed width of 56 px MEASURES 32 px, and
+   "the knob did not get bigger" is an artefact of the scale, not the change.
+   Compare `getComputedStyle(el).width` (CSS px) for size work, and only use
+   `getBoundingClientRect` for POSITION and overflow. Chasing this as a flex or
+   overflow bug wasted several rounds. */
+.arp-metal .arp-knob-field { min-width: 58px; }
+.arp-metal .knob-value,
+.arp-metal .knob-input { font-size: 10.5px; }
+.arp-metal .knob-indicator { width: 3px; margin-left: -1.5px; }
+.arp-metal .arp-rate-group { display: flex; align-items: flex-end; gap: 6px; }
+.arp-metal .arp-rate-sel { display: flex; flex-direction: column; gap: 3px; padding-bottom: 6px; }
+
+/* ---------- patterns popover ---------- */
+.arp-pattern-menu {
+  position: fixed;
+  z-index: 9000;
+  width: 320px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 3px;
+  padding: 6px;
+  background: var(--bg-surface-elevated, #22262c);
+  border: 1px solid var(--border, #444);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.55);
+}
+.arp-pattern-item {
+  appearance: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 30px;
+  padding: 0 8px;
+  text-align: left;
+  font-size: 11px;
+  color: var(--text-muted, #aaa);
+  background: var(--bg-surface, #1a1d22);
+  border: 1px solid var(--border-soft, #333);
+  border-radius: 5px;
+  cursor: pointer;
+}
+.arp-pattern-item:hover { color: var(--text-primary, #fff); border-color: var(--border-active, var(--accent)); }
+.arp-pattern-item.is-on {
+  color: var(--accent-bright, var(--accent));
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 16%, var(--bg-surface, #1a1d22));
+}
+.arp-pat-icon { flex: 0 0 auto; color: currentColor; }
+.arp-pattern-item .arp-pat-icon { width: 36px; height: 24px; }
+
+/* =========================================================
+   Detail view (arpv-*)
+   ========================================================= */
+.arpv.arp-metal {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+}
+.arpv-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(0,0,0,0.45);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.12);
+}
+.arpv-title {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent-bright, var(--accent));
+  margin-right: 8px;
+}
+.arpv-spacer { flex: 1; }
+.arpv-toggle, .arpv-btn {
+  appearance: none;
+  height: 22px;
+  padding: 0 10px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: color-mix(in srgb, var(--text-primary, #ddd) 78%, transparent);
+  background: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(0,0,0,0.22));
+  border: 1px solid rgba(0,0,0,0.5);
+  border-radius: 4px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.18);
+  cursor: pointer;
+}
+.arpv-toggle:hover, .arpv-btn:hover { color: var(--text-primary, #fff); border-color: var(--border-active, var(--accent)); }
+.arpv-btn:active { transform: translateY(1px); }
+.arpv-toggle.is-on {
+  color: var(--bg-app, #111);
+  font-weight: 700;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 100%, #fff 25%), var(--accent));
+  border-color: var(--accent);
+}
+.arpv-close {
+  appearance: none;
+  width: 26px; height: 24px;
+  font-size: 18px; line-height: 1;
+  color: var(--text-primary, #ddd);
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(0,0,0,0.5);
+  border-radius: 4px;
+  cursor: pointer;
+}
+.arpv-close:hover { background: #c0392b; color: #fff; }
+.arpv-select {
+  height: 22px;
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--text-primary, #ddd);
+  background: rgba(0,0,0,0.35);
+  border: 1px solid rgba(0,0,0,0.55);
+  border-radius: 4px;
+}
+.arpv-select:disabled { opacity: 0.45; }
+
+/* ---- Body: a scrolling TOP area with the step lanes PINNED below it -------
+   The lanes are the only control in this panel with no equivalent in the
+   compact strip, and while they were the last card of a scrolling grid they
+   were the first thing cut. Measured over 9 real window sizes before this
+   change: at 1272x984 the body scrolled 367 px and the transpose/gate lanes sat
+   352 px BELOW the fold; at 1600x1000 they were 299 px below; only at 1100px
+   wide and shorter did they land on screen, because the old
+   `@media (max-height: 860px)` rule only kicked in below 860 px tall and the
+   failure was happening at TALL sizes too.
+
+   So there is no height breakpoint for this any more, at any size:
+     - `.arpv-top` takes what is left and scrolls ITSELF, so the panel never
+       scrolls and the lane card is visible without scrolling anything;
+     - `.arpv-lanes` is `flex: 0 0 auto` at its natural height, with a cap so
+       it can never crowd out the whole panel on a very short window (past the
+       cap the lane bars scroll internally, which is the one deliberate scroll
+       area left in the panel).
+   Both were the failure modes the skill warns about: a min-height on the flex
+   child brings the panel scroll straight back, and the LAST item in a column is
+   always the first thing eaten. */
+.arpv-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;            /* the PANEL never scrolls */
+  gap: 10px;
+  padding: 10px 12px 12px;
+}
+.arpv-top {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  display: grid;
+  grid-template-columns: minmax(280px, 1.1fr) minmax(320px, 1.4fr) minmax(250px, 0.9fr);
+  grid-auto-rows: min-content;
+  align-content: start;
+  gap: 10px;
+}
+.arpv-lanes {
+  /* `0 0 auto` — the lanes take their NATURAL height and never shrink, because
+     a shrink here is paid for by the lanes' own scroll area, not by the top
+     region: at 984 px tall the card was squeezed to 225 px against 298 px of
+     content, so reaching the Slide lane meant scrolling INSIDE the card. The
+     height the lanes give up goes to `.arpv-top`, which already scrolls and
+     holds the controls you set once (a pattern tile, a dice amount), whereas a
+     lane you are painting is the thing you must reach without friction.
+
+     `max-height` is the only thing that overrides this, and only as a floor on
+     how badly a very short window can compress them. Deliberately NO
+     `min-height`: a floor on a flex child makes it refuse to shrink, which is
+     how the panel scroll came back twice before. */
+  flex: 0 0 auto;
+  max-height: 70%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.arpv-lanes .arpv-card-title { flex: none; }
+.arpv-lane-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.22) transparent;
+}
+.arpv-card {
+  background: rgba(0,0,0,0.22);
+  border: 1px solid rgba(0,0,0,0.45);
+  border-radius: 6px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.07);
+  padding: 8px 10px 10px;
+  min-width: 0;
+}
+.arpv-card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--text-primary, #ddd) 80%, transparent);
+}
+.arpv-card-title .arpv-toggle { margin-left: auto; }
+.arpv-sub { font-weight: 400; letter-spacing: 0.04em; text-transform: none; opacity: 0.6; }
+.arpv-hint { margin-top: 6px; font-size: 10px; opacity: 0.6; }
+
+/* ---- Timing & Feel: knob + its own dice, nested ------------------------
+   A knob and the dice that randomises it are one `.arpv-tc-col`, so the die
+   sits DIRECTLY under the knob it belongs to (they used to share a separate
+   strip below the row, which put RATE's die under SWING). The die's amount is a
+   slim horizontal slider beside the face rather than a second dial — a die and
+   a knob side by side would read as two of the same thing.
+
+   The die is deliberately SQUARE with pip dots and a tiny tilt: shape is what
+   separates "randomiser" from "parameter" at a glance, and colour alone did not
+   survive the neutral Graphite theme. */
+.arpv-tc-row { align-items: flex-start; gap: 14px; }
+.arpv-tc-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  min-width: 76px;
+}
+.arpv-tc-divider {
+  align-self: stretch;
+  width: 1px;
+  margin: 4px 4px 0;
+  background: linear-gradient(180deg,
+    transparent,
+    color-mix(in srgb, var(--text-primary, #ddd) 26%, transparent) 22%,
+    color-mix(in srgb, var(--text-primary, #ddd) 26%, transparent) 78%,
+    transparent);
+}
+.arpv-tc-dice { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.arpv-die-amount {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: ns-resize;
+}
+/* Amount slider: thin and unobtrusive so the DIE is the thing you look at. */
+.arpv-die-amount input[type="range"] {
+  width: 46px;
+  height: 10px;
+  accent-color: var(--die-hue, var(--accent));
+  cursor: ns-resize;
+}
+.arpv-die-val {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--die-hue, var(--accent));
+  min-width: 26px;
+  text-align: right;
+}
+
+/* The die itself. Square, rounded, slightly tilted, with real pips. */
+.arpv-die {
+  display: inline-flex;
+  width: 30px;
+  height: 30px;
+  flex: none;
+  transform: rotate(-7deg);
+  transition: transform 120ms ease;
+}
+.arpv-die:hover { transform: rotate(-7deg) scale(1.08); }
+.arpv-die-face { width: 100%; height: 100%; display: block; }
+.arpv-die-shell {
+  fill: color-mix(in srgb, var(--die-hue, var(--accent)) 16%, #0b0c0e);
+  stroke: var(--die-hue, var(--accent));
+  stroke-width: 5;
+}
+.arpv-die-pip { fill: var(--die-hue, var(--accent)); opacity: 0.16; transition: opacity 120ms ease; }
+.arpv-die-pip.is-on { opacity: 1; }
+/* Off: hollow and dim, so "no randomness" is unmistakable at a glance rather
+   than looking like a die set to 0 %. */
+.arpv-die.is-off { opacity: 0.45; }
+.arpv-die.is-off .arpv-die-shell { fill: #0b0c0e; stroke: color-mix(in srgb, var(--die-hue, var(--accent)) 45%, transparent); }
+/* Bipolar (both directions on) gets a solid rim; one-way gets a dashed rim, so
+   the mode is readable without reading the +/- buttons. */
+.arpv-die.is-unipolar .arpv-die-shell { stroke-dasharray: 14 10; }
+
+/* -/+ direction toggle. Both lit = bipolar (the default); one lit = the die may
+   only move that way. */
+.arpv-die-dir { display: flex; gap: 3px; }
+.arpv-die-dir-btn {
+  appearance: none;
+  width: 18px;
+  height: 15px;
+  padding: 0;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  color: color-mix(in srgb, var(--die-hue, var(--accent)) 55%, transparent);
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid color-mix(in srgb, var(--die-hue, var(--accent)) 30%, transparent);
+  border-radius: 3px;
+  cursor: pointer;
+}
+.arpv-die-dir-btn.is-on {
+  color: var(--bg-app, #111);
+  background: var(--die-hue, var(--accent));
+  border-color: var(--die-hue, var(--accent));
+}
+.arpv-die-dir-btn:hover:not(.is-on) { border-color: var(--die-hue, var(--accent)); }
+
+/* Chaos: the SAME knob geometry as its neighbours (so it still reads as part
+   of the row) but a rainbow value arc, so it is a master rather than a peer of
+   the four it governs — same shape, unmistakably different kind.
+
+   THE RAINBOW IS THE ARC, NOT A RING LAYERED OVER IT. It used to be a
+   `::after` conic halo sitting on top of a cyan `.knob-arc`, and at Chaos 100 %
+   (the default, and by far the most common setting) the arc runs the full
+   270 deg sweep — so the two rings overlapped almost exactly and the result read
+   as a cyan ring with a muddy rainbow smear across it, not as a rainbow knob
+   (user: "it seems to have got one layered on top of it, which looks like
+   really shit"). Overlapping two saturated treatments of the same geometry
+   cannot look intentional; one can.
+
+   So the arc's own gradient carries the hue sweep. It still starts at
+   `--arc-from` and is still cut off at `--arc-to`, so the value readout is
+   intact — you just see the sweep fill *through* the colours rather than in one
+   flat tint. Fixed stops (red -> violet) mean a partly-filled arc shows the
+   leading fraction of the rainbow and, past `--arc-to`, nothing. */
+.arpv-chaos-wrap {
+  --arpv-chaos-hue: #6df0ff;
+  position: relative;
+}
+.arpv-chaos-wrap .knob { --knob-color: var(--bg-app, #111); }
+.arpv-chaos-wrap .knob-arc {
+  background: conic-gradient(from -135deg,
+    #ff5d6c 0deg,
+    #ffcc66 54deg,
+    #7fffaf 108deg,
+    #6df0ff 162deg,
+    #a58bff 216deg,
+    #ff5d6c 270deg);
+  /* Keep the arc's value geometry: the mask is the arc's own, so this only
+     replaces the COLOUR source, never the ring's position or thickness. */
+  -webkit-mask: radial-gradient(circle, transparent 66%, #000 68%, #000 83%, transparent 85%);
+  mask: radial-gradient(circle, transparent 66%, #000 68%, #000 83%, transparent 85%);
+  filter: drop-shadow(0 0 4px rgba(160, 140, 255, 0.45));
+}
+.arpv-chaos-wrap .arp-knob-name,
+.arpv-chaos-wrap .arp-knob-value {
+  color: #fff;
+}
+
+/* patterns
+   TILE SIZE IS THE ORIGINAL 56 px / 104 px column — user: "I want to REVERT THE
+   SIZE OF IT, since now we have two empty slots and it just looks weird".
+
+   Both halves of that are fixed here, and they are independent:
+   - SIZE: back at the legible 56 px tile on a 104 px minimum column. They were
+     shrunk to 38 px purely to stop the card spanning two grid rows, which was the
+     wrong trade — a 38 px tile is not readable at a glance.
+   - EMPTY SLOTS: `repeat(auto-fill, minmax(104px, 1fr))` is what produces them.
+     With 18 tiles, any column count that does not divide 18 leaves a ragged
+     remainder — measured across 9 window sizes: 4x5, 3x6, 13x2, 15x2, 14x2,
+     each with 0-12 dead cells in the last row. Instead the column count is
+     EXPLICIT and always a divisor of 18, so the grid is always exactly full:
+
+         >=1400px  6 cols x 3 rows      ~1040px  3 cols x 6 rows
+         >=760px   9 cols x 2 rows      narrow   2 cols x 9 rows
+
+     No trailing gap is possible at any width, which is the actual complaint. */
+.arpv-patterns { align-content: start; }
+.arpv-pat-grid { display: grid; grid-template-columns: repeat(6, minmax(120px, 1fr)); gap: 5px; }
+@media (max-width: 1400px) {
+  .arpv-pat-grid { grid-template-columns: repeat(9, minmax(0, 1fr)); }
+}
+@media (max-width: 1040px) {
+  .arpv-pat-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 760px) {
+  .arpv-pat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+.arpv-pat {
+  appearance: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 70px;
+  padding: 4px;
+  font-size: 10px;
+  text-align: center;
+  line-height: 1.1;
+  color: color-mix(in srgb, var(--text-primary, #ddd) 70%, transparent);
+  background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(0,0,0,0.25));
+  border: 1px solid rgba(0,0,0,0.5);
+  border-radius: 5px;
+  cursor: pointer;
+}
+.arpv-pat .arp-pat-icon { width: 55px; height: 30px; }
+.arpv-pat:hover { color: var(--text-primary, #fff); border-color: var(--border-active, var(--accent)); }
+.arpv-pat.is-on {
+  color: var(--bg-app, #111);
+  font-weight: 700;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 100%, #fff 25%), var(--accent));
+  border-color: var(--accent);
+  box-shadow: 0 0 calc(var(--glow, 1) * 8px) color-mix(in srgb, var(--accent) 55%, transparent);
+}
+
+/* controls */
+.arpv-controls { grid-column: span 2; }
+.arpv-rate-row { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.arpv-knobs { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 18px; }
+/* The card title carries the "what the dice do" line now, so the strip below the
+   knobs is gone entirely — that is where the freed height comes from. */
+.arpv-controls .arpv-sub { margin-left: 8px; }
+/* Knob value readability in the DETAIL view (user, 2026-10-10): the name/value
+   ABOVE each knob (.arp-knob-name 9px / .arp-knob-val 12px) were fine, but the
+   number INSIDE the dial was unreadable — `.arp-metal .knob-value` pins it to
+   8.5px for the compact strip, and the detail view inherits that even though it
+   has room to spare. The dial itself has to grow for a bigger number to fit, so
+   `.knob-lg` goes 50 -> 64px here only (the strip keeps 50), with the centre
+   value at 13px. Scoped to `.arpv` so nothing else moves; `min-width` follows
+   the dial so wrapped rows stay evenly spaced. */
+.arpv .knob-lg { --knob-size: 64px; }
+.arpv .knob-value,
+.arpv .knob-input { font-size: 13px; }
+.arpv .arp-knob-field { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 72px; }
+.arpv .arp-knob-label { display: flex; flex-direction: column; align-items: center; line-height: 1.1; min-height: 26px; }
+.arpv .arp-knob-name { font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase; color: color-mix(in srgb, var(--text-primary, #ddd) 65%, transparent); }
+.arpv .arp-knob-val { font-family: var(--font-mono); font-size: 12px; font-weight: 700; color: var(--accent-bright, var(--accent)); white-space: nowrap; }
+.arpv .arp-knob-field .knob-label { display: none; }
+
+/* ---- step lanes: each lane carries its own dice + optional extra control ---- */
+.arpv-lane-label { gap: 4px; }
+.arpv-lane-name { display: flex; flex-direction: column; align-items: flex-start; }
+/* The lane's own dice live in its label column. They used to STACK vertically
+   (die / slider / -+ buttons), which made the transpose and gate lanes 104 px
+   and 81 px tall against 58 px for the bare lanes — with four lanes the card
+   still overflowed internally by 109 px, so reaching Slide meant scrolling
+   inside the card.
+
+   Laid out as one compact ROW instead (die, slider, -/+), the whole control is
+   ~22 px rather than ~46, so all four lanes sit at the same height and the
+   label column stops setting the card's height. The die keeps its face and its
+   amount; only the arrangement changed. */
+.arpv-lane-dice { display: flex; flex-direction: row; align-items: center; gap: 3px; }
+.arpv-lane-dice .arpv-die { width: 18px; height: 18px; }
+.arpv-lane-dice input[type="range"] {
+  width: 34px;
+  height: 9px;
+  cursor: ns-resize;
+}
+.arpv-lane-dice .arpv-die-dir-btn { width: 14px; height: 13px; font-size: 9px; }
+.arpv-lane-dice .arpv-die-val { display: none; }
+.arpv-lane-key {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-top: 2px;
+  padding: 2px 6px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--text-primary, #ddd);
+  background: linear-gradient(180deg, #2b2e33, #17191c);
+  border: 1px solid #0b0c0e;
+  border-radius: 4px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.12);
+  cursor: pointer;
+}
+.arpv-lane-key:hover { border-color: var(--accent); color: var(--accent-bright, var(--accent)); }
+
+/* OFF / ARP / SEQ cycle button. Three states, one control: the previous
+   On/Off toggle plus a separate ARP/SEQ control meant three states spread over
+   two widgets. The state is readable from the label AND the colour. */
+.arpv-mode-btn { min-width: 46px; font-weight: 700; letter-spacing: 0.06em; }
+.arpv-mode-btn.mode-arp.is-on { color: var(--bg-app, #111); background: var(--accent); border-color: var(--accent); }
+.arpv-mode-btn.mode-seq.is-on {
+  color: var(--bg-app, #111);
+  background: var(--accent);
+  border-color: var(--accent);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.3), 0 0 10px -2px var(--accent);
+}
+
+/* Pattern selector: now a real modulation target (it has a data-mod-target and
+   a badge), so it needs a visible affordance when a route exists, plus room for
+   the pattern dice that lives beside it. */
+.arpv-pat-slider {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid var(--border-soft);
+  flex-wrap: wrap;
+}
+.arpv-pat-slider[data-mod-target] { cursor: context-menu; }
+.arpv-pat-dice {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: auto;
+  padding-left: 8px;
+  border-left: 1px solid var(--border-soft);
+}
+.arpv-pat-dice input[type="range"] {
+  width: 52px;
+  height: 10px;
+  accent-color: hsl(330 85% 68%);
+  cursor: ns-resize;
+}
+.arpv-pat-dice .arpv-die-val { color: hsl(330 85% 68%); }
+
+/* layers — Bitwig chord / arp layer device */
+.arpv-layer-grid { display: flex; flex-direction: column; gap: 5px; }
+.arpv-layer-tag { font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; text-align: center; opacity: 0.6; margin-top: 2px; }
+.arpv-layer-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; }
+.arpv-lbtn {
+  appearance: none;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: #e8ecf1;
+  background: linear-gradient(180deg, #2b2e33, #17191c);
+  border: 1px solid #0b0c0e;
+  border-radius: 5px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.12);
+  cursor: pointer;
+}
+.arpv-lbtn:hover { border-color: #5a6270; }
+.arpv-layer-small .arpv-lbtn { height: 26px; font-size: 11px; }
+.arpv-layer-big .arpv-lbtn { height: 44px; font-size: 14px; }
+.arpv-lbtn.is-on {
+  color: #08241a;
+  background: linear-gradient(180deg, #6ee7b0, var(--arp-green));
+  border-color: #2a9a70;
+  box-shadow: 0 0 10px rgba(79,214,156,0.5), inset 0 1px 0 rgba(255,255,255,0.45);
+}
+
+/* dice */
+.arpv-dice-row { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.arpv-inline { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; opacity: 0.9; }
+.arpv-seg { display: inline-flex; border: 1px solid rgba(0,0,0,0.5); border-radius: 4px; overflow: hidden; }
+.arpv-seg-btn {
+  appearance: none;
+  height: 22px;
+  padding: 0 9px;
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: color-mix(in srgb, var(--text-primary, #ddd) 70%, transparent);
+  background: rgba(0,0,0,0.25);
+  border: 0;
+  cursor: pointer;
+}
+.arpv-seg-btn.is-on { color: var(--bg-app, #111); background: var(--accent); font-weight: 700; }
+
+/* step lanes */
+/* `grid-column: 1 / -1` applied to the OLD body grid, which is now `.arpv-top`
+   — the lanes are a SIBLING of it, pinned below, so the rule would have put
+   them in a column of a grid they are not in. Harmless while pinned (the card
+   spans the body's own width as a flex child), and kept because the
+   `max-width: 980px` rule still sets `.arpv-top { grid-template-columns: 1fr 1fr }`
+   and this keeps the card full-width if it ever returns to the grid. */
+.arpv-lanes { grid-column: 1 / -1; }
+.arpv-lanes.is-off .arpv-lane-bars { opacity: 0.5; }
+.arpv-lane { display: flex; align-items: stretch; gap: 8px; margin-bottom: 4px; }
+/* The lane label column carries the name, the die and (on transpose) the snap
+   button, so it is content-height rather than stretch-height — at 4 lanes that
+   stops each lane paying for the tallest label and shortens the card by ~10 px
+   per lane. `align-items: stretch` on the row keeps the BARS equal-height
+   regardless, which is the part that has to line up. */
+.arpv-lane { align-items: flex-start; }
+.arpv-lane-label {
+  flex: 0 0 66px;
+  display: flex; flex-direction: column; justify-content: flex-start; gap: 3px;
+  font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase;
+}
+.arpv-lane-label em { font-style: normal; opacity: 0.5; font-size: 9px; }
+.arpv-lane-bars {
+  position: relative;
+  flex: 1 1 auto;
+  /* 96px was sized for TWO lanes. With four (transpose, gate, vel, slide) the
+     pair of them needed ~400 px, which is most of the panel at a 984 px window:
+     the lane area overflowed internally by 212 px at every size measured, so
+     reaching the last lane meant scrolling INSIDE the card. 58px is still a
+     comfortable paint target with the value legible on top of each bar, and all
+     four now fit without any inner scrolling in the common case. The lane bar
+     is `flex: 1 1 auto` so it still absorbs whatever height is actually left,
+     which means this is a floor to grow from, not a fixed size. */
+  min-height: 58px;
+  display: grid;
+  grid-template-columns: repeat(16, 1fr);
+  gap: 3px;
+  padding: 3px;
+  background: rgba(0,0,0,0.35);
+  border: 1px solid rgba(0,0,0,0.55);
+  border-radius: 4px;
+  cursor: crosshair;
+  touch-action: none;
+  user-select: none;
+}
+.arpv-step {
+  position: relative;
+  background: rgba(255,255,255,0.05);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.arpv-step.is-beat { background: rgba(255,255,255,0.09); }
+.arpv-step.is-head { outline: 1px solid var(--accent-bright, var(--accent)); background: color-mix(in srgb, var(--accent) 22%, transparent); }
+.arpv-bar {
+  position: absolute;
+  left: 2px; right: 2px;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 100%, #fff 20%), var(--accent));
+  border-radius: 2px;
+}
+.arpv-lane-bars.is-bipolar .arpv-bar { background: linear-gradient(180deg, var(--accent-bright, var(--accent)), var(--accent)); }
+.arpv-step.is-head .arpv-bar { filter: brightness(1.3); }
+.arpv-step-val {
+  position: absolute;
+  top: 1px; left: 0; right: 0;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 8px;
+  opacity: 0.75;
+  pointer-events: none;
+}
+.arpv-zero {
+  position: absolute;
+  left: 3px; right: 3px; top: 50%;
+  height: 1px;
+  background: rgba(255,255,255,0.3);
+  pointer-events: none;
+}
+
+/* ---- Narrow windows: the grid collapses to two columns ---------------------
+   The lanes are pinned at every size now (see `.arpv-body` above), so the only
+   breakpoint left is about WIDTH — stacking the cards keeps the lane bars wide
+   enough to paint into. The old `max-height: 860px` / `660px` breakpoints are
+   GONE: they were a height-band solution to a problem that turned out to be
+   "the lanes are last", and they never fired at 1272x984 — the size at which the
+   lanes were worst off. `min-height` is deliberately absent from `.arpv-lanes`
+   and `.arpv-top`: a floor on a flex child makes it refuse to shrink, which
+   brings the panel scroll straight back. */
+@media (max-width: 980px) {
+  .arpv-top { grid-template-columns: 1fr 1fr; }
+  .arpv-patterns { grid-row: auto; }
+  .arpv-controls { grid-column: 1 / -1; }
+}
+
+/* Detailed arp view: same rule as the sequencer — fill the slot, scroll inside, never push the strip below off-screen. */
+.arpv { flex: 1 1 0; min-height: 0; overflow-y: auto; overflow-x: hidden; scrollbar-width: thin; }
+
+/* Compact strip (83px tall slot): the knob already shows its value, so drop the duplicate value line
+   and keep one slim name label above it — otherwise the knob is pushed below the strip. */
+.arp-strip.arp-metal .arp-knob-val { display: none; }
+.arp-strip.arp-metal .arp-knob-label { min-height: 0; flex-direction: row; gap: 4px; line-height: 1; }
+.arp-strip.arp-metal .arp-strip-knobs { align-items: center; gap: 8px; }
+.arp-strip.arp-metal { overflow: hidden; }
+
+/* Compact strip = two columns: the button rows on the left, Rate (+Sync/feel) and Gate on the right.
+   (Swing / Octaves live in the detailed arp view; the 83px slot cannot hold four knobs.) */
+.arp-strip.arp-metal { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; column-gap: 10px; }
+.arp-strip.arp-metal .arp-row { grid-column: 1; }
+.arp-strip.arp-metal .arp-strip-knobs { grid-column: 2; margin-left: 0; }
+.arp-strip.arp-metal .arp-rate-group { align-items: center; }
+.arp-strip.arp-metal .arp-rate-sel { padding-bottom: 0; }
+
+/* Arp panel background = the dark of the piano keys' top edge (~rgb 9,13,15), not brushed metal. */
+.arp-metal {
+  background: linear-gradient(180deg, #0b0f12 0%, #090d0f 55%, #080c0e 100%);
+  border-color: rgba(255, 255, 255, 0.09);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 1px 3px rgba(0, 0, 0, 0.45);
+}
+/* Quaver detail button in the strip: full width of the Sync column, sits above Sync. */
+.arp-strip.arp-metal .arp-rate-sel { gap: 3px; }
+.arp-strip.arp-metal .arp-rate-sel .arp-detail-btn { width: 100%; height: 22px; }
+.arp-strip.arp-metal .arp-rate-sel .arp-hold, .arp-strip.arp-metal .arp-rate-sel select { height: 22px; }
+.arp-strip.arp-metal .arp-rate-sel .arp-detail-btn .arp-quaver { width: 12px; height: 14px; }
+
+/* Quaver detail button: the glyph was white on the bright accent gradient (invisible) -> dark ink. */
+.arp-metal .arp-detail-btn { color: #04141b; }
+.arp-metal .arp-detail-btn .arp-quaver { filter: none; }
+
+/* ---- Mode colour coding: ARP mode = GREEN, SEQ mode = sky BLUE (matches the layer buttons / seq accents) ---- */
+.arp-metal.arp-m-arp { --arp-on: #4fd69c; --arp-on-ink: #04140d; }
+.arp-metal.arp-m-seq { --arp-on: #6ee7ff; --arp-on-ink: #04141b; }
+.arp-metal .arp-power, .arp-metal .arp-pattern-btn {
+  appearance: none; height: 24px; padding: 0 10px; border-radius: 6px; cursor: pointer; font: inherit; font-weight: 600;
+  color: var(--text-secondary, #aab); background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12);
+}
+.arp-metal .arp-pattern-btn { min-width: 96px; text-align: left; }
+.arp-metal .arp-power.is-on, .arp-metal .arp-pattern-btn.is-on, .arp-metal .arp-hold.is-on, .arp-metal .arp-seq-btn.is-on {
+  background: var(--arp-on, var(--accent)); color: var(--arp-on-ink, #04141b); border-color: color-mix(in srgb, var(--arp-on, var(--accent)) 70%, #000);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--arp-on, var(--accent)) 55%, transparent);
+}
+/* The Arp/Seq toggle is always "lit" in its mode colour (it shows WHICH mode), the ♪ button only lights while its view is open. */
+.arp-metal .arp-seq-btn { background: var(--arp-on, var(--accent)); color: var(--arp-on-ink, #04141b); }
+.arp-metal .arp-detail-btn {
+  background: rgba(255,255,255,0.06); color: var(--arp-on, var(--accent)); border: 1px solid color-mix(in srgb, var(--arp-on, var(--accent)) 55%, transparent);
+  box-shadow: none;
+}
+.arp-metal .arp-detail-btn.is-open {
+  background: var(--arp-on, var(--accent)); color: var(--arp-on-ink, #04141b);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--arp-on, var(--accent)) 70%, transparent);
+}
+/* Strip: the Arp/Seq toggle sits right next to the ♪ button, both above Sync */
+.arp-strip.arp-metal .arp-mode-pair { display: flex; gap: 4px; width: 100%; }
+.arp-strip.arp-metal .arp-mode-pair .arp-seq-btn { flex: 1 1 auto; height: 22px; }
+.arp-strip.arp-metal .arp-mode-pair .arp-detail-btn { flex: 0 0 34px; width: 34px; height: 22px; }
+.arp-strip.arp-metal .arp-modes { display: flex; gap: 5px; align-items: center; }
+
+/* Detailed ARP view = green everywhere something is "on" (matches the green chord/arp layer buttons). */
+.arpv.arp-m-arp .arpv-toggle.is-on, .arpv.arp-m-arp .arpv-pat.is-on, .arpv.arp-m-arp .arpv-lbtn.is-on, .arpv.arp-m-arp .arpv-seg-btn.is-on,
+.arp-pattern-item.is-on {
+  background: color-mix(in srgb, var(--arp-on, #4fd69c) 85%, #000); color: #04140d; border-color: var(--arp-on, #4fd69c);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--arp-on, #4fd69c) 50%, transparent);
+}
+.arpv.arp-m-arp .arpv-pat.is-on svg, .arpv.arp-m-arp .arpv-pat.is-on * { color: #04140d; }
+.arp-metal .arp-power, .arp-metal .arp-pattern-btn { font-size: 11px; letter-spacing: 0.02em; }
+
+.arp-metal .arp-key .arp-hold { display:inline-flex; align-items:center; justify-content:center; padding:0 8px; }
+.arp-sr { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); }
+.arp-key-ico { display:block; }
+
+/* ---------- pattern selector slider (ArpDetail) ----------
+   A continuous view of the same `mode` the grid above sets: sweeping it walks
+   the 18 patterns, and host automation / a seqPattern mod route does the same.
+   Sits under the grid so the two read as one control, not two settings. */
+.arpv-pat-slider {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid var(--border-soft);
+}
+.arpv-pat-slider-label {
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--text-primary, #ddd) 65%, transparent);
+}
+.arpv-pat-slider input[type="range"] {
+  flex: 1 1 auto;
+  min-width: 0;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+.arpv-pat-slider-val {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent-bright, var(--accent));
+  min-width: 34px;
+  text-align: right;
+}
+
+/* Chord hit + Tight, next to the knobs in the strip and the full panel */
+.arp-knob-toggles { display: flex; flex-direction: column; justify-content: center; gap: 4px; min-width: 66px; }
+.arp-knob-toggles .arp-hold { height: 24px; font-size: 10px; }
+/* Mini ARP strip: the Rate / Octaves / Gate knobs were 56px (the metal md size), which crowded the strip's
+   label row and the + badges. 40px keeps them readable and inside the strip. */
+/* Mini panel: knobs and the Chord hit / Tight column are centred on one line, and the knobs are a little larger. */
+.arp-strip.arp-metal .arp-strip-knobs { align-items: center; justify-content: center; }
+.arp-strip.arp-metal .arp-strip-knobs > * { align-self: center; }
+.arp-strip.arp-metal .arp-strip-knobs .knob-md { --knob-size: 60px; }
+.arp-strip.arp-metal .arp-knob-toggles { justify-content: center; }
+/* Mini panel: knobs at 50px and centred in the strip. The bottom-aligned rule pushed them below the panel edge. */
+.arp-strip.arp-metal .arp-strip-knobs .knob-md { --knob-size: 50px; }
+.arp-strip.arp-metal .arp-strip-knobs { align-items: center; }
+.arp-strip.arp-metal .arp-strip-knobs > * { align-self: center; }
+.arp-strip.arp-metal .arp-rate-group { align-items: center; }
+/* Mini panel, final: the knob group is centred on the strip's own line (it was bottom-aligned, and on a wrapped
+   row it dropped low). Knobs 58px so they read at strip size. */
+.arp-strip.arp-metal { align-items: center; }
+.arp-strip.arp-metal .arp-strip-knobs { align-self: center; align-items: center; margin-top: 0; margin-bottom: 0; }
+.arp-strip.arp-metal .arp-strip-knobs .knob-md { --knob-size: 58px; }
+/* Mini panel at narrow window widths: the strip wrapped, and the knob group dropped to a second line below the panel.
+   The strip stays one line; the left controls wrap inside their own row, and the knob group keeps its size. */
+.arp-strip.arp-metal { flex-wrap: nowrap; }
+.arp-strip.arp-metal .arp-row { flex: 1 1 auto; min-width: 0; }
+.arp-strip.arp-metal .arp-strip-knobs { flex: 0 0 auto; }
+/* Mini panel knobs sit in the middle of the strip. The strip gets a fixed minimum height with equal top and bottom
+   padding, so the value arcs around the knobs stay inside the panel at any window width. Knobs 50px. */
+.arp-strip.arp-metal { min-height: 104px; padding-top: 10px; padding-bottom: 10px; align-items: center; }
+.arp-strip.arp-metal .arp-strip-knobs { align-self: center; }
+.arp-strip.arp-metal .arp-strip-knobs .knob-md { --knob-size: 50px; }
+/* Mini panel: the left On / Up / Hold stack was the tallest thing in the strip, so the strip grew around it and the
+   knobs sat low with empty space above. The stack is tightened and the strip is sized to the knob group. */
+.arp-strip.arp-metal { min-height: 80px; padding-top: 8px; padding-bottom: 8px; }
+.arp-strip.arp-metal .arp-row { row-gap: 3px; gap: 4px; }
+.arp-strip.arp-metal .arp-power { height: 22px; }
+.arp-strip.arp-metal .arp-pattern-btn { height: 22px; }
+.arp-strip.arp-metal .arp-hold { height: 20px; }
+/* Mini panel: the left stack is On / Up / Hold plus the key-snap button under it, so the strip needs about 100px.
+   At 80px the bottom button was clipped. */
+.arp-strip.arp-metal { min-height: 100px; padding-top: 6px; padding-bottom: 6px; }
+/* Mini panel: Sync and Straight nudged left (a relative offset, so the row layout does not move),
+   and the Rate / Octaves / Gate knobs larger (60px, still inside the strip). */
+.arp-strip.arp-metal .arp-rate-sel { position: relative; left: -8px; }
+.arp-strip.arp-metal .arp-strip-knobs .knob-md { --knob-size: 60px; }
