@@ -328,7 +328,7 @@ struct ArpConfig
         stepVel.fill (1.0f);
         stepSlide.fill (0.0f);
         scaleWeights.fill (1.0f);
-        layerArp[0][2] = true;
+        layerArp[0][2] = false;   // default: no ARP layer lit (the arp is off until a layer is turned on)
     }
 
     /** Pitch-class bitmask (relative to the key root) of a scale, same order as SCALES in src/shared/scales.ts. */

@@ -1259,7 +1259,7 @@ export function defaultArpSettings(): ArpSettings {
       laneDiceBipolar: [1, 1],
       layers: {
         chord: [false, false, false, false, false],
-        arp: [[false, false, true, false, false], [false, false, false, false, false]],
+        arp: [[false, false, false, false, false], [false, false, false, false, false]],
       },
       tightRelease: true,
       chordHit: false,
